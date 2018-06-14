@@ -4,8 +4,9 @@ Copyright (c) 2018 Counterparty Cash Association (CCA). All Rights Reserved 2013
 LIMITED PERMITTED USE
 -----------------------
 The CCA grants the user an explicit and limited permission to use
-this library in original form, free of charge, with no need for an  permission, but only for the express purpose of use as a dependency
-of the Counterparty Cash (XCPC) go-xcpc package.
+this library in original form, free of charge, but only for the 
+express purpose of use as a dependency of the Counterparty Cash 
+(XCPC) go-xcpc package.
 
 ANY OTHER USES
 -----------------------
