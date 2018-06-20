@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Gocoin-cash</title>
+    <link>http://gocoin-cash.com/</link>
+    <description>Recent content on Gocoin-cash</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 17 Jun 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://gocoin-cash.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Introducing Gocoin-cash</title>
+      <link>http://gocoin-cash.com/posts/launch/</link>
+      <pubDate>Sun, 17 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://gocoin-cash.com/posts/launch/</guid>
+      <description>Gocoin-cash is a Bitcoin Cash fork of Gocoin, a full node solution written in Go language (golang) and is based on the original work of Gocoin by Piotr Narewski.</description>
+    </item>
+    
+    <item>
+      <title>About Gocoin-cash</title>
+      <link>http://gocoin-cash.com/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://gocoin-cash.com/about/</guid>
+      <description>Gocoin-cash is a Bitcoin Cash client written in Go.
+It makes use of a variety of open source projects including:
+ Gocoin Siphash  Learn more and contribute on GitHub.
+Hugo Website Some fun facts about Hugo:
+ Built in Go Loosely inspired by Jekyll Primarily developed by spf13 on the train while commuting to and from Manhattan. Coded in Vim using spf13-vim  Have questions or suggestions? Feel free to open an issue on GitHub or ask us on Twitter.</description>
+    </item>
+    
+  </channel>
+</rss>
