@@ -1,0 +1,19 @@
+Copyright (c) 2018 Counterparty Cash Association (CCA). All Rights Reserved 2013-2018 Piotr Narewski.
+-----------------------
+
+LIMITED PERMITTED USE
+-----------------------
+The CCA grants the user an explicit and limited permission to use
+this library in original form, free of charge, but only for the 
+express purpose of use as a dependency of the Counterparty Cash 
+(XCPC) go-xcpc package.
+
+ANY OTHER USES
+-----------------------
+
+All 3rd party licenses will be subject to approval of the original
+project author Piotr Narewski <piotr@gocoin.pl> and may be directed
+in the first instance to legal@counterparty.cash for discussion.
+
+-----------------------
+2018 © Counterparty Cash Association (CCA) Zug, CH.
