@@ -24,7 +24,7 @@ script:
   - hugo # This commands builds your website on travis
 
 after_script:
-  - cd ./docs/public
+  - cd ./docs/public/
   - git init
   - git add .
   - git commit -m "deploy"
