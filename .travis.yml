@@ -23,16 +23,11 @@ script:
   - cd docs
   - hugo # This commands builds your website on travis
 
-# Deploy to GitHub pages
-deploy:
-  provider: pages
-  skip_cleanup: true
-  # local_dir: public # Default static site output dir for Hugo
-  github_token: $GITHUB_TOKEN # This is the authentication which you will setup in the next step in travis-ci dashboard
-  on:
-    branch: master
-  repo: CounterpartyXCPC/gocoin-cash # This is the slug of the repo you want to deploy your site to
-  target_branch: gh-pages # GitHub pages branch to deploy to (in other cases it can be gh-pages)
-  fqdn: gocoin-cash.com
-  project-name: gocoin-cash
-  verbose: true
+after_script:
+  - cd docs/public
+  - git init
+  - git add .
+  - git commit -m "deploy"
+  - git remote add -t gh-pages liveserver https://$GITHUB_TOKEN@github.com/CounterpartyXCPC/gocoin-cash.git
+  - git pull liveserver
+  - git push --set-upstream liveserver gh-pages --force
