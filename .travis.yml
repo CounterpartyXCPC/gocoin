@@ -30,4 +30,4 @@ after_script:
   - git commit -m "deploy"
   - git remote add -t gh-pages liveserver https://$GITHUB_TOKEN@github.com/CounterpartyXCPC/gocoin-cash.git
   - git pull liveserver
-  - git push --set-upstream liveserver gh-pages --force
+  - git push --allow-unrelated-histories --set-upstream liveserver gh-pages --force
