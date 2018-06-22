@@ -30,4 +30,4 @@ after_script:
   - git commit -m "deploy site to gh-pages"
   - git remote -v add -t repo gh-pages https://$GITHUB_TOKEN@github.com/CounterpartyXCPC/gocoin-cash.git
   - git pull repo 
-  - git push repo --force
+  - git push --set-upstream repo gh-pages --force
