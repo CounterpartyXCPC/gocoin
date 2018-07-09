@@ -62,7 +62,7 @@ When building for Linux make sure to have `gcc` installed or delete file `lib/ut
 Use `go get` to fetch and install the source code files.
 Note that source files get installed within your GOPATH folder.
 
-	go get github.com/piotrnar/Gocoin-cash
+    go get github.com/CounterpartyXCPC/gocoin-cash
 
 # Building
 
