@@ -5,14 +5,15 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/peersdb"
 	"math/rand"
 	"net"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/piotrnar/gocoin/client/common"
+	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/piotrnar/gocoin/lib/others/peersdb"
 )
 
 var (
@@ -32,7 +33,7 @@ func (c *OneConnection) ExpireBlocksToGet(now *time.Time, curr_ping_cnt uint64) 
 		if curr_ping_cnt > v.SentAtPingCnt {
 			common.CountSafe("BlockInprogNotfound")
 			c.counters["BlockTotFound"]++
-		} else if now != nil && now.After(v.start.Add(5 * time.Minute)) {
+		} else if now != nil && now.After(v.start.Add(5*time.Minute)) {
 			common.CountSafe("BlockInprogTimeout")
 			c.counters["BlockTimeout"]++
 		} else {
@@ -191,7 +192,7 @@ func DoNetwork(ad *peersdb.PeerAddr) {
 
 		for {
 			select {
-			case <- con_done:
+			case <-con_done:
 				if e == nil {
 					Mutex_net.Lock()
 					conn.Conn = con
@@ -199,7 +200,7 @@ func DoNetwork(ad *peersdb.PeerAddr) {
 					Mutex_net.Unlock()
 					conn.Run()
 				}
-			case <-time.After(10*time.Millisecond):
+			case <-time.After(10 * time.Millisecond):
 				if !conn.IsBroken() {
 					continue
 				}
@@ -449,23 +450,24 @@ func NetworkTick() {
 	Mutex_net.Unlock()
 
 	for conn_cnt < common.GetUint32(&common.CFG.Net.MaxOutCons) {
-		var segwit_conns uint32
-		if common.CFG.Net.MinSegwitCons > 0 {
-			Mutex_net.Lock()
-			for _, cc := range OpenCons {
-				cc.Mutex.Lock()
-				if (cc.Node.Services & SERVICE_SEGWIT) != 0 {
-					segwit_conns++
+		/*
+			var segwit_conns uint32
+			if common.CFG.Net.MinSegwitCons > 0 {
+				Mutex_net.Lock()
+				for _, cc := range OpenCons {
+					cc.Mutex.Lock()
+					if (cc.Node.Services & SERVICE_SEGWIT) != 0 {
+						segwit_conns++
+					}
+					cc.Mutex.Unlock()
 				}
-				cc.Mutex.Unlock()
+				Mutex_net.Unlock()
 			}
-			Mutex_net.Unlock()
-		}
-
+		*/
 		adrs := peersdb.GetBestPeers(128, func(ad *peersdb.PeerAddr) bool {
-			if segwit_conns < common.CFG.Net.MinSegwitCons && (ad.Services&SERVICE_SEGWIT) == 0 {
-				return true
-			}
+			//if segwit_conns < common.CFG.Net.MinSegwitCons && (ad.Services&SERVICE_SEGWIT) == 0 {
+			//	return true
+			//}
 			return ConnectionActive(ad)
 		})
 		if len(adrs) == 0 && segwit_conns < common.CFG.Net.MinSegwitCons {
