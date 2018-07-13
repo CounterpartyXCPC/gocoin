@@ -200,11 +200,10 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		}
 		return
 	}
+
 	if sta == PH_STATUS_NEW {
 		b2g.SendInvs = true
 	}
-
-
 
 	// if we got here, we shall download this block
 	if c.Node.Height < b2g.Block.Height {
