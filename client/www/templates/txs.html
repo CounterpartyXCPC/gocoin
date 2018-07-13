@@ -95,7 +95,7 @@ X for
 				... or use
 				<a href="https://blockchain.info/pushtx" target="_blank">blockchain.info</a>
 				| <a href="https://coinb.in/send-raw-transaction.html" target="_blank">coinb.in</a>
-				| <a href="http://eligius.st/~wizkid057/newstats/pushtxn.php" target="_blank">eligius.st</a>
+				| <a href="https://en.bitcoin.it/wiki/Transaction_broadcasting" target="_blank">more...</a>
 				to push it.
 	</table>
 
@@ -800,6 +800,7 @@ function refreshtxstat() {
 			var ts = JSON.parse(aj.responseText)
 
 			ts_t2s_size.value = bignum(ts.t2s_size)+'B in ' + ts.t2s_cnt + ' txs'
+			ts_t2s_size.title = "Average TX size: " + (ts.t2s_size/ts.t2s_cnt).toFixed(0) + " Bytes"
 			outspent.innerText = ts.spent_outs_cnt
 			if (ts.t2s_cnt>0) {
 				avgoutspertx.innerText = (ts.spent_outs_cnt/ts.t2s_cnt).toFixed(2)
