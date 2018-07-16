@@ -12,7 +12,7 @@ import (
 )
 
 type OneWalletAddrs struct {
-	Typ  int // 0-p2kh, 1-p2sh, 2-segwit_prog
+	Typ  int // 0-p2kh, 1-p2sh,
 	Key  []byte
 	rec  *wallet.OneAllAddrBal
 }
@@ -155,9 +155,6 @@ func all_addrs(par string) {
 				ad = btc.NewAddrFromPkScript(pkscr_p2sk[:], common.CFG.Testnet)
 			case 2:
 				ad = new(btc.BtcAddr)
-				ad.SegwitProg = new(btc.SegwitProg)
-				ad.SegwitProg.HRP = btc.GetSegwitHRP(common.CFG.Testnet)
-				ad.SegwitProg.Program = best[i].Key
 		}
 		fmt.Println(i+1, ad.String(), btc.UintToBtc(best[i].rec.Value), "BTC in", best[i].rec.Count(), "inputs")
 	}
