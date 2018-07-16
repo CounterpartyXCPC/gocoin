@@ -37,7 +37,7 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 		c.Mutex.Unlock()
 
 		common.CountSafe(fmt.Sprintf("GetdataType-%x",typ))
-		if typ == MSG_BLOCK || typ == MSG_WITNESS_BLOCK {
+		if typ == MSG_BLOCK {
 			hash := btc.NewUint256(h[4:])
 			crec, _, er := common.BlockChain.Blocks.BlockGetExt(hash)
 
@@ -59,18 +59,15 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 				//fmt.Println("BlockGetExt-2 failed for", hash.String(), er.Error())
 				//notfound = append(notfound, h[:]...)
 			}
-		} else if typ == MSG_TX || typ == MSG_WITNESS_TX {
+		} else if typ == MSG_TX {
 			// transaction
 			TxMutex.Lock()
 			if tx, ok := TransactionsToSend[btc.NewUint256(h[4:]).BIdx()]; ok && tx.Blocked==0 {
 				tx.SentCnt++
 				tx.Lastsent = time.Now()
 				TxMutex.Unlock()
-				if tx.SegWit==nil || typ==MSG_WITNESS_TX {
-					c.SendRawMsg("tx", tx.Raw)
-				} else {
-					c.SendRawMsg("tx", tx.Serialize())
-				}
+				c.SendRawMsg("tx", tx.Serialize())
+				
 			} else {
 				TxMutex.Unlock()
 				//notfound = append(notfound, h[:]...)
@@ -314,12 +311,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var cnt uint64
 	var block_type uint32
 
-	if (c.Node.Services&SERVICE_SEGWIT) != 0 {
-		block_type = MSG_WITNESS_BLOCK
-	} else {
-		block_type = MSG_BLOCK
-	}
-
+	block_type = MSG_BLOCK
+	
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
@@ -334,17 +327,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 	if max_height > LastCommitedHeader.Height {
 		max_height = LastCommitedHeader.Height
-	}
-
-	if common.BlockChain.Consensus.Enforce_SEGWIT!=0 && (c.Node.Services&SERVICE_SEGWIT)==0 { // no segwit node
-		if max_height >= common.BlockChain.Consensus.Enforce_SEGWIT-1 {
-			max_height = common.BlockChain.Consensus.Enforce_SEGWIT-1
-			if max_height <= common.Last.Block.Height {
-				c.IncCnt("FetchNoWitness", 1)
-				c.nextGetData = time.Now().Add(3600*time.Second) // never do getdata
-				return
-			}
-		}
 	}
 
 	invs := new(bytes.Buffer)
