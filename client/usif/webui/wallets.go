@@ -33,12 +33,6 @@ func p_wal(w http.ResponseWriter, r *http.Request) {
 
 	var str string
 	common.Last.Mutex.Lock()
-	if common.BlockChain.Consensus.Enforce_SEGWIT != 0 &&
-		common.Last.Block.Height >= common.BlockChain.Consensus.Enforce_SEGWIT {
-		str = "var segwit_active=true"
-	} else {
-		str = "var segwit_active=false"
-	}
 	common.Last.Mutex.Unlock()
 	page := load_template("wallet.html")
 	page = strings.Replace(page, "/*WALLET_JS_VARS*/", str, 1)
@@ -48,9 +42,6 @@ func p_wal(w http.ResponseWriter, r *http.Request) {
 }
 
 func getaddrtype(aa *btc.BtcAddr) string {
-	if aa.SegwitProg != nil && aa.SegwitProg.Version == 0 && len(aa.SegwitProg.Program)==20 {
-		return "P2WPKH"
-	}
 	if aa.Version == btc.AddrVerPubkey(common.Testnet) {
 		return "P2PKH"
 	}
@@ -102,10 +93,6 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 	type OneOuts struct {
 		Value uint64
 		OutCnt int
-		SegWitCnt int
-		SegWitAddr string
-		SegWitNativeCnt int
-		SegWitNativeAddr string
 		Outs []OneOut
 
 		PendingCnt int
@@ -173,90 +160,7 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 		if mempool {
 			addr_map[string(aa.OutScript())] = a
 		}
-
-		/* For P2KH addr, we wlso check its segwit's P2SH-P2WPKH and Native P2WPKH */
-		if aa.SegwitProg == nil && aa.Version == btc.AddrVerPubkey(common.Testnet) {
-			p2kh := aa.Hash160
-
-			// P2SH SegWit if applicable
-			h160 := btc.Rimp160AfterSha256(append([]byte{0,20}, p2kh[:]...))
-			aa = btc.NewAddrFromHash160(h160[:], btc.AddrVerScript(common.Testnet))
-			newrec.SegWitAddr = aa.String()
-			unsp = wallet.GetAllUnspent(aa)
-			if len(unsp) > 0 {
-				newrec.OutCnt += len(unsp)
-				newrec.SegWitCnt = len(unsp)
-				as := aa.String()
-				for _, u := range unsp {
-					newrec.Value += u.Value
-					network.TxMutex.Lock()
-					_, spending := network.SpentOutputs[u.TxPrevOut.UIdx()]
-					network.TxMutex.Unlock()
-					if spending {
-						newrec.SpendingValue += u.Value
-						newrec.SpendingCnt++
-					}
-					if !summary {
-						txid := btc.NewUint256(u.TxPrevOut.Hash[:])
-						var rawtx string
-						if getrawtx {
-							dat, er := common.GetRawTx(uint32(u.MinedAt), txid)
-							if er == nil {
-								rawtx = hex.EncodeToString(dat)
-							}
-						}
-						newrec.Outs = append(newrec.Outs, OneOut{
-							TxId : txid.String(), Vout : u.Vout,
-							Value : u.Value, Height : u.MinedAt, Coinbase : u.Coinbase,
-							Message: html.EscapeString(string(u.Message)), Addr:as,
-							Spending:spending, RawTx:rawtx, AddrType:"P2SH-P2WPKH"})
-					}
-				}
-			}
-			if mempool {
-				addr_map[string(aa.OutScript())] = a
-			}
-
-			// Native SegWit if applicable
-			aa = btc.NewAddrFromPkScript(append([]byte{0,20}, p2kh[:]...), common.Testnet)
-			newrec.SegWitNativeAddr = aa.String()
-			unsp = wallet.GetAllUnspent(aa)
-			if len(unsp) > 0 {
-				newrec.OutCnt += len(unsp)
-				newrec.SegWitNativeCnt = len(unsp)
-				as := aa.String()
-				for _, u := range unsp {
-					newrec.Value += u.Value
-					network.TxMutex.Lock()
-					_, spending := network.SpentOutputs[u.TxPrevOut.UIdx()]
-					network.TxMutex.Unlock()
-					if spending {
-						newrec.SpendingValue += u.Value
-						newrec.SpendingCnt++
-					}
-					if !summary {
-						txid := btc.NewUint256(u.TxPrevOut.Hash[:])
-						var rawtx string
-						if getrawtx {
-							dat, er := common.GetRawTx(uint32(u.MinedAt), txid)
-							if er == nil {
-								rawtx = hex.EncodeToString(dat)
-							}
-						}
-						newrec.Outs = append(newrec.Outs, OneOut{
-							TxId : txid.String(), Vout : u.Vout,
-							Value : u.Value, Height : u.MinedAt, Coinbase : u.Coinbase,
-							Message: html.EscapeString(string(u.Message)), Addr:as,
-							Spending:spending, RawTx:rawtx, AddrType:"P2WPKH"})
-					}
-				}
-			}
-			if mempool {
-				addr_map[string(aa.OutScript())] = a
-			}
-
-		}
-	}
+        }
 
 	// check memory pool
 	if mempool {
@@ -346,27 +250,7 @@ func dl_balance(w http.ResponseWriter, r *http.Request) {
 			if len(newrecs) > 0 {
 				thisbal = append(thisbal, newrecs...)
 			}
-
-			/* Segwit P2WPKH: */
-			if aa.SegwitProg == nil && aa.Version == btc.AddrVerPubkey(common.Testnet) {
-				p2kh := aa.Hash160
-
-				// P2SH SegWit if applicable
-				h160 := btc.Rimp160AfterSha256(append([]byte{0,20}, aa.Hash160[:]...))
-				aa = btc.NewAddrFromHash160(h160[:], btc.AddrVerScript(common.Testnet))
-				newrecs = wallet.GetAllUnspent(aa)
-				if len(newrecs) > 0 {
-					thisbal = append(thisbal, newrecs...)
-				}
-
-				// Native SegWit if applicable
-				aa = btc.NewAddrFromPkScript(append([]byte{0,20}, p2kh[:]...), common.Testnet)
-				newrecs = wallet.GetAllUnspent(aa)
-				if len(newrecs) > 0 {
-					thisbal = append(thisbal, newrecs...)
-				}
-			}
-		}
+                }
 	}
 	lck.Out.Done()
 
