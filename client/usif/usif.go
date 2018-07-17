@@ -40,7 +40,7 @@ var (
 func DecodeTxSops(tx *btc.Tx) (s string, missinginp bool, totinp, totout uint64, sigops uint, e error) {
 	s += fmt.Sprintln("Transaction details (for your information):")
 	s += fmt.Sprintln(len(tx.TxIn), "Input(s):")
-	sigops = btc.WITNESS_SCALE_FACTOR * tx.GetLegacySigOpCount()
+	sigops = tx.GetLegacySigOpCount()
 	for i := range tx.TxIn {
 		s += fmt.Sprintf(" %3d %s", i, tx.TxIn[i].Input.String())
 		var po *btc.TxOut
@@ -74,15 +74,9 @@ func DecodeTxSops(tx *btc.Tx) (s string, missinginp bool, totinp, totout uint64,
 			s += fmt.Sprintf(" %15.8f BTC @ %s", float64(po.Value)/1e8, ads)
 
 			if btc.IsP2SH(po.Pk_script) {
-				so := btc.WITNESS_SCALE_FACTOR * btc.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig)
+				so := btc.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig)
 				s += fmt.Sprintf("  + %d sigops", so)
 				sigops += so
-			}
-
-			swo := tx.CountWitnessSigOps(i, po.Pk_script)
-			if swo > 0 {
-				s += fmt.Sprintf("  + %d segops", swo)
-				sigops += swo
 			}
 
 			s += "\n"
