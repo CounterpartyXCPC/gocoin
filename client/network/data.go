@@ -66,7 +66,7 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 				tx.SentCnt++
 				tx.Lastsent = time.Now()
 				TxMutex.Unlock()
-				c.SendRawMsg("tx", tx.Serialize())
+				c.SendRawMsg("tx", tx.Data)
 				
 			} else {
 				TxMutex.Unlock()
