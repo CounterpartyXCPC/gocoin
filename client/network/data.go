@@ -1,15 +1,15 @@
 package network
 
 import (
-	"fmt"
-	"time"
 	"bytes"
-	"io/ioutil"
 	"encoding/binary"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/client/common"
-)
+	"fmt"
+	"io/ioutil"
+	"time"
 
+	"github.com/piotrnar/gocoin/client/common"
+	"github.com/piotrnar/gocoin/lib/btc"
+)
 
 func (c *OneConnection) ProcessGetData(pl []byte) {
 	//var notfound []byte
@@ -21,12 +21,12 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 		println("ProcessGetData:", e.Error(), c.PeerAddr.Ip())
 		return
 	}
-	for i:=0; i<int(cnt); i++ {
+	for i := 0; i < int(cnt); i++ {
 		var typ uint32
 		var h [36]byte
 
 		n, _ := b.Read(h[:])
-		if n!=36 {
+		if n != 36 {
 			println("ProcessGetData: pl too short", c.PeerAddr.Ip())
 			return
 		}
@@ -36,24 +36,14 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 		c.InvStore(typ, h[4:36])
 		c.Mutex.Unlock()
 
-		common.CountSafe(fmt.Sprintf("GetdataType-%x",typ))
+		common.CountSafe(fmt.Sprintf("GetdataType-%x", typ))
 		if typ == MSG_BLOCK {
 			hash := btc.NewUint256(h[4:])
 			crec, _, er := common.BlockChain.Blocks.BlockGetExt(hash)
 
 			if er == nil {
 				bl := crec.Data
-				if typ == MSG_BLOCK {
-					// remove witness data from the block
-					if crec.Block==nil {
-						crec.Block, _ = btc.NewBlock(bl)
-					}
-					if crec.Block.NoWitnessData==nil {
-						crec.Block.BuildNoWitnessData()
-					}
-					//println("block size", len(crec.Data), "->", len(bl))
-					bl = crec.Block.NoWitnessData
-				}
+
 				c.SendRawMsg("block", bl)
 			} else {
 				//fmt.Println("BlockGetExt-2 failed for", hash.String(), er.Error())
@@ -62,12 +52,12 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 		} else if typ == MSG_TX {
 			// transaction
 			TxMutex.Lock()
-			if tx, ok := TransactionsToSend[btc.NewUint256(h[4:]).BIdx()]; ok && tx.Blocked==0 {
+			if tx, ok := TransactionsToSend[btc.NewUint256(h[4:]).BIdx()]; ok && tx.Blocked == 0 {
 				tx.SentCnt++
 				tx.Lastsent = time.Now()
 				TxMutex.Unlock()
 				c.SendRawMsg("tx", tx.Data)
-				
+
 			} else {
 				TxMutex.Unlock()
 				//notfound = append(notfound, h[:]...)
@@ -80,26 +70,25 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 				}
 			}
 		} else {
-			if typ>0 && typ<=3 /*3 is a filtered block(we dont support it)*/ {
+			if typ > 0 && typ <= 3 /*3 is a filtered block(we dont support it)*/ {
 				//notfound = append(notfound, h[:]...)
 			}
 		}
 	}
 
 	/*
-	if len(notfound)>0 {
-		buf := new(bytes.Buffer)
-		btc.WriteVlen(buf, uint64(len(notfound)/36))
-		buf.Write(notfound)
-		c.SendRawMsg("notfound", buf.Bytes())
-	}
+		if len(notfound)>0 {
+			buf := new(bytes.Buffer)
+			btc.WriteVlen(buf, uint64(len(notfound)/36))
+			buf.Write(notfound)
+			c.SendRawMsg("notfound", buf.Bytes())
+		}
 	*/
 }
 
-
 // This function is called from a net conn thread
 func netBlockReceived(conn *OneConnection, b []byte) {
-	if len(b)<100 {
+	if len(b) < 100 {
 		conn.DoS("ShortBlock")
 		return
 	}
@@ -123,15 +112,15 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 
 	// remove from BlocksToGet:
 	b2g := BlocksToGet[idx]
-	if b2g==nil {
+	if b2g == nil {
 		//println("Block", hash.String(), " from", conn.PeerAddr.Ip(), conn.Node.Agent, " was not expected")
 
 		var hdr [81]byte
 		var sta int
 		copy(hdr[:80], b[:80])
 		sta, b2g = conn.ProcessNewHeader(hdr[:])
-		if b2g==nil {
-			if sta==PH_STATUS_FATAL {
+		if b2g == nil {
+			if sta == PH_STATUS_FATAL {
 				println("Unrequested Block: FAIL - Ban", conn.PeerAddr.Ip(), conn.Node.Agent)
 				conn.DoS("BadUnreqBlock")
 			} else {
@@ -139,9 +128,9 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 			}
 			//conn.Disconnect()
 			MutexRcv.Unlock()
-			return;
+			return
 		}
-		if sta==PH_STATUS_NEW {
+		if sta == PH_STATUS_NEW {
 			b2g.SendInvs = true
 		}
 		//println(c.ConnID, " - taking this new block")
@@ -155,7 +144,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 	}
 
 	er := common.BlockChain.PostCheckBlock(b2g.Block)
-	if er!=nil {
+	if er != nil {
 		b2g.InProgress--
 		println("Corrupt block received from", conn.PeerAddr.Ip(), er.Error())
 		//ioutil.WriteFile(hash.String() + ".bin", b, 0700)
@@ -166,7 +155,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 		if b2g.Block.MerkleRootMatch() {
 			println("It was a wrongly mined one - clean it up")
 			DelB2G(idx) //remove it from BlocksToGet
-			if b2g.BlockTreeNode==LastCommitedHeader {
+			if b2g.BlockTreeNode == LastCommitedHeader {
 				LastCommitedHeader = LastCommitedHeader.Parent
 			}
 			common.BlockChain.DeleteBranch(b2g.BlockTreeNode, delB2G_callback)
@@ -176,12 +165,12 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 		return
 	}
 
-	orb := &OneReceivedBlock{TmStart:b2g.Started, TmPreproc:b2g.TmPreproc,
-		TmDownload:conn.LastMsgTime, FromConID:conn.ConnID, DoInvs:b2g.SendInvs}
+	orb := &OneReceivedBlock{TmStart: b2g.Started, TmPreproc: b2g.TmPreproc,
+		TmDownload: conn.LastMsgTime, FromConID: conn.ConnID, DoInvs: b2g.SendInvs}
 
 	conn.Mutex.Lock()
 	bip := conn.GetBlockInProgress[idx]
-	if bip==nil {
+	if bip == nil {
 		//println(conn.ConnID, "received unrequested block", hash.String())
 		common.CountSafe("UnreqBlockRcvd")
 		conn.counters["NewBlock!"]++
@@ -203,7 +192,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 	var bei *btc.BlockExtraInfo
 
 	if store_on_disk {
-		if e := ioutil.WriteFile(common.TempBlocksDir() + hash.String(), b2g.Block.Raw, 0600); e == nil {
+		if e := ioutil.WriteFile(common.TempBlocksDir()+hash.String(), b2g.Block.Raw, 0600); e == nil {
 			bei = new(btc.BlockExtraInfo)
 			*bei = b2g.Block.BlockExtraInfo
 			b2g.Block = nil
@@ -212,9 +201,8 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 		}
 	}
 
-	NetBlocks <- &BlockRcvd{Conn:conn, Block:b2g.Block, BlockTreeNode:b2g.BlockTreeNode, OneReceivedBlock:orb, BlockExtraInfo:bei}
+	NetBlocks <- &BlockRcvd{Conn: conn, Block: b2g.Block, BlockTreeNode: b2g.BlockTreeNode, OneReceivedBlock: orb, BlockExtraInfo: bei}
 }
-
 
 // Read VLen followed by the number of locators
 // parse the payload of getblocks and getheaders messages
@@ -237,10 +225,10 @@ func parseLocatorsPayload(pl []byte) (h2get []*btc.Uint256, hashstop *btc.Uint25
 	}
 
 	// block locator hashes
-	if cnt>0 {
+	if cnt > 0 {
 		h2get = make([]*btc.Uint256, cnt)
-		for i:=0; i<int(cnt); i++ {
-			if _, er = b.Read(h[:]); er!=nil {
+		for i := 0; i < int(cnt); i++ {
+			if _, er = b.Read(h[:]); er != nil {
 				return
 			}
 			h2get[i] = btc.NewUint256(h[:])
@@ -248,7 +236,7 @@ func parseLocatorsPayload(pl []byte) (h2get []*btc.Uint256, hashstop *btc.Uint25
 	}
 
 	// hash_stop
-	if _, er = b.Read(h[:]); er!=nil {
+	if _, er = b.Read(h[:]); er != nil {
 		return
 	}
 	hashstop = btc.NewUint256(h[:])
@@ -256,13 +244,12 @@ func parseLocatorsPayload(pl []byte) (h2get []*btc.Uint256, hashstop *btc.Uint25
 	return
 }
 
-
 // Call it with locked MutexRcv
 func getBlockToFetch(max_height uint32, cnt_in_progress, avg_block_size uint) (lowest_found *OneBlockToGet) {
 	for _, v := range BlocksToGet {
-		if v.InProgress==cnt_in_progress && v.Block.Height <= max_height &&
-			(lowest_found==nil || v.Block.Height < lowest_found.Block.Height) {
-				lowest_found = v
+		if v.InProgress == cnt_in_progress && v.Block.Height <= max_height &&
+			(lowest_found == nil || v.Block.Height < lowest_found.Block.Height) {
+			lowest_found = v
 		}
 	}
 	return
@@ -274,10 +261,10 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	MutexRcv.Lock()
 	defer MutexRcv.Unlock()
 
-	if LowestIndexToBlocksToGet==0 || len(BlocksToGet)==0 {
+	if LowestIndexToBlocksToGet == 0 || len(BlocksToGet) == 0 {
 		c.IncCnt("FetchNoBlocksToGet", 1)
 		// wake up in one minute, just in case
-		c.nextGetData = time.Now().Add(60*time.Second)
+		c.nextGetData = time.Now().Add(60 * time.Second)
 		return
 	}
 
@@ -293,32 +280,31 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
 		c.IncCnt("FetchMaxCountInProgress", 1)
 		// wake up in a few seconds, maybe some blocks will complete by then
-		c.nextGetData = time.Now().Add(1*time.Second)
+		c.nextGetData = time.Now().Add(1 * time.Second)
 		return
 	}
 
 	avg_block_size := common.AverageBlockSize.Get()
 	block_data_in_progress := cbip * avg_block_size
 
-	if block_data_in_progress > 0 && (block_data_in_progress + avg_block_size) > MAX_GETDATA_FORWARD {
+	if block_data_in_progress > 0 && (block_data_in_progress+avg_block_size) > MAX_GETDATA_FORWARD {
 		c.IncCnt("FetchMaxBytesInProgress", 1)
 		// wake up in a few seconds, maybe some blocks will complete by then
-		c.nextGetData = time.Now().Add(1*time.Second) // wait for some blocks to complete
+		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
-
 
 	var cnt uint64
 	var block_type uint32
 
 	block_type = MSG_BLOCK
-	
+
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
 	common.Last.Mutex.Lock()
 	max_height := common.Last.Block.Height + uint32(MAX_BLOCKS_FORWARD_SIZ/avg_block_size)
-	if max_height > common.Last.Block.Height + MAX_BLOCKS_FORWARD_CNT {
+	if max_height > common.Last.Block.Height+MAX_BLOCKS_FORWARD_CNT {
 		max_height = common.Last.Block.Height + MAX_BLOCKS_FORWARD_CNT
 	}
 	common.Last.Mutex.Unlock()
@@ -337,24 +323,24 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 		// Get block to fetch:
 
-		for bh := LowestIndexToBlocksToGet; bh<=max_height; bh++ {
+		for bh := LowestIndexToBlocksToGet; bh <= max_height; bh++ {
 			if idxlst, ok := IndexToBlocksToGet[bh]; ok {
 				for _, idx := range idxlst {
 					v := BlocksToGet[idx]
-					if v.InProgress==cnt_in_progress && (lowest_found==nil || v.Block.Height < lowest_found.Block.Height) {
-							c.Mutex.Lock()
-							if _, ok := c.GetBlockInProgress[idx]; !ok {
-								lowest_found = v
-							}
-							c.Mutex.Unlock()
+					if v.InProgress == cnt_in_progress && (lowest_found == nil || v.Block.Height < lowest_found.Block.Height) {
+						c.Mutex.Lock()
+						if _, ok := c.GetBlockInProgress[idx]; !ok {
+							lowest_found = v
+						}
+						c.Mutex.Unlock()
 					}
 				}
 			}
 		}
 
-		if lowest_found==nil {
+		if lowest_found == nil {
 			cnt_in_progress++
-			if cnt_in_progress>=uint(common.CFG.Net.MaxBlockAtOnce) {
+			if cnt_in_progress >= uint(common.CFG.Net.MaxBlockAtOnce) {
 				break
 			}
 			continue
@@ -367,12 +353,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 		c.Mutex.Lock()
 		c.GetBlockInProgress[lowest_found.BlockHash.BIdx()] =
-			&oneBlockDl{hash:lowest_found.BlockHash, start:time.Now(), SentAtPingCnt:c.X.PingSentCnt}
+			&oneBlockDl{hash: lowest_found.BlockHash, start: time.Now(), SentAtPingCnt: c.X.PingSentCnt}
 		cbip = len(c.GetBlockInProgress)
 		c.Mutex.Unlock()
 
-		if cbip>=MAX_PEERS_BLOCKS_IN_PROGRESS {
-			break  // no more than 2000 blocks in progress / peer
+		if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
+			break // no more than 2000 blocks in progress / peer
 		}
 		block_data_in_progress += avg_block_size
 		if block_data_in_progress > MAX_GETDATA_FORWARD {
@@ -384,7 +370,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		//println(c.ConnID, "fetch nothing", cbip, block_data_in_progress, max_height-common.Last.Block.Height, cnt_in_progress)
 		c.IncCnt("FetchNothing", 1)
 		// wake up in a few seconds, maybe it will be different next time
-		c.nextGetData = time.Now().Add(5*time.Second)
+		c.nextGetData = time.Now().Add(5 * time.Second)
 		return
 	}
 
