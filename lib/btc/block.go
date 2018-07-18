@@ -20,11 +20,8 @@ type Block struct {
 	MedianPastTime uint32 // Set in PreCheckBlock() .. last used in PostCheckBlock()
 
 	// These flags are set in BuildTxList() used later (e.g. by script.VerifyTxScript):
-	NoWitnessSize int
 	BlockWeight uint
 	TotalInputs int
-
-	NoWitnessData []byte // This is set by BuildNoWitnessData()
 }
 
 
@@ -96,10 +93,7 @@ func (bl *Block) BuildTxList() (e error) {
 	offs := bl.TxOffset
 
 	var wg sync.WaitGroup
-	var data2hash, witness2hash []byte
-
-	bl.NoWitnessSize = 80 + VLenSize(uint64(bl.TxCount))
-	bl.BlockWeight = 4 * uint(bl.NoWitnessSize)
+	var data2hash []byte
 
 	for i := 0; i < bl.TxCount; i++ {
 		var n int
@@ -118,19 +112,9 @@ func (bl *Block) BuildTxList() (e error) {
 			// Coinbase tx does not have an input
 			bl.TotalInputs += len(bl.Txs[i].TxIn)
 		}
-		if bl.Txs[i].SegWit != nil {
-			data2hash = bl.Txs[i].Serialize()
-			bl.Txs[i].NoWitSize = uint32(len(data2hash))
-			if i>0 {
-				witness2hash = bl.Txs[i].Raw
-			}
-		} else {
-			data2hash = bl.Txs[i].Raw
-			bl.Txs[i].NoWitSize = bl.Txs[i].Size
-			witness2hash = nil
-		}
-		bl.BlockWeight += uint(3 * bl.Txs[i].NoWitSize + bl.Txs[i].Size)
-		bl.NoWitnessSize += len(data2hash)
+		
+                data2hash = bl.Txs[i].Raw
+				
 		wg.Add(1)
 		go func(tx *Tx, b, w []byte) {
 			tx.Hash.Calc(b) // Calculate tx hash in a background
@@ -138,7 +122,7 @@ func (bl *Block) BuildTxList() (e error) {
 				tx.wTxID.Calc(w)
 			}
 			wg.Done()
-		}(bl.Txs[i], data2hash, witness2hash)
+		}(bl.Txs[i], data2hash)
 		offs += n
 	}
 
@@ -148,28 +132,7 @@ func (bl *Block) BuildTxList() (e error) {
 }
 
 
-// The block data in non-segwit format
-func (bl *Block) BuildNoWitnessData() (e error) {
-	if bl.TxCount==0 {
-		e = bl.BuildTxList()
-		if e != nil {
-			return
-		}
-	}
-	old_format_block := new(bytes.Buffer)
-	old_format_block.Write(bl.Raw[:80])
-	WriteVlen(old_format_block, uint64(bl.TxCount))
-	for _, tx := range bl.Txs {
-		tx.WriteSerialized(old_format_block)
-	}
-	bl.NoWitnessData = old_format_block.Bytes()
-	if bl.NoWitnessSize == 0 {
-		bl.NoWitnessSize = len(bl.NoWitnessData)
-	} else if bl.NoWitnessSize != len(bl.NoWitnessData) {
-		panic("NoWitnessSize corrupt")
-	}
-	return
-}
+
 
 
 func GetBlockReward(height uint32) (uint64) {
