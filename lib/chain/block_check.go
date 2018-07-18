@@ -95,14 +95,6 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 		return
 	}
 
-	if ch.Consensus.BIP91Height != 0 && ch.Consensus.Enforce_SEGWIT != 0 {
-		if bl.Height >= ch.Consensus.BIP91Height && bl.Height < ch.Consensus.Enforce_SEGWIT-2016 {
-			if (ver&0xE0000000) != 0x20000000 || (ver&2) == 0 {
-				er = errors.New("CheckBlock() : relayed block must signal for segwit - RPC_Result:bad-no-segwit")
-			}
-		}
-	}
-
 	return
 }
 
@@ -125,11 +117,6 @@ func (ch *Chain) ApplyBlockFlags(bl *btc.Block) {
 	if ch.Consensus.Enforce_CSV != 0 && bl.Height >= ch.Consensus.Enforce_CSV {
 		bl.VerifyFlags |= script.VER_CSV
 	}
-
-	if ch.Consensus.Enforce_SEGWIT != 0 && bl.Height >= ch.Consensus.Enforce_SEGWIT {
-		bl.VerifyFlags |= script.VER_WITNESS | script.VER_NULLDUMMY
-	}
-
 }
 
 
@@ -203,51 +190,11 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 
 	if !bl.Trusted {
 		var blockTime uint32
-		var had_witness bool
-
+		
 		if (bl.VerifyFlags&script.VER_CSV) != 0 {
 			blockTime = bl.MedianPastTime
 		} else {
 			blockTime = bl.BlockTime()
-		}
-
-		// Verify merkle root of witness data
-		if (bl.VerifyFlags&script.VER_WITNESS)!=0 {
-			var i int
-			for i=len(bl.Txs[0].TxOut)-1; i>=0; i-- {
-				o := bl.Txs[0].TxOut[i]
-				if len(o.Pk_script) >= 38 && bytes.Equal(o.Pk_script[:6], []byte{0x6a,0x24,0xaa,0x21,0xa9,0xed}) {
-					if len(bl.Txs[0].SegWit)!=1 || len(bl.Txs[0].SegWit[0])!=1 || len(bl.Txs[0].SegWit[0][0])!=32 {
-						er = errors.New("CheckBlock() : invalid witness nonce size - RPC_Result:bad-witness-nonce-size")
-						println(er.Error())
-						println(bl.Hash.String(), len(bl.Txs[0].SegWit))
-						return
-					}
-
-					// The malleation check is ignored; as the transaction tree itself
-					// already does not permit it, it is impossible to trigger in the
-					// witness tree.
-					merkle, _ := btc.GetWitnessMerkle(bl.Txs)
-					with_nonce := btc.Sha2Sum(append(merkle, bl.Txs[0].SegWit[0][0]...))
-
-					if !bytes.Equal(with_nonce[:], o.Pk_script[6:38]) {
-						er = errors.New("CheckBlock(): Witness Merkle mismatch - RPC_Result:bad-witness-merkle-match")
-						return
-					}
-
-					had_witness = true
-					break
-				}
-			}
-		}
-
-		if !had_witness {
-			for _, t := range bl.Txs {
-				if t.SegWit!=nil {
-					er = errors.New("CheckBlock(): unexpected witness data found - RPC_Result:unexpected-witness")
-					return
-				}
-			}
 		}
 
 		// Check transactions - this is the most time consuming task

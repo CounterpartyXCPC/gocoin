@@ -56,4 +56,3 @@ func EcdsaSign(priv, hash []byte) (r, s *big.Int, err error) {
 	}
 	return &sig.R.Int, &sig.S.Int, nil
 }
-
