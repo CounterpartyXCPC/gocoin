@@ -60,14 +60,6 @@ td.balbtc {
 .native {
 	color:darkgreen;
 }
-.segwitaddr {
-	font-style:italic;
-	font-size: 90%;
-}
-td.segwitaddr {
-	text-align: left;
-	white-space: nowrap;
-}
 td.outcnt {
 	text-align: right;
 	white-space: nowrap;
@@ -187,33 +179,10 @@ function fetch_wallet_balance(name) {
 
 				td = row.insertCell(-1)
 
-				td.className = 'segwitaddr'
-				if (p2sh_sw.checked) {
-					td.classList.add('p2sh')
-					if (segwit_active && rec.SegWitAddr!='') {
-						//td.innerText = rec.SegWitAddr
-	                    td.innerHTML = '<img src="webui/qrcode.png" onclick="showqrcode(\'Segwit deposit address for '  + wallet[i].label +
-							'\', \'' + rec.SegWitAddr + '\')" class="hand"> ' + rec.SegWitAddr
-					}
-				} else {
-					td.classList.add('native')
-					if (segwit_active && rec.SegWitNativeAddr!='') {
-						//td.innerText = rec.SegWitAddr
-	                    td.innerHTML = '<img src="webui/qrcode.png" onclick="showqrcode(\'Segwit deposit address for '  + wallet[i].label +
-							'\', \'' + rec.SegWitNativeAddr + '\')" class="hand"> ' + rec.SegWitNativeAddr
-					}
-
-				}
 				td = row.insertCell(-1)
 				td.className = 'outcnt'
 				if (rec.OutCnt>0) {
 					td.innerText = rec.OutCnt
-					if (rec.SegWitCnt>0)
-						td.innerHTML += ' <span class="segwitaddr p2sh">+' + rec.SegWitCnt + '</span>'
-
-					if (rec.SegWitNativeCnt>0) {
-						td.innerHTML += ' <span class="segwitaddr native">+' + rec.SegWitNativeCnt + '</span>'
-					}
 					totouts += rec.OutCnt
 				} else {
 					td.innerHTML = '<a href="javascript:setunused('+idxx+')"><img src="webui/del.png"></a>'
@@ -502,10 +471,6 @@ function import_file_selected(e) {
 	reader.readAsText(f)
 }
 
-function switch_segwit_p2sh() {
-	localStorage.setItem("wallet_segwit_p2sh", p2sh_sw.checked)
-	fetch_wallet_balance()
-}
 
 function import_file_clicked(e) {
 	do_not_refresh = true
@@ -550,8 +515,6 @@ Import settings: <input type="file" id="import_file" accept=".json">
 <th align="left" width="100">Label
 <th align="right">Balance&nbsp;BTC
 <th width="50">
-<th width="330"><span class="hand" onclick="p2sh_sw.click()">Segwit Deposit Address</span>
-<input style="float:right;cursor:pointer" id="p2sh_sw" title="P2SH-P2WPKH" type="checkbox" onchange="switch_segwit_p2sh()">
 <th width="40">Outs
 </table>
 
@@ -638,9 +601,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 })
 
-if (localStorage.getItem("wallet_segwit_p2sh")==="true") {
-	p2sh_sw.checked = true
-}
 
 if (!server_mode) {
 	form_b.style.display = 'block'
