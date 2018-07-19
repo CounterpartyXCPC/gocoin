@@ -146,13 +146,8 @@ func dump_raw_tx() {
 	var unsigned, totin, totout, noins uint64
 
 	fmt.Println("ID:", tx.Hash.String())
-	fmt.Println("WTxID:", tx.WTxID().String())
 	fmt.Println("Tx Version:", tx.Version)
-	if tx.SegWit!=nil {
-		fmt.Println("Segregated Witness transaction", len(tx.SegWit))
-	} else {
-		fmt.Println("Regular (non-SegWit) transaction", len(tx.SegWit))
-	}
+	
 	if tx.IsCoinBase() {
 		if len(tx.TxIn[0].ScriptSig) >= 4 && tx.TxIn[0].ScriptSig[0]==3 {
 			fmt.Println("Coinbase TX from block height", uint(tx.TxIn[0].ScriptSig[1]) |
@@ -169,11 +164,7 @@ func dump_raw_tx() {
 			fmt.Println("  ", s[:i])
 			s = s[i:]
 		}
-		for wia := range tx.SegWit {
-			for wib, ww := range tx.SegWit[wia] {
-				fmt.Println("  Witness", wia, wib, hex.EncodeToString(ww))
-			}
-		}
+		
 		//fmt.Println()
 	} else {
 		fmt.Println("TX IN cnt:", len(tx.TxIn))
@@ -193,23 +184,8 @@ func dump_raw_tx() {
 				if !dump_sigscript(tx.TxIn[i].ScriptSig) {
 					unsigned++
 				}
-			} else {
-				if tx.SegWit==nil || len(tx.SegWit[i]) < 2 {
-					unsigned++
-				}
 			}
-
-			if tx.SegWit!=nil {
-				fmt.Println("      Witness data:")
-				for _, ww := range tx.SegWit[i] {
-					if len(ww)==0 {
-						fmt.Println("       ", "OP_0")
-					} else {
-						fmt.Println("       ", hex.EncodeToString(ww))
-					}
-				}
-			}
-		}
+                }
 	}
 	fmt.Println("TX OUT cnt:", len(tx.TxOut))
 	for i := range tx.TxOut {
@@ -248,7 +224,7 @@ func dump_raw_tx() {
 	} else {
 		fmt.Println("WARNING: Unable to figure out what the fee is")
 	}
-	fmt.Println("Transaction Size:", tx.Size, "   NoWitSize:", tx.NoWitSize, "   VSize:", tx.VSize())
+	fmt.Println("Transaction Size:", tx.Size, "   VSize:", tx.VSize())
 
 	if !tx.IsCoinBase() {
 		if unsigned>0 {
