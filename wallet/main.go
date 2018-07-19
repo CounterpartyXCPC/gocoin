@@ -58,9 +58,6 @@ var (
 	allowextramsigns *bool = flag.Bool("xtramsigs", false, "Allow to put more signatures than needed (for multisig txs)")
 
 	sequence *int = flag.Int("seq", 0, "Use given RBF sequence number (-1 or -2 for final)")
-
-	segwit_mode *bool = flag.Bool("segwit", false, "List SegWit deposit addresses (instead of P2KH)")
-	bech32_mode *bool = flag.Bool("bech32", false, "use with -segwit to see P2WPKH deposit addresses (instead of P2SH-WPKH)")
 )
 
 
@@ -92,11 +89,6 @@ func main() {
 	}
 
 	flag.Parse()
-
-	if uncompressed {
-		println("For SegWit address safety, uncompressed keys are disabled in this version")
-		os.Exit(1)
-	}
 
 	// convert string fee to uint64
 	if val, e := btc.StringToSatoshis(fee); e != nil {
