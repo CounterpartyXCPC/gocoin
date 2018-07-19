@@ -255,7 +255,6 @@
 ["This is a test of FindAndDelete. The first tx is a spend of normal scriptPubKey and the second tx is a spend of bare P2WSH."],
 ["The signature is <0x30450220487fb382c4974de3f7d834c1b617fe15860828c7f96454490edd6d891556dcc9022100baf95feb48f845d5bfc9882eb6aeefa1bc3790e39f59eaa46ff7f15ae626c53e01> <pubkey>,"],
 ["where the pubkey is obtained through key recovery with sig and the wrong sighash."],
-["This is to show that FindAndDelete is applied only to non-segwit scripts"],
 ["To show that the tests are 'correctly wrong', they should pass by modifying OP_CHECKSIG under interpreter.cpp"],
 ["by replacing (sigversion == SIGVERSION_BASE) with (sigversion != SIGVERSION_BASE)"],
 [[["f18783ace138abac5d3a7a5cf08e88fe6912f267ef936452e0c27d090621c169", 7000, "HASH160 0x14 0x0c746489e2d83cdbb5b90b432773342ba809c134 EQUAL", 200000]],
