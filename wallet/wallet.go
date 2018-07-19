@@ -17,7 +17,6 @@ var (
 	first_determ_idx int
 	// set in make_wallet():
 	keys []*btc.PrivateAddr
-	segwit []*btc.BtcAddr
 	curFee uint64
 )
 
@@ -162,20 +161,6 @@ func make_wallet() {
 	if *verbose {
 		fmt.Println("Private keys re-generated")
 	}
-
-	// Calculate SegWit addresses
-	segwit = make([]*btc.BtcAddr, len(keys))
-	for i, pk := range keys {
-		if len(pk.Pubkey)!=33 {
-			continue
-		}
-		if *bech32_mode {
-			segwit[i] = btc.NewAddrFromPkScript(append([]byte{0,20}, pk.Hash160[:]...), testnet)
-		} else {
-			h160 := btc.Rimp160AfterSha256(append([]byte{0,20}, pk.Hash160[:]...))
-			segwit[i] = btc.NewAddrFromHash160(h160[:], btc.AddrVerScript(testnet))
-		}
-	}
 }
 
 
@@ -196,15 +181,9 @@ func dump_addrs() {
 			}
 		}
 		var pubaddr string
-		if *segwit_mode {
-			if segwit[i]==nil {
-				pubaddr = "-=CompressedKey=-"
-			} else {
-				pubaddr = segwit[i].String()
-			}
-		} else {
-			pubaddr = keys[i].BtcAddr.String()
-		}
+		
+		pubaddr = keys[i].BtcAddr.String()
+		
 		fmt.Println(pubaddr, keys[i].BtcAddr.Extra.Label)
 		if f != nil {
 			fmt.Fprintln(f, pubaddr, keys[i].BtcAddr.Extra.Label)
@@ -230,9 +209,6 @@ func public_to_key(pubkey []byte) *btc.PrivateAddr {
 func hash_to_key_idx(h160 []byte) (res int) {
 	for i := range keys {
 		if bytes.Equal(keys[i].BtcAddr.Hash160[:], h160) {
-			return i
-		}
-		if segwit[i]!=nil && bytes.Equal(segwit[i].Hash160[:], h160) {
 			return i
 		}
 	}
