@@ -400,7 +400,7 @@ func NewTx(b []byte) (tx *Tx, offs int) {
 		}
 	}()
 
-	var le, n, lel, idx int
+	var le, n int //, lel, idx int
 	
 	tx = new(Tx)
 
@@ -468,7 +468,7 @@ func TxSize(b []byte) (offs int) {
 		}
 	}()
 
-	var le, txincnt, n, lel int
+	var le, txincnt, n int //, lel int
 	
 	offs = 4 // version
 
