@@ -46,18 +46,20 @@ func TestScritps(t *testing.T) {
 					continue
 				}
 
-				var skip bool
-				var bfield int
-				var e error
+				//var skip bool
+				//var bfield int
+				//var e error
 				var all_good bool
 
 				vec := new(one_test_vector)
+                                /*
 				for ii := range mm {
 					
 					if skip {
 						break
 					}
 				}
+                                */
 				if all_good {
 					vecs = append(vecs, vec)
 				}

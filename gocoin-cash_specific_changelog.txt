@@ -1,5 +1,12 @@
 ﻿Gocoin-cash specific change log
 ---------------------------------------
+0.0.3 - 2018-07-23
+Following changes were made to enable us to pass test(s) using command "go test -v -race ./..." in
+/lib/script directory
+* In /lib/script/script_test.go 
+  - commented out declaration and use of 'skip', 'bfield', 'e', and 'ii' in lines 49 to 51 and around lines 55 to 62
+* In /lib/script/script.go 
+  - commented out declaration and use of 'sta' and 'xxx' in lines 824, 937 and around line 229
 
 0.0.2 - 2018-07-20
 Following 3 changes were made to enable us to pass test(s) using command "go test -v -race ./..." in
