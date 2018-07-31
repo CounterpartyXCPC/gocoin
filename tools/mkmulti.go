@@ -1,13 +1,13 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"bytes"
-	"strconv"
-	"io/ioutil"
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"io/ioutil"
+	"os"
+	"strconv"
 )
 
 /*
@@ -18,31 +18,31 @@ import (
 */
 func main() {
 	var testnet bool
-	if len(os.Args)<3 {
+	if len(os.Args) < 3 {
 		fmt.Println("Specify one integer and at least one public key.")
 		fmt.Println("For Testent, make the integer negative.")
 		return
 	}
 	cnt, er := strconv.ParseInt(os.Args[1], 10, 32)
-	if er!=nil {
+	if er != nil {
 		println("Count value:", er.Error())
 		return
 	}
-	if cnt<0 {
+	if cnt < 0 {
 		testnet = true
 		cnt = -cnt
 	}
-	if cnt<1 || cnt>16 {
+	if cnt < 1 || cnt > 16 {
 		println("The integer (required number of keys) must be between 1 and 16")
 		return
 	}
 	buf := new(bytes.Buffer)
-	buf.WriteByte(byte(0x50+cnt))
+	buf.WriteByte(byte(0x50 + cnt))
 	fmt.Println("Trying to prepare multisig address for", cnt, "out of", len(os.Args)-2, "public keys ...")
 	var pkeys byte
 	var ads string
-	for i:=2; i<len(os.Args); i++ {
-		if pkeys==16 {
+	for i := 2; i < len(os.Args); i++ {
+		if pkeys == 16 {
 			println("Oh, give me a break. You don't need more than 16 public keys - stopping here!")
 			break
 		}
@@ -58,12 +58,12 @@ func main() {
 		pkeys++
 		buf.WriteByte(byte(len(d)))
 		buf.Write(d)
-		if ads!="" {
+		if ads != "" {
 			ads += ", "
 		}
 		ads += "\"" + btc.NewAddrFromPubkey(d, btc.AddrVerPubkey(testnet)).String() + "\""
 	}
-	buf.WriteByte(0x50+pkeys)
+	buf.WriteByte(0x50 + pkeys)
 	buf.WriteByte(0xae)
 
 	p2sh := buf.Bytes()
@@ -77,7 +77,7 @@ func main() {
 	rec += fmt.Sprintf("\t\"redeemScript\" : \"%s\",\n", hex.EncodeToString(p2sh))
 	rec += fmt.Sprintf("\t\"listOfAddres\" : [%s]\n", ads)
 	rec += "}\n"
-	fname := addr.String()+".json"
+	fname := addr.String() + ".json"
 	ioutil.WriteFile(fname, []byte(rec), 0666)
 	fmt.Println("The address record stored in", fname)
 }

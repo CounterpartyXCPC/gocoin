@@ -1,65 +1,64 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"flag"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"os"
 )
 
 var (
 	PassSeedFilename = ".secret"
-	RawKeysFilename = ".others"
+	RawKeysFilename  = ".others"
 )
 
 var (
 	// Command line switches
 
 	// Wallet options
-	list *bool = flag.Bool("l", false, "List public addressses from the wallet")
+	list      *bool = flag.Bool("l", false, "List public addressses from the wallet")
 	singleask *bool = flag.Bool("1", false, "Do not re-ask for the password (when used along with -l)")
-	noverify *bool = flag.Bool("q", false, "Do not verify keys while listing them")
-	verbose *bool = flag.Bool("v", false, "Verbose version (print more info)")
-	ask4pass *bool = flag.Bool("p", false, "Force the wallet to ask for seed password")
-	nosseed *bool = flag.Bool("is", false, "Ignore seed from the config file")
-	subfee *bool = flag.Bool("f", false, "Substract fee from the first value")
+	noverify  *bool = flag.Bool("q", false, "Do not verify keys while listing them")
+	verbose   *bool = flag.Bool("v", false, "Verbose version (print more info)")
+	ask4pass  *bool = flag.Bool("p", false, "Force the wallet to ask for seed password")
+	nosseed   *bool = flag.Bool("is", false, "Ignore seed from the config file")
+	subfee    *bool = flag.Bool("f", false, "Substract fee from the first value")
 
 	dumppriv *string = flag.String("dump", "", "Export a private key of a given address (use * for all)")
 
 	// Spending money options
-	send *string  = flag.String("send", "", "Send money to list of comma separated pairs: address=amount")
-	batch *string  = flag.String("batch", "", "Send money as per the given batch file (each line: address=amount)")
-	change *string  = flag.String("change", "", "Send any change to this address (otherwise return to 1st input)")
+	send   *string = flag.String("send", "", "Send money to list of comma separated pairs: address=amount")
+	batch  *string = flag.String("batch", "", "Send money as per the given batch file (each line: address=amount)")
+	change *string = flag.String("change", "", "Send any change to this address (otherwise return to 1st input)")
 
 	// Message signing options
-	signaddr *string  = flag.String("sign", "", "Request a sign operation with a given bitcoin address")
-	message *string  = flag.String("msg", "", "Message to be signed or included into transaction")
+	signaddr *string = flag.String("sign", "", "Request a sign operation with a given bitcoin address")
+	message  *string = flag.String("msg", "", "Message to be signed or included into transaction")
 
 	useallinputs *bool = flag.Bool("useallinputs", false, "Use all the unspent outputs as the transaction inputs")
 
 	// Sign raw TX
-	rawtx *string  = flag.String("raw", "", "Sign a raw transaction (use hex-encoded string)")
+	rawtx *string = flag.String("raw", "", "Sign a raw transaction (use hex-encoded string)")
 
 	// Decode raw tx
-	dumptxfn *string  = flag.String("d", "", "Decode raw transaction from the specified file")
+	dumptxfn *string = flag.String("d", "", "Decode raw transaction from the specified file")
 
 	// Sign raw message
-	signhash *string  = flag.String("hash", "", "Sign a raw hash (use together with -sign parameter)")
+	signhash *string = flag.String("hash", "", "Sign a raw hash (use together with -sign parameter)")
 
 	// Print a public key of a give bitcoin address
-	pubkey *string  = flag.String("pub", "", "Print public key of the give bitcoin address")
+	pubkey *string = flag.String("pub", "", "Print public key of the give bitcoin address")
 
 	// Print a public key of a give bitcoin address
-	p2sh *string  = flag.String("p2sh", "", "Insert P2SH script into each transaction input (use together with -raw)")
-	input *int  = flag.Int("input", -1, "Insert P2SH script only at this intput number (-1 for all inputs)")
-	multisign *string  = flag.String("msign", "", "Sign multisig transaction with given bitcoin address (use with -raw)")
-	allowextramsigns *bool = flag.Bool("xtramsigs", false, "Allow to put more signatures than needed (for multisig txs)")
+	p2sh             *string = flag.String("p2sh", "", "Insert P2SH script into each transaction input (use together with -raw)")
+	input            *int    = flag.Int("input", -1, "Insert P2SH script only at this intput number (-1 for all inputs)")
+	multisign        *string = flag.String("msign", "", "Sign multisig transaction with given bitcoin address (use with -raw)")
+	allowextramsigns *bool   = flag.Bool("xtramsigs", false, "Allow to put more signatures than needed (for multisig txs)")
 
 	sequence *int = flag.Int("seq", 0, "Use given RBF sequence number (-1 or -2 for final)")
 )
-
 
 // exit after cleaning up private data from memory
 func cleanExit(code int) {
@@ -74,7 +73,6 @@ func cleanExit(code int) {
 	}
 	os.Exit(code)
 }
-
 
 func main() {
 	// Print the logo to stderr
@@ -99,13 +97,13 @@ func main() {
 	}
 
 	// decode raw transaction?
-	if *dumptxfn!="" {
+	if *dumptxfn != "" {
 		dump_raw_tx()
 		return
 	}
 
 	// dump public key or secret scan key?
-	if *pubkey!="" {
+	if *pubkey != "" {
 		make_wallet()
 		cleanExit(0)
 	}
@@ -118,26 +116,26 @@ func main() {
 	}
 
 	// dump privete key?
-	if *dumppriv!="" {
+	if *dumppriv != "" {
 		make_wallet()
 		dump_prvkey()
 		cleanExit(0)
 	}
 
 	// sign a message or a hash?
-	if *signaddr!="" {
+	if *signaddr != "" {
 		make_wallet()
 		sign_message()
-		if *send=="" {
+		if *send == "" {
 			// Don't load_balance if he did not want to spend coins as well
 			cleanExit(0)
 		}
 	}
 
 	// raw transaction?
-	if *rawtx!="" {
+	if *rawtx != "" {
 		// add p2sh sript to it?
-		if *p2sh!="" {
+		if *p2sh != "" {
 			make_p2sh()
 			cleanExit(0)
 		}
@@ -145,7 +143,7 @@ func main() {
 		make_wallet()
 
 		// multisig sign with a specific key?
-		if *multisign!="" {
+		if *multisign != "" {
 			multisig_sign()
 			cleanExit(0)
 		}

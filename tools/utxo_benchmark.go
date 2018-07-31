@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/binary"
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 	"os"
 	"time"
 )
@@ -24,7 +24,7 @@ func main() {
 	}
 
 	sta := time.Now()
-	db := utxo.NewUnspentDb(&utxo.NewUnspentOpts{Dir:dir})
+	db := utxo.NewUnspentDb(&utxo.NewUnspentOpts{Dir: dir})
 	if db == nil {
 		println("place UTXO.db or UTXO.old in the current folder")
 		return

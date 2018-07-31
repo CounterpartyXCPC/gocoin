@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"runtime"
 	"sync"
 	"time"

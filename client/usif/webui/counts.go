@@ -1,12 +1,12 @@
 package webui
 
 import (
-//	"os"
+	//	"os"
 	"fmt"
 	"sort"
-//	"strings"
+	//	"strings"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"net/http"
-	"github.com/piotrnar/gocoin/client/common"
 )
 
 type many_counters []one_counter
@@ -38,7 +38,6 @@ func p_counts(w http.ResponseWriter, r *http.Request) {
 	write_html_tail(w)
 }
 
-
 func json_counts(w http.ResponseWriter, r *http.Request) {
 	if !ipchecker(r) {
 		return
@@ -47,20 +46,20 @@ func json_counts(w http.ResponseWriter, r *http.Request) {
 	var gen, txs many_counters
 	common.CounterMutex.Lock()
 	for k, v := range common.Counter {
-		if k[4]=='_' {
+		if k[4] == '_' {
 			var i int
-			for i=0; i<len(net); i++ {
-				if net[i]==k[5:] {
+			for i = 0; i < len(net); i++ {
+				if net[i] == k[5:] {
 					break
 				}
 			}
-			if i==len(net) {
+			if i == len(net) {
 				net = append(net, k[5:])
 			}
-		} else if k[:2]=="Tx" {
-			txs = append(txs, one_counter{key:k[2:], cnt:v})
+		} else if k[:2] == "Tx" {
+			txs = append(txs, one_counter{key: k[2:], cnt: v})
 		} else {
-			gen = append(gen, one_counter{key:k, cnt:v})
+			gen = append(gen, one_counter{key: k, cnt: v})
 		}
 	}
 	common.CounterMutex.Unlock()
@@ -74,7 +73,7 @@ func json_counts(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(" \"gen\":["))
 	for i := range gen {
 		w.Write([]byte(fmt.Sprint("{\"var\":\"", gen[i].key, "\",\"cnt\":", gen[i].cnt, "}")))
-		if i<len(gen)-1 {
+		if i < len(gen)-1 {
 			w.Write([]byte(","))
 		}
 	}
@@ -82,14 +81,14 @@ func json_counts(w http.ResponseWriter, r *http.Request) {
 
 	for i := range txs {
 		w.Write([]byte(fmt.Sprint("{\"var\":\"", txs[i].key, "\",\"cnt\":", txs[i].cnt, "}")))
-		if i<len(txs)-1 {
+		if i < len(txs)-1 {
 			w.Write([]byte(","))
 		}
 	}
 	w.Write([]byte("],\n \"net\":["))
 
 	for i := range net {
-		fin := "_"+net[i]
+		fin := "_" + net[i]
 		w.Write([]byte("{\"var\":\"" + net[i] + "\","))
 		common.CounterMutex.Lock()
 		w.Write([]byte(fmt.Sprint("\"rcvd\":", common.Counter["rcvd"+fin], ",")))
@@ -97,7 +96,7 @@ func json_counts(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(fmt.Sprint("\"sent\":", common.Counter["sent"+fin], ",")))
 		w.Write([]byte(fmt.Sprint("\"sbts\":", common.Counter["sbts"+fin], "}")))
 		common.CounterMutex.Unlock()
-		if i<len(net)-1 {
+		if i < len(net)-1 {
 			w.Write([]byte(","))
 		}
 	}

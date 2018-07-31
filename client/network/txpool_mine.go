@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 func (rec *OneTxToSend) IIdx(key uint64) int {
@@ -133,10 +133,10 @@ func (c *OneConnection) SendGetMP() error {
 	}
 	b := new(bytes.Buffer)
 	btc.WriteVlen(b, uint64(tcnt))
-	for k, _ := range TransactionsToSend {
+	for k := range TransactionsToSend {
 		b.Write(k[:])
 	}
-	for k, _ := range TransactionsRejected {
+	for k := range TransactionsRejected {
 		b.Write(k[:])
 	}
 	TxMutex.Unlock()

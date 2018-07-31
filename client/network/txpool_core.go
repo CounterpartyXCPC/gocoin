@@ -3,10 +3,10 @@ package network
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/chain"
-	"github.com/piotrnar/gocoin/lib/script"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -156,7 +156,7 @@ func NeedThisTxExt(id *btc.Uint256, cb func()) (why_not int) {
 func (c *OneConnection) TxInvNotify(hash []byte) {
 	if NeedThisTx(btc.NewUint256(hash), nil) {
 		var b [1 + 4 + 32]byte
-		b[0] = 1 // One inv
+		b[0] = 1      // One inv
 		b[1] = MSG_TX // Tx
 		copy(b[5:37], hash)
 		c.SendRawMsg("getdata", b[:])
@@ -419,7 +419,7 @@ func HandleNetTx(ntx *TxRcvd, retry bool) (accepted bool) {
 
 	// Check for a proper fee
 	fee := totinp - totout
-	if !ntx.local && fee < (uint64(tx.VSize())*common.MinFeePerKB()/1000)  { // do not check minimum fee for locally loaded txs
+	if !ntx.local && fee < (uint64(tx.VSize())*common.MinFeePerKB()/1000) { // do not check minimum fee for locally loaded txs
 		RejectTx(ntx.Tx, TX_REJECTED_LOW_FEE)
 		TxMutex.Unlock()
 		common.CountSafe("TxRejectedLowFee")
@@ -430,7 +430,7 @@ func HandleNetTx(ntx *TxRcvd, retry bool) (accepted bool) {
 		var totweight int
 		var totfees uint64
 
-		for ctx, _ := range rbf_tx_list {
+		for ctx := range rbf_tx_list {
 			totweight += ctx.Weight()
 			totfees += ctx.Fee
 		}
@@ -485,14 +485,14 @@ func HandleNetTx(ntx *TxRcvd, retry bool) (accepted bool) {
 	}
 
 	if rbf_tx_list != nil {
-		for ctx, _ := range rbf_tx_list {
+		for ctx := range rbf_tx_list {
 			// we dont remove with children because we have all of them on the list
 			ctx.Delete(false, TX_REJECTED_REPLACED)
 			common.CountSafe("TxRemovedByRBF")
 		}
 	}
 
-	rec := &OneTxToSend{Spent: spent, Volume: totinp, Local : ntx.local,
+	rec := &OneTxToSend{Spent: spent, Volume: totinp, Local: ntx.local,
 		Fee: fee, Firstseen: time.Now(), Tx: tx, MemInputs: frommem, MemInputCnt: frommemcnt,
 		SigopsCost: uint64(sigops), Final: final, VerifyTime: time.Now().Sub(start_time)}
 
@@ -562,7 +562,7 @@ func (rec *OneTxToSend) isRoutable() bool {
 }
 
 func RetryWaitingForInput(wtg *OneWaitingList) {
-	for k, _ := range wtg.Ids {
+	for k := range wtg.Ids {
 		pendtxrcv := &TxRcvd{Tx: TransactionsRejected[k].Tx}
 		if HandleNetTx(pendtxrcv, true) {
 			common.CountSafe("TxRetryAccepted")

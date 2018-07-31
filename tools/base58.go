@@ -1,19 +1,19 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"flag"
-	"strings"
-	"io/ioutil"
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"flag"
+	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
 var (
 	decode = flag.Bool("d", false, "run base58 decode (instead of encode)")
 	binary = flag.Bool("b", false, "binary (insted of hex) for decode output")
-	help = flag.Bool("h", false, "print this help")
+	help   = flag.Bool("h", false, "print this help")
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	}
 
 	msg, _ := ioutil.ReadAll(os.Stdin)
-	if len(msg)==0 {
+	if len(msg) == 0 {
 		return
 	}
 

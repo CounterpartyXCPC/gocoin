@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 var (
@@ -216,7 +216,7 @@ func TxNotifyDel(tx *utxo.UtxoRec, outs []bool) {
 // Call the cb function for each unspent record
 func (r *OneAllAddrBal) Browse(cb func(*OneAllAddrInp)) {
 	if r.unspMap != nil {
-		for v, _ := range r.unspMap {
+		for v := range r.unspMap {
 			cb(&v)
 		}
 	} else {

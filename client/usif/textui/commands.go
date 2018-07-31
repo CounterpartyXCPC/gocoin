@@ -4,15 +4,15 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/client/usif"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/peersdb"
-	"github.com/piotrnar/gocoin/lib/others/qdb"
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 	"io/ioutil"
 	"os"
 	"runtime"
@@ -163,9 +163,9 @@ func show_info(par string) {
 	network.Mutex_net.Unlock()
 
 	network.TxMutex.Lock()
-	
+
 	fmt.Printf("Txs in mem pool: %d (%dMB), Rejected: %d (%dMB),  Pending:%d/%d\n",
-		len(network.TransactionsToSend), network.TransactionsToSendSize>>20, 
+		len(network.TransactionsToSend), network.TransactionsToSendSize>>20,
 		len(network.TransactionsRejected), network.TransactionsRejectedSize>>20,
 		len(network.TransactionsPending), len(network.NetTxs))
 	fmt.Printf(" WaitingForInputs: %d (%d KB),  SpentOutputs: %d,  AverageFee: %.1f SpB\n",
@@ -184,7 +184,7 @@ func show_info(par string) {
 func show_counters(par string) {
 	common.CounterMutex.Lock()
 	ck := make([]string, 0)
-	for k, _ := range common.Counter {
+	for k := range common.Counter {
 		if par == "" || strings.HasPrefix(k, par) {
 			ck = append(ck, k)
 		}

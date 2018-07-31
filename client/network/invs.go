@@ -5,18 +5,16 @@ import (
 	//"time"
 	"bytes"
 	"encoding/binary"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/chain"
-	"github.com/piotrnar/gocoin/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 )
-
 
 const (
-	MSG_TX = 1
-	MSG_BLOCK = 2
+	MSG_TX          = 1
+	MSG_BLOCK       = 2
 	MSG_CMPCT_BLOCK = 4
 )
-
 
 func blockReceived(bh *btc.Uint256) (ok bool) {
 	MutexRcv.Lock()
@@ -38,7 +36,7 @@ func (c *OneConnection) InvStore(typ uint32, hash []byte) {
 		c.InvDone.Idx++
 		return
 	}
-	if c.InvDone.Idx==MAX_INV_HISTORY {
+	if c.InvDone.Idx == MAX_INV_HISTORY {
 		c.InvDone.Idx = 0
 	}
 	delete(c.InvDone.Map, c.InvDone.History[c.InvDone.Idx])
@@ -58,19 +56,19 @@ func (c *OneConnection) ProcessInv(pl []byte) {
 	c.Mutex.Unlock()
 
 	cnt, of := btc.VLen(pl)
-	if len(pl) != of + 36*cnt {
+	if len(pl) != of+36*cnt {
 		println("inv payload length mismatch", len(pl), of, cnt)
 	}
 
-	for i:=0; i<cnt; i++ {
-		typ := binary.LittleEndian.Uint32(pl[of:of+4])
+	for i := 0; i < cnt; i++ {
+		typ := binary.LittleEndian.Uint32(pl[of : of+4])
 		c.Mutex.Lock()
 		c.InvStore(typ, pl[of+4:of+36])
 		ahr := c.X.AllHeadersReceived
 		c.Mutex.Unlock()
-		common.CountSafe(fmt.Sprint("InvGot-",typ))
-		if typ==MSG_BLOCK {
-			bhash := btc.NewUint256(pl[of+4:of+36])
+		common.CountSafe(fmt.Sprint("InvGot-", typ))
+		if typ == MSG_BLOCK {
+			bhash := btc.NewUint256(pl[of+4 : of+36])
 			if !ahr {
 				common.CountSafe("InvBlockIgnored")
 			} else {
@@ -93,26 +91,25 @@ func (c *OneConnection) ProcessInv(pl []byte) {
 					common.CountSafe("InvBlockOld")
 				}
 			}
-		} else if typ==MSG_TX {
+		} else if typ == MSG_TX {
 			if common.AcceptTx() {
-				c.TxInvNotify(pl[of+4:of+36])
+				c.TxInvNotify(pl[of+4 : of+36])
 			} else {
 				common.CountSafe("InvTxIgnored")
 			}
 		}
-		of+= 36
+		of += 36
 	}
 
 	return
 }
-
 
 func NetRouteInv(typ uint32, h *btc.Uint256, fromConn *OneConnection) uint32 {
 	var fee_spkb uint64
 	if typ == MSG_TX {
 		TxMutex.Lock()
 		if tx, ok := TransactionsToSend[h.BIdx()]; ok {
-			fee_spkb = ( 1000 * tx.Fee ) / uint64(tx.VSize())
+			fee_spkb = (1000 * tx.Fee) / uint64(tx.VSize())
 		} else {
 			println("NetRouteInv: txid", h.String(), "not in mempool")
 		}
@@ -120,7 +117,6 @@ func NetRouteInv(typ uint32, h *btc.Uint256, fromConn *OneConnection) uint32 {
 	}
 	return NetRouteInvExt(typ, h, fromConn, fee_spkb)
 }
-
 
 // This function is called from the main thread (or from an UI)
 func NetRouteInvExt(typ uint32, h *btc.Uint256, fromConn *OneConnection, fee_spkb uint64) (cnt uint32) {
@@ -137,11 +133,11 @@ func NetRouteInvExt(typ uint32, h *btc.Uint256, fromConn *OneConnection, fee_spk
 		if v != fromConn { // except the one that this inv came from
 			send_inv := true
 			v.Mutex.Lock()
-			if typ==MSG_TX {
+			if typ == MSG_TX {
 				if v.Node.DoNotRelayTxs {
 					send_inv = false
 					common.CountSafe("SendInvNoTxNode")
-				} else if v.X.MinFeeSPKB>0 && uint64(v.X.MinFeeSPKB)>fee_spkb {
+				} else if v.X.MinFeeSPKB > 0 && uint64(v.X.MinFeeSPKB) > fee_spkb {
 					send_inv = false
 					common.CountSafe("SendInvFeeTooLow")
 				}
@@ -172,32 +168,30 @@ func NetRouteInvExt(typ uint32, h *btc.Uint256, fromConn *OneConnection, fee_spk
 	return
 }
 
-
 // Call this function only when BlockIndexAccess is locked
-func addInvBlockBranch(inv map[[32]byte] bool, bl *chain.BlockTreeNode, stop *btc.Uint256) {
-	if len(inv)>=500 || bl.BlockHash.Equal(stop) {
+func addInvBlockBranch(inv map[[32]byte]bool, bl *chain.BlockTreeNode, stop *btc.Uint256) {
+	if len(inv) >= 500 || bl.BlockHash.Equal(stop) {
 		return
 	}
 	inv[bl.BlockHash.Hash] = true
 	for i := range bl.Childs {
-		if len(inv)>=500 {
+		if len(inv) >= 500 {
 			return
 		}
 		addInvBlockBranch(inv, bl.Childs[i], stop)
 	}
 }
 
-
 func (c *OneConnection) GetBlocks(pl []byte) {
 	h2get, hashstop, e := parseLocatorsPayload(pl)
 
-	if e!=nil || len(h2get)<1 || hashstop==nil {
+	if e != nil || len(h2get) < 1 || hashstop == nil {
 		println("GetBlocks: error parsing payload from", c.PeerAddr.Ip())
 		c.DoS("BadGetBlks")
 		return
 	}
 
-	invs := make(map[[32]byte] bool, 500)
+	invs := make(map[[32]byte]bool, 500)
 	for i := range h2get {
 		common.BlockChain.BlockIndexAccess.Lock()
 		if bl, ok := common.BlockChain.BlockIndex[h2get[i].BIdx()]; ok {
@@ -205,15 +199,15 @@ func (c *OneConnection) GetBlocks(pl []byte) {
 			common.Last.Mutex.Lock()
 			end := common.Last.Block
 			common.Last.Mutex.Unlock()
-			for ; end!=nil && end.Height>=bl.Height; end = end.Parent {
-				if end==bl {
-					addInvBlockBranch(invs, bl, hashstop)  // Yes - this is the main chain
-					if len(invs)>0 {
+			for ; end != nil && end.Height >= bl.Height; end = end.Parent {
+				if end == bl {
+					addInvBlockBranch(invs, bl, hashstop) // Yes - this is the main chain
+					if len(invs) > 0 {
 						common.BlockChain.BlockIndexAccess.Unlock()
 
 						inv := new(bytes.Buffer)
 						btc.WriteVlen(inv, uint64(len(invs)))
-						for k, _ := range invs {
+						for k := range invs {
 							binary.Write(inv, binary.LittleEndian, uint32(2))
 							inv.Write(k[:])
 						}
@@ -230,20 +224,19 @@ func (c *OneConnection) GetBlocks(pl []byte) {
 	return
 }
 
-
 func (c *OneConnection) SendInvs() (res bool) {
 	b_txs := new(bytes.Buffer)
 	b_blk := new(bytes.Buffer)
 	var c_blk []*btc.Uint256
 
 	c.Mutex.Lock()
-	if len(c.PendingInvs)>0 {
+	if len(c.PendingInvs) > 0 {
 		for i := range c.PendingInvs {
 			var inv_sent_otherwise bool
 			typ := binary.LittleEndian.Uint32((*c.PendingInvs[i])[:4])
 			c.InvStore(typ, (*c.PendingInvs[i])[4:36])
-			if typ==MSG_BLOCK {
-				if c.Node.SendCmpctVer>=1 && c.Node.HighBandwidth {
+			if typ == MSG_BLOCK {
+				if c.Node.SendCmpctVer >= 1 && c.Node.HighBandwidth {
 					c_blk = append(c_blk, btc.NewUint256((*c.PendingInvs[i])[4:]))
 					inv_sent_otherwise = true
 				} else if c.Node.SendHeaders {

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"golang.org/x/crypto/ripemd160"
 )
 

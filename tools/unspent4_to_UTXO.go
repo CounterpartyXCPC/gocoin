@@ -1,21 +1,21 @@
 package main
 
 import (
-	"strings"
-	"strconv"
 	"bufio"
 	"encoding/binary"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/qdb"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
 	"io/ioutil"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
 var (
 	block_height uint64
-	block_hash []byte
+	block_hash   []byte
 )
 
 func load_map4() (ndb map[qdb.KeyType][]byte) {
@@ -40,7 +40,6 @@ func load_map4() (ndb map[qdb.KeyType][]byte) {
 	fmt.Print("\r                                                              \r")
 	return
 }
-
 
 func load_last_block() {
 	var maxbl_fn string
@@ -72,7 +71,7 @@ func load_last_block() {
 	block_height = uint64(maxbl)
 	block_hash = make([]byte, 32)
 
-	f, _ := os.Open("unspent4/"+maxbl_fn)
+	f, _ := os.Open("unspent4/" + maxbl_fn)
 	f.Read(block_hash)
 	f.Close()
 
@@ -117,14 +116,14 @@ func save_map(ndb map[qdb.KeyType][]byte) {
 func main() {
 	var sta time.Time
 
-	if fi, er := os.Stat("unspent4"); er!=nil || !fi.IsDir() {
+	if fi, er := os.Stat("unspent4"); er != nil || !fi.IsDir() {
 		fmt.Println("ERROR: Input database not found.")
 		fmt.Println("Make sure to have unspent4/ directory, where you run this tool from")
 		return
 	}
 
 	load_last_block()
-	if len(block_hash)!=32 {
+	if len(block_hash) != 32 {
 		fmt.Println("ERROR: Could not recover last block's data from the input database", len(block_hash))
 		return
 	}

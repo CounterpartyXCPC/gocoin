@@ -1,13 +1,12 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"bytes"
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"os"
 )
-
 
 // prepare a signed transaction
 func sign_tx(tx *btc.Tx) (all_signed bool) {
@@ -26,7 +25,7 @@ func sign_tx(tx *btc.Tx) (all_signed bool) {
 						println("ERROR in sign_tx:", e.Error())
 						all_signed = false
 					} else {
-						btcsig := &btc.Signature{HashType:0x01}
+						btcsig := &btc.Signature{HashType: 0x01}
 						btcsig.R.Set(r)
 						btcsig.S.Set(s)
 
@@ -38,7 +37,7 @@ func sign_tx(tx *btc.Tx) (all_signed bool) {
 			}
 		} else {
 			uo := getUO(&tx.TxIn[in].Input)
-			if uo==nil {
+			if uo == nil {
 				println("ERROR: Unkown input:", tx.TxIn[in].Input.String(), "- missing balance folder?")
 				all_signed = false
 				continue
@@ -59,9 +58,9 @@ func sign_tx(tx *btc.Tx) (all_signed bool) {
 			}
 			var er error
 			k := keys[k_idx]
-			
+
 			er = tx.Sign(in, uo.Pk_script, btc.SIGHASH_ALL, k.BtcAddr.Pubkey, k.Key)
-			
+
 			if er != nil {
 				fmt.Println("ERROR: Sign failed for input number", in, er.Error())
 				all_signed = false
@@ -83,9 +82,9 @@ func sign_tx(tx *btc.Tx) (all_signed bool) {
 
 func write_tx_file(tx *btc.Tx) {
 	var signedrawtx []byte
-	
+
 	signedrawtx = tx.Serialize()
-	
+
 	tx.SetHash(signedrawtx)
 
 	hs := tx.Hash.String()
@@ -94,7 +93,7 @@ func write_tx_file(tx *btc.Tx) {
 	var fn string
 
 	if txfilename == "" {
-		fn = hs[:8]+".txt"
+		fn = hs[:8] + ".txt"
 	} else {
 		fn = txfilename
 	}
@@ -106,7 +105,6 @@ func write_tx_file(tx *btc.Tx) {
 		fmt.Println("Transaction data stored in", fn)
 	}
 }
-
 
 // prepare a signed transaction
 func make_signed_tx() {
@@ -130,13 +128,13 @@ func make_signed_tx() {
 
 		btcsofar += uo.Value
 		unspentOuts[i].spent = true
-		if !*useallinputs && ( btcsofar >= spendBtc + feeBtc ) {
+		if !*useallinputs && (btcsofar >= spendBtc+feeBtc) {
 			break
 		}
 	}
 	if btcsofar < (spendBtc + feeBtc) {
 		fmt.Println("ERROR: You have", btc.UintToBtc(btcsofar), "BTC, but you need",
-			btc.UintToBtc(spendBtc + feeBtc), "BTC for the transaction")
+			btc.UintToBtc(spendBtc+feeBtc), "BTC for the transaction")
 		cleanExit(1)
 	}
 	changeBtc = btcsofar - (spendBtc + feeBtc)
@@ -168,7 +166,7 @@ func make_signed_tx() {
 		tx.TxOut = append(tx.TxOut, outs...)
 	}
 
-	if *message!="" {
+	if *message != "" {
 		// Add NULL output with an arbitrary message
 		scr := new(bytes.Buffer)
 		scr.WriteByte(0x6a) // OP_RETURN
@@ -184,7 +182,6 @@ func make_signed_tx() {
 		apply_to_balance(tx)
 	}
 }
-
 
 // sign raw transaction with all the keys we have
 func process_raw_tx() {

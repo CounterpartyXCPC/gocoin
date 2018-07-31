@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/peersdb"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 )
 
 var (
@@ -450,12 +450,12 @@ func NetworkTick() {
 	Mutex_net.Unlock()
 
 	for conn_cnt < common.GetUint32(&common.CFG.Net.MaxOutCons) {
-		
+
 		adrs := peersdb.GetBestPeers(128, func(ad *peersdb.PeerAddr) bool {
-			
+
 			return ConnectionActive(ad)
 		})
-		
+
 		if len(adrs) == 0 {
 			common.LockCfg()
 			common.UnlockCfg()
@@ -625,7 +625,7 @@ func (c *OneConnection) Run() {
 						c.SendFeeFilter()
 					}
 					if c.Node.Version >= 70014 {
-					        c.SendRawMsg("sendcmpct", []byte{0x01, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+						c.SendRawMsg("sendcmpct", []byte{0x01, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 					}
 				}
 			}
@@ -762,7 +762,7 @@ func (c *OneConnection) Run() {
 
 	c.Mutex.Lock()
 	MutexRcv.Lock()
-	for k, _ := range c.GetBlockInProgress {
+	for k := range c.GetBlockInProgress {
 		if rec, ok := BlocksToGet[k]; ok {
 			rec.InProgress--
 		} else {

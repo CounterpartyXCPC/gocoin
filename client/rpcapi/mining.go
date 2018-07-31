@@ -1,50 +1,50 @@
 package rpcapi
 
 import (
-	"sort"
-	"time"
 	"encoding/hex"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"sort"
+	"time"
 )
 
 const MAX_TXS_LEN = 999e3 // 999KB, with 1KB margin to not exceed 1MB with conibase
 
 type OneTransaction struct {
-	Data string `json:"data"`
-	Hash string `json:"hash"`
+	Data    string `json:"data"`
+	Hash    string `json:"hash"`
 	Depends []uint `json:"depends"`
-	Fee uint64 `json:"fee"`
-	Sigops uint64 `json:"sigops"`
+	Fee     uint64 `json:"fee"`
+	Sigops  uint64 `json:"sigops"`
 }
 
 type GetBlockTemplateResp struct {
-	Capabilities []string `json:"capabilities"`
-	Version uint32 `json:"version"`
-	PreviousBlockHash string `json:"previousblockhash"`
-	Transactions []OneTransaction `json:"transactions"`
-	Coinbaseaux struct {
+	Capabilities      []string         `json:"capabilities"`
+	Version           uint32           `json:"version"`
+	PreviousBlockHash string           `json:"previousblockhash"`
+	Transactions      []OneTransaction `json:"transactions"`
+	Coinbaseaux       struct {
 		Flags string `json:"flags"`
 	} `json:"coinbaseaux"`
-	Coinbasevalue uint64 `json:"coinbasevalue"`
-	Longpollid string `json:"longpollid"`
-	Target string `json:"target"`
-	Mintime uint `json:"mintime"`
-	Mutable []string `json:"mutable"`
-	Noncerange string `json:"noncerange"`
-	Sigoplimit uint `json:"sigoplimit"`
-	Sizelimit uint `json:"sizelimit"`
-	Curtime uint `json:"curtime"`
-	Bits string `json:"bits"`
-	Height uint `json:"height"`
+	Coinbasevalue uint64   `json:"coinbasevalue"`
+	Longpollid    string   `json:"longpollid"`
+	Target        string   `json:"target"`
+	Mintime       uint     `json:"mintime"`
+	Mutable       []string `json:"mutable"`
+	Noncerange    string   `json:"noncerange"`
+	Sigoplimit    uint     `json:"sigoplimit"`
+	Sizelimit     uint     `json:"sizelimit"`
+	Curtime       uint     `json:"curtime"`
+	Bits          string   `json:"bits"`
+	Height        uint     `json:"height"`
 }
 
 type RpcGetBlockTemplateResp struct {
-	Id interface{} `json:"id"`
+	Id     interface{}          `json:"id"`
 	Result GetBlockTemplateResp `json:"result"`
-	Error interface{} `json:"error"`
+	Error  interface{}          `json:"error"`
 }
 
 func GetNextBlockTemplate(r *GetBlockTemplateResp) {
@@ -57,7 +57,7 @@ func GetNextBlockTemplate(r *GetBlockTemplateResp) {
 	if r.Curtime < r.Mintime {
 		r.Curtime = r.Mintime
 	}
-	height := common.Last.Block.Height+1
+	height := common.Last.Block.Height + 1
 	bits := common.BlockChain.GetNextWorkRequired(common.Last.Block, uint32(r.Curtime))
 	target := btc.SetCompact(bits).Bytes()
 
@@ -69,7 +69,7 @@ func GetNextBlockTemplate(r *GetBlockTemplateResp) {
 	r.Coinbaseaux.Flags = ""
 	r.Longpollid = r.PreviousBlockHash
 	r.Target = hex.EncodeToString(append(zer[:32-len(target)], target...))
-	r.Mutable = []string{"time","transactions","prevblock"}
+	r.Mutable = []string{"time", "transactions", "prevblock"}
 	r.Noncerange = "00000000ffffffff"
 	r.Sigoplimit = btc.MAX_BLOCK_SIGOPS_COST
 	r.Sizelimit = 1e6
@@ -82,8 +82,6 @@ func GetNextBlockTemplate(r *GetBlockTemplateResp) {
 	common.Last.Mutex.Unlock()
 }
 
-
-
 /* memory pool transaction sorting stuff */
 type one_mining_tx struct {
 	*network.OneTxToSend
@@ -92,12 +90,12 @@ type one_mining_tx struct {
 }
 
 type sortedTxList []*one_mining_tx
-func (tl sortedTxList) Len() int {return len(tl)}
+
+func (tl sortedTxList) Len() int           { return len(tl) }
 func (tl sortedTxList) Swap(i, j int)      { tl[i], tl[j] = tl[j], tl[i] }
 func (tl sortedTxList) Less(i, j int) bool { return tl[j].Fee < tl[i].Fee }
 
-
-var txs_so_far map[[32]byte] uint
+var txs_so_far map[[32]byte]uint
 var totlen int
 var sigops uint64
 
@@ -121,7 +119,7 @@ func get_next_tranche_of_txs(height, timestamp uint32) (res sortedTxList) {
 		}
 		totlen += len(v.Raw)
 
-		if sigops + v.SigopsCost > btc.MAX_BLOCK_SIGOPS_COST {
+		if sigops+v.SigopsCost > btc.MAX_BLOCK_SIGOPS_COST {
 			//println("Too many sigops - limit to 999000 bytes")
 			return
 		}
@@ -131,7 +129,7 @@ func get_next_tranche_of_txs(height, timestamp uint32) (res sortedTxList) {
 		var depends []uint
 		for i := range tx.TxIn {
 			unsp = common.BlockChain.Unspent.UnspentGet(&tx.TxIn[i].Input)
-			if unsp==nil {
+			if unsp == nil {
 				// not found in the confirmed blocks
 				// check if txid is in txs_so_far
 				if idx, ok := txs_so_far[tx.TxIn[i].Input.Hash]; !ok {
@@ -145,7 +143,7 @@ func get_next_tranche_of_txs(height, timestamp uint32) (res sortedTxList) {
 		}
 
 		if all_inputs_found {
-			res = append(res, &one_mining_tx{OneTxToSend:v, depends:depends, startat:1+len(txs_so_far)})
+			res = append(res, &one_mining_tx{OneTxToSend: v, depends: depends, startat: 1 + len(txs_so_far)})
 		}
 	}
 	return
@@ -164,14 +162,14 @@ func GetTransactions(height, timestamp uint32) (res []OneTransaction, totfees ui
 	//println("\ngetting txs from the pool of", len(network.TransactionsToSend), "...")
 	for {
 		new_piece := get_next_tranche_of_txs(height, timestamp)
-		if new_piece.Len()==0 {
+		if new_piece.Len() == 0 {
 			break
 		}
 		//println("adding another", len(new_piece))
 		sort.Sort(new_piece)
 
-		for i:=0; i<len(new_piece); i++ {
-			txs_so_far[new_piece[i].Tx.Hash.Hash] = uint(1+len(sorted)+i)
+		for i := 0; i < len(new_piece); i++ {
+			txs_so_far[new_piece[i].Tx.Hash.Hash] = uint(1 + len(sorted) + i)
 		}
 
 		sorted = append(sorted, new_piece...)
@@ -182,7 +180,7 @@ func GetTransactions(height, timestamp uint32) (res []OneTransaction, totfees ui
 	txs_so_far = nil // leave it for the garbage collector
 
 	res = make([]OneTransaction, len(sorted))
-	for cnt=0; cnt<len(sorted); cnt++ {
+	for cnt = 0; cnt < len(sorted); cnt++ {
 		v := sorted[cnt]
 		res[cnt].Data = hex.EncodeToString(v.Raw)
 		res[cnt].Hash = v.Tx.Hash.String()

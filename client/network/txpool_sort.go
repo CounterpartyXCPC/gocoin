@@ -2,8 +2,8 @@ package network
 
 import (
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"sort"
 	"time"
 )
@@ -18,7 +18,7 @@ func GetSortedMempool() (result []*OneTxToSend) {
 	all_txs := make([]BIDX, len(TransactionsToSend))
 	var idx int
 	const MIN_PKB = 200
-	for k, _ := range TransactionsToSend {
+	for k := range TransactionsToSend {
 		all_txs[idx] = k
 		idx++
 	}
@@ -361,7 +361,7 @@ func (tx *OneTxToSend) GetChildren() (result []*OneTxToSend) {
 
 	result = make([]*OneTxToSend, len(res))
 	var idx int
-	for ttx, _ := range res {
+	for ttx := range res {
 		result[idx] = ttx
 		idx++
 	}

@@ -1,13 +1,13 @@
 package main
 
 import (
+	"encoding/hex"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/cgo/openssl"
 	"sync"
 	"time"
-	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/others/cgo/openssl"
 )
 
-var CNT int = 15*250
+var CNT int = 15 * 250
 
 func main() {
 	key, _ := hex.DecodeString("040eaebcd1df2df853d66ce0e1b0fda07f67d1cabefde98514aad795b86a6ea66dbeb26b67d7a00e2447baeccc8a4cef7cd3cad67376ac1c5785aeebb4f6441c16")
@@ -15,10 +15,10 @@ func main() {
 	msg, _ := hex.DecodeString("3382219555ddbb5b00e0090f469e590ba1eae03c7f28ab937de330aa60294ed6")
 	var wg sync.WaitGroup
 	sta := time.Now()
-	for i:=0; i<CNT; i++ {
+	for i := 0; i < CNT; i++ {
 		wg.Add(1)
 		go func() {
-			if openssl.EC_Verify(key, sig, msg)!=1 {
+			if openssl.EC_Verify(key, sig, msg) != 1 {
 				println("Verify error")
 			}
 			wg.Done()
