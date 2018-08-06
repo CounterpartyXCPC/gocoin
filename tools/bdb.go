@@ -1,18 +1,18 @@
 package main
 
 import (
-	"sync"
 	"bytes"
 	"compress/gzip"
 	"encoding/binary"
 	"flag"
 	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 	"github.com/golang/snappy"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/chain"
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"sync"
 )
 
 /*
@@ -65,22 +65,22 @@ var (
 	fl_fixlen            bool
 	fl_fixlenall         bool
 
-	fl_mergedat          uint
-	fl_movedat           uint
+	fl_mergedat uint
+	fl_movedat  uint
 
-	fl_splitdat          int
-	fl_mb                uint
+	fl_splitdat int
+	fl_mb       uint
 
-	fl_datidx            int
+	fl_datidx int
 
-	fl_purgedatidx       bool
+	fl_purgedatidx bool
 
-	buf [5*1024*1024]byte // 5MB should be anough
+	buf [5 * 1024 * 1024]byte // 5MB should be anough
 )
 
 /********************************************************/
 type one_idx_rec struct {
-	sl []byte
+	sl   []byte
 	hash [32]byte
 }
 
@@ -139,12 +139,11 @@ func (r one_idx_rec) PIdx() [32]byte {
 }
 
 func (r one_idx_rec) DatIdx() uint32 {
-	if (r.sl[0]&0x20) != 0 {
+	if (r.sl[0] & 0x20) != 0 {
 		return binary.LittleEndian.Uint32(r.sl[28:32])
 	}
 	return 0
 }
-
 
 /********************************************************/
 
@@ -159,7 +158,7 @@ type one_tree_node struct {
 
 func print_record(sl []byte) {
 	var dat_idx uint32
-	if (sl[0]&0x20) != 0 {
+	if (sl[0] & 0x20) != 0 {
 		dat_idx = binary.LittleEndian.Uint32(sl[28:32])
 	}
 	bh := btc.NewSha2Hash(sl[56:136])
@@ -168,17 +167,16 @@ func print_record(sl []byte) {
 		" Flags", fmt.Sprintf("0x%02x", sl[0]),
 		" - ", binary.LittleEndian.Uint32(sl[48:52]), "bytes @",
 		binary.LittleEndian.Uint64(sl[40:48]), "in", dat_fname(dat_idx))
-	if (sl[0]&0x10) != 0 {
+	if (sl[0] & 0x10) != 0 {
 		fmt.Println("     Uncompressed length:",
 			binary.LittleEndian.Uint32(sl[32:36]), "bytes")
 	}
-	if (sl[0]&0x20) != 0 {
+	if (sl[0] & 0x20) != 0 {
 		fmt.Println("     Data file index:", dat_idx)
 	}
 	hdr := sl[56:136]
 	fmt.Println("   ->", btc.NewUint256(hdr[4:36]).String())
 }
-
 
 func verify_block(blk []byte, sl one_idx_rec, off int) {
 	bl, er := btc.NewBlock(blk)
@@ -205,7 +203,7 @@ func verify_block(blk []byte, sl one_idx_rec, off int) {
 }
 
 func decomp_block(fl uint32, buf []byte) (blk []byte) {
-	if (fl & chain.BLOCK_COMPRSD)!=0 {
+	if (fl & chain.BLOCK_COMPRSD) != 0 {
 		if (fl & chain.BLOCK_SNAPPED) != 0 {
 			blk, _ = snappy.Decode(nil, buf)
 		} else {
@@ -254,16 +252,16 @@ func split_the_data_file(parent_f *os.File, idx uint32, maxlen uint64, dat []byt
 		return false
 	}
 
-	rec_from := new_sl(dat[min_valid_off:min_valid_off+136])
+	rec_from := new_sl(dat[min_valid_off : min_valid_off+136])
 	pos_from := rec_from.DPos()
 
 	for off := min_valid_off; off <= max_valid_off; off += 136 {
-		rec := new_sl(dat[off:off+136])
-		if rec.DLen()==0 {
+		rec := new_sl(dat[off : off+136])
+		if rec.DLen() == 0 {
 			continue
 		}
 		dpos := rec.DPos()
-		if dpos - pos_from + uint64(rec.DLen()) > maxlen {
+		if dpos-pos_from+uint64(rec.DLen()) > maxlen {
 			if !split_the_data_file(parent_f, idx+1, maxlen, dat, off, max_valid_off) {
 				return false // abort spliting
 			}
@@ -272,7 +270,7 @@ func split_the_data_file(parent_f *os.File, idx uint32, maxlen uint64, dat []byt
 			if er != nil {
 				println(er.Error())
 			}
-			max_valid_off = off-136
+			max_valid_off = off - 136
 			break // go to the next stage
 		}
 	}
@@ -297,7 +295,7 @@ func split_the_data_file(parent_f *os.File, idx uint32, maxlen uint64, dat []byt
 
 	//println(".. child split", fname, "at offs", min_valid_off/136, "...", max_valid_off/136, "fpos:", pos_from, " maxlen:", maxlen)
 	for off := min_valid_off; off <= max_valid_off; off += 136 {
-		sl := new_sl(dat[off:off+136])
+		sl := new_sl(dat[off : off+136])
 		sl.SetDatIdx(idx)
 		sl.SetDPos(sl.DPos() - pos_from)
 	}
@@ -317,13 +315,12 @@ func calc_total_size(dat []byte) (res uint64) {
 }
 
 func open_dat_file(idx uint32) (f *os.File, er error) {
-	f, er = os.Open(fl_dir+dat_fname(idx))
+	f, er = os.Open(fl_dir + dat_fname(idx))
 	if er != nil {
-		f, er = os.Open(fl_dir+"oldat"+string(os.PathSeparator)+dat_fname(idx))
+		f, er = os.Open(fl_dir + "oldat" + string(os.PathSeparator) + dat_fname(idx))
 	}
 	return
 }
-
 
 func main() {
 	flag.BoolVar(&fl_help, "h", false, "Show help")
@@ -444,7 +441,7 @@ func main() {
 			return
 		}
 		min_valid_from, max_valid_from := look_for_range(dat, uint32(fl_mergedat))
-		if min_valid_from==-1 {
+		if min_valid_from == -1 {
 			fmt.Println("Invalid from index")
 			return
 		}
@@ -502,7 +499,7 @@ func main() {
 			return
 		}
 		min_valid, max_valid := look_for_range(dat, uint32(fl_movedat))
-		if min_valid==-1 {
+		if min_valid == -1 {
 			fmt.Println("Invalid from index")
 			return
 		}
@@ -518,7 +515,7 @@ func main() {
 		// first discard all the records with the target index
 		for off := 0; off < len(dat); off += 136 {
 			rec := new_sl(dat[off : off+136])
-			if rec.DatIdx()==uint32(fl_to) {
+			if rec.DatIdx() == uint32(fl_to) {
 				rec.SetDLen(0)
 				rec.SetDatIdx(0xffffffff)
 			}
@@ -557,12 +554,12 @@ func main() {
 
 		maxlen := uint64(fl_mb) << 20
 		for off := min_valid_off; off <= max_valid_off; off += 136 {
-			rec := new_sl(dat[off:off+136])
-			if rec.DLen()==0 {
+			rec := new_sl(dat[off : off+136])
+			if rec.DLen() == 0 {
 				continue
 			}
 			dpos := rec.DPos()
-			if dpos + uint64(rec.DLen()) > maxlen {
+			if dpos+uint64(rec.DLen()) > maxlen {
 				//println("root split from", dpos)
 				if !split_the_data_file(f, uint32(fl_splitdat)+1, maxlen, dat, off, max_valid_off) {
 					fmt.Println("Splitting failed")
@@ -580,7 +577,7 @@ func main() {
 	if fl_datidx >= 0 {
 		fname := dat_fname(uint32(fl_datidx))
 		min_valid_off, max_valid_off := look_for_range(dat, uint32(fl_datidx))
-		if min_valid_off==-1 {
+		if min_valid_off == -1 {
 			fmt.Println(fname, "is not used by any record")
 			return
 		}
@@ -594,14 +591,14 @@ func main() {
 		var cnt int
 		for off := 0; off < len(dat); off += 136 {
 			rec := new_sl(dat[off:])
-			if rec.DLen()==0 && rec.DatIdx()==0xffffffff {
+			if rec.DLen() == 0 && rec.DatIdx() == 0xffffffff {
 				continue
 			}
 			idx := rec.DatIdx()
 			have_file, ok := cache[idx]
 			if !ok {
 				fi, _ := os.Stat(dat_fname(idx))
-				have_file = fi!=nil
+				have_file = fi != nil
 				cache[idx] = have_file
 			}
 			if !have_file {
@@ -620,8 +617,7 @@ func main() {
 		return
 	}
 
-
-	if fl_invalid==0 || fl_invalid==1 || fl_trusted==0 || fl_trusted==1 {
+	if fl_invalid == 0 || fl_invalid == 1 || fl_trusted == 0 || fl_trusted == 1 {
 		var cnt uint64
 		for off := 0; off < len(dat); off += 136 {
 			sl := dat[off : off+136]
@@ -631,24 +627,24 @@ func main() {
 			if uint(binary.LittleEndian.Uint32(sl[36:40])) > fl_to {
 				continue
 			}
-			if fl_invalid==0 {
-				if (sl[0]&INVALID)!=0 {
+			if fl_invalid == 0 {
+				if (sl[0] & INVALID) != 0 {
 					sl[0] &= ^byte(INVALID)
 					cnt++
 				}
-			} else if fl_invalid==1 {
-				if (sl[0]&INVALID)==0 {
+			} else if fl_invalid == 1 {
+				if (sl[0] & INVALID) == 0 {
 					sl[0] |= INVALID
 					cnt++
 				}
 			}
-			if fl_trusted==0 {
-				if (sl[0]&TRUSTED)!=0 {
+			if fl_trusted == 0 {
+				if (sl[0] & TRUSTED) != 0 {
 					sl[0] &= ^byte(TRUSTED)
 					cnt++
 				}
-			} else if fl_trusted==1 {
-				if (sl[0]&TRUSTED)==0 {
+			} else if fl_trusted == 1 {
+				if (sl[0] & TRUSTED) == 0 {
 					sl[0] |= TRUSTED
 					cnt++
 				}
@@ -670,11 +666,11 @@ func main() {
 		fmt.Println("blockchain.new upated. Now delete blockchain.dat yourself...")
 	}
 
-	if fl_purgeto!=0 {
+	if fl_purgeto != 0 {
 		var cur_dat_pos uint64
 
 		f, er := os.Open("blockchain.dat")
-		if er!=nil {
+		if er != nil {
 			println(er.Error())
 			return
 		}
@@ -683,8 +679,8 @@ func main() {
 		newdir := fmt.Sprint("purged_to_", fl_purgeto, string(os.PathSeparator))
 		os.Mkdir(newdir, os.ModePerm)
 
-		o, er := os.Create(newdir+"blockchain.dat")
-		if er!=nil {
+		o, er := os.Create(newdir + "blockchain.dat")
+		if er != nil {
 			println(er.Error())
 			return
 		}
@@ -795,7 +791,7 @@ func main() {
 			var off int
 			for n := first_block; n != nil; n = n.next {
 				n.off = off
-				n.sl[0] = n.sl[0]&0xfc
+				n.sl[0] = n.sl[0] & 0xfc
 				f.Write(n.sl)
 				off += len(n.sl)
 			}
@@ -805,7 +801,7 @@ func main() {
 			fmt.Println("The index file looks perfect")
 		}
 
-		for n := first_block; n!=nil && n.next!=nil; n = n.next {
+		for n := first_block; n != nil && n.next != nil; n = n.next {
 			if n.next.DPos() < n.DPos() {
 				fmt.Println("There is a problem... swapped order in the data file!", n.off)
 				return
@@ -923,7 +919,7 @@ func main() {
 				if fdat != nil {
 					fdat.Close()
 				}
-				fdat, er = os.OpenFile(fl_dir + dat_fname(idx), os.O_RDWR, 0600)
+				fdat, er = os.OpenFile(fl_dir+dat_fname(idx), os.O_RDWR, 0600)
 				if er != nil {
 					//println(er.Error())
 					continue
@@ -937,7 +933,7 @@ func main() {
 				prv_perc = perc
 			}
 
-			if fl_block!=0 && hei<fl_block {
+			if fl_block != 0 && hei < fl_block {
 				continue
 			}
 
@@ -966,7 +962,7 @@ func main() {
 
 			totlen += uint64(len(blk))
 		}
-		done.Wait()  // wait for all the goroutines to complete
+		done.Wait() // wait for all the goroutines to complete
 		fdat.Close()
 		if fdat != nil {
 			fdat.Close()
@@ -1072,7 +1068,7 @@ func main() {
 		fmt.Println("Block not found - nothing truncated")
 	}
 
-	if fl_savebl!="" {
+	if fl_savebl != "" {
 		bh := btc.NewUint256FromString(fl_savebl)
 		if bh == nil {
 			println("Incortrect block hash:", fl_savebl)

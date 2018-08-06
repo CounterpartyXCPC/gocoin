@@ -1,16 +1,16 @@
 package rpcapi
 
 import (
-	"time"
-	"sync"
-	"strings"
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/client/network"
 	"encoding/json"
-	"io/ioutil"
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"io/ioutil"
+	"strings"
+	"sync"
+	"time"
 )
 
 type BlockSubmited struct {
@@ -21,39 +21,38 @@ type BlockSubmited struct {
 
 var RpcBlocks chan *BlockSubmited = make(chan *BlockSubmited, 1)
 
-
 func SubmitBlock(cmd *RpcCommand, resp *RpcResponse, b []byte) {
 	var bd []byte
 	var er error
 
 	switch uu := cmd.Params.(type) {
-		case []interface{}:
-			if len(uu)<1 {
-				resp.Error = RpcError{Code: -1, Message: "empty params array"}
-				return
-			}
-			str := uu[0].(string)
-			if str[0]=='@' {
-				/*
-					gocoin special case: if the string starts with @, it's a name of the file with block's binary data
-						curl --user gocoinrpc:gocoinpwd --data-binary \
-							'{"jsonrpc": "1.0", "id":"curltest", "method": "submitblock", "params": \
-								["@450529_000000000000000000cf208f521de0424677f7a87f2f278a1042f38d159565f5.bin"] }' \
-							-H 'content-type: text/plain;' http://127.0.0.1:8332/
-				*/
-				//println("jade z koksem", str[1:])
-				bd, er = ioutil.ReadFile(str[1:])
-			} else {
-				bd, er = hex.DecodeString(str)
-			}
-			if er != nil {
-				resp.Error = RpcError{Code: -3, Message: er.Error()}
-				return
-			}
-
-		default:
-			resp.Error = RpcError{Code: -2, Message: "incorrect params type"}
+	case []interface{}:
+		if len(uu) < 1 {
+			resp.Error = RpcError{Code: -1, Message: "empty params array"}
 			return
+		}
+		str := uu[0].(string)
+		if str[0] == '@' {
+			/*
+				gocoin special case: if the string starts with @, it's a name of the file with block's binary data
+					curl --user gocoinrpc:gocoinpwd --data-binary \
+						'{"jsonrpc": "1.0", "id":"curltest", "method": "submitblock", "params": \
+							["@450529_000000000000000000cf208f521de0424677f7a87f2f278a1042f38d159565f5.bin"] }' \
+						-H 'content-type: text/plain;' http://127.0.0.1:8332/
+			*/
+			//println("jade z koksem", str[1:])
+			bd, er = ioutil.ReadFile(str[1:])
+		} else {
+			bd, er = hex.DecodeString(str)
+		}
+		if er != nil {
+			resp.Error = RpcError{Code: -3, Message: er.Error()}
+			return
+		}
+
+	default:
+		resp.Error = RpcError{Code: -2, Message: "incorrect params type"}
+		return
 	}
 
 	bs := new(BlockSubmited)
@@ -100,11 +99,11 @@ func SubmitBlock(cmd *RpcCommand, resp *RpcResponse, b []byte) {
 		bitcoind_result := process_rpc(b)
 		json.Unmarshal(bitcoind_result, &resp)
 		switch cmd.Params.(type) {
-			case string:
-				println("\007Block rejected by bitcoind:", resp.Result.(string))
-				ioutil.WriteFile(fmt.Sprint(bs.Block.Height, "-", bs.Block.Hash.String()), bd, 0777)
-			default:
-				println("submiting block verified OK", bs.Error)
+		case string:
+			println("\007Block rejected by bitcoind:", resp.Result.(string))
+			ioutil.WriteFile(fmt.Sprint(bs.Block.Height, "-", bs.Block.Hash.String()), bd, 0777)
+		default:
+			println("submiting block verified OK", bs.Error)
 		}
 	}
 }

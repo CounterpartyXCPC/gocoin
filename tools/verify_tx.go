@@ -8,23 +8,21 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/script"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 	"syscall"
 	"unsafe"
 )
 
 const (
-	DllName = "libbitcoinconsensus-0.dll"
+	DllName  = "libbitcoinconsensus-0.dll"
 	ProcName = "bitcoinconsensus_verify_script"
 )
 
-
 var (
 	bitcoinconsensus_verify_script *syscall.Proc
-	use_consensus_lib bool
+	use_consensus_lib              bool
 )
-
 
 func consensus_verify_script(pkScr []byte, i int, tx *btc.Tx, ver_flags uint32) bool {
 	txTo := tx.Serialize()
@@ -42,16 +40,15 @@ func consensus_verify_script(pkScr []byte, i int, tx *btc.Tx, ver_flags uint32) 
 	return r1 == 1
 }
 
-
 func load_dll() {
 	dll, er := syscall.LoadDLL(DllName)
-	if er!=nil {
+	if er != nil {
 		println(er.Error())
 		println("WARNING: Consensus verificatrion disabled")
 		return
 	}
 	bitcoinconsensus_verify_script, er = dll.FindProc(ProcName)
-	if er!=nil {
+	if er != nil {
 		println(er.Error())
 		println("WARNING: Consensus verificatrion disabled")
 		return

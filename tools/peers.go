@@ -1,13 +1,13 @@
 package main
 
 import (
-	"os"
 	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
+	"os"
 	"sort"
 	"time"
-	"github.com/piotrnar/gocoin/lib/others/qdb"
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/others/utils"
 )
 
 type manyPeers []*utils.OnePeer
@@ -24,11 +24,10 @@ func (mp manyPeers) Swap(i, j int) {
 	mp[i], mp[j] = mp[j], mp[i]
 }
 
-
 func main() {
 	var dir string
 
-	if len(os.Args)>1 {
+	if len(os.Args) > 1 {
 		dir = os.Args[1]
 	} else {
 		dir = sys.BitcoinHome() + "gocoin" + string(os.PathSeparator) + "btcnet" + string(os.PathSeparator) + "peers3"
@@ -36,13 +35,13 @@ func main() {
 
 	db, er := qdb.NewDB(dir, true)
 
-	if er!=nil {
+	if er != nil {
 		println(er.Error())
 		os.Exit(1)
 	}
 
 	println(db.Count(), "peers in databse", dir)
-	if db.Count()==0 {
+	if db.Count() == 0 {
 		return
 	}
 
@@ -61,10 +60,10 @@ func main() {
 	})
 
 	sort.Sort(tmp[:cnt])
-	for cnt=0; cnt<len(tmp)&&cnt<2500; cnt++ {
+	for cnt = 0; cnt < len(tmp) && cnt < 2500; cnt++ {
 		ad := tmp[cnt]
 		fmt.Printf("%3d) %16s   %5d  - seen %5d min ago\n", cnt+1,
 			fmt.Sprintf("%d.%d.%d.%d", ad.Ip4[0], ad.Ip4[1], ad.Ip4[2], ad.Ip4[3]),
-			ad.Port, (time.Now().Unix() - int64(ad.Time))/60)
+			ad.Port, (time.Now().Unix()-int64(ad.Time))/60)
 	}
 }

@@ -3,8 +3,8 @@ package usif
 import (
 	"bufio"
 	"encoding/gob"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"os"
 	"sync"
 )
@@ -65,7 +65,7 @@ func ExpireBlockFees() {
 
 	BlockFeesMutex.Lock()
 	if BlockFeesDirty {
-		for k, _ := range BlockFees {
+		for k := range BlockFees {
 			if k < height {
 				delete(BlockFees, k)
 			}

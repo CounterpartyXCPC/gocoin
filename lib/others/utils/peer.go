@@ -1,20 +1,18 @@
 package utils
 
 import (
-	"hash/crc64"
 	"encoding/binary"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"hash/crc64"
 )
 
 type OnePeer struct {
 	btc.NetAddr
-	Time uint32  // When seen last time
+	Time   uint32 // When seen last time
 	Banned uint32 // time when this address baned or zero if never
 }
 
-
 var crctab = crc64.MakeTable(crc64.ISO)
-
 
 /*
 Serialized peer record (all values are LSB unless specified otherwise):
@@ -25,7 +23,6 @@ Serialized peer record (all values are LSB unless specified otherwise):
  [28:30] - TCP port (big endian)
  [30:34] - OPTIONAL: if present, unix timestamp of when the peer was banned
 */
-
 
 func NewPeer(v []byte) (p *OnePeer) {
 	if len(v) < 30 {
@@ -38,12 +35,11 @@ func NewPeer(v []byte) (p *OnePeer) {
 	copy(p.Ip6[:], v[12:24])
 	copy(p.Ip4[:], v[24:28])
 	p.Port = binary.BigEndian.Uint16(v[28:30])
-	if len(v)>=34 {
+	if len(v) >= 34 {
 		p.Banned = binary.LittleEndian.Uint32(v[30:34])
 	}
 	return
 }
-
 
 func (p *OnePeer) Bytes() (res []byte) {
 	if p.Banned != 0 {
@@ -60,11 +56,10 @@ func (p *OnePeer) Bytes() (res []byte) {
 	return
 }
 
-
-func (p *OnePeer) UniqID() (uint64) {
+func (p *OnePeer) UniqID() uint64 {
 	h := crc64.New(crctab)
 	h.Write(p.Ip6[:])
 	h.Write(p.Ip4[:])
-	h.Write([]byte{byte(p.Port>>8),byte(p.Port)})
+	h.Write([]byte{byte(p.Port >> 8), byte(p.Port)})
 	return h.Sum64()
 }

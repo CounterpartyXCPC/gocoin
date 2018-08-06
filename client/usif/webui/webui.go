@@ -1,16 +1,16 @@
 package webui
 
 import (
-	"log"
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/usif"
+	"github.com/counterpartyxcpc/gocoin-cash"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -253,4 +253,3 @@ func start_ssl_server() {
 		println(err.Error())
 	}
 }
-

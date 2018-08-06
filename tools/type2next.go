@@ -5,12 +5,11 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"os"
 )
-
 
 func main() {
 	if len(os.Args) < 3 {
@@ -24,9 +23,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	if len(public_key)==33 && (public_key[0]==2 || public_key[0]==3) {
+	if len(public_key) == 33 && (public_key[0] == 2 || public_key[0] == 3) {
 		fmt.Println("Compressed")
-	} else if len(public_key)==65 && (public_key[0]==4) {
+	} else if len(public_key) == 65 && (public_key[0] == 4) {
 		fmt.Println("Uncompressed")
 	} else {
 		println("Incorrect public key")
@@ -38,7 +37,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	testnet := len(os.Args) > 3 && os.Args[3]=="-t"
+	testnet := len(os.Args) > 3 && os.Args[3] == "-t"
 
 	// Old address
 	public_key = btc.DeriveNextPublic(public_key, secret)

@@ -2,13 +2,12 @@ package textui
 
 import (
 	"fmt"
-	"time"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"regexp"
 	"strconv"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/client/common"
+	"time"
 )
-
 
 func do_mining(s string) {
 	var totbtc, hrs, segwit_cnt uint64
@@ -19,7 +18,7 @@ func do_mining(s string) {
 		hrs = uint64(common.CFG.Stat.MiningHrs)
 	}
 	fmt.Println("Looking back", hrs, "hours...")
-	lim := uint32(time.Now().Add(-time.Hour*time.Duration(hrs)).Unix())
+	lim := uint32(time.Now().Add(-time.Hour * time.Duration(hrs)).Unix())
 	common.Last.Mutex.Lock()
 	bte := common.Last.Block
 	end := bte
@@ -40,7 +39,7 @@ func do_mining(s string) {
 			return
 		}
 		block, e := btc.NewBlock(bl)
-		if e!=nil {
+		if e != nil {
 			println("btc.NewBlock failed", e.Error())
 			return
 		}
@@ -57,14 +56,14 @@ func do_mining(s string) {
 		}
 
 		res := bip100x.Find(cbasetx.TxIn[0].ScriptSig)
-		if res!=nil {
+		if res != nil {
 			bip100_voting[string(res)]++
 			nimer, _ := common.TxMiner(cbasetx)
 			fmt.Println("      block", end.Height, "by", nimer, "BIP100 voting", string(res), " total:", bip100_voting[string(res)])
 		}
 
 		res = eb_ad_x.Find(cbasetx.TxIn[0].ScriptSig)
-		if res!=nil {
+		if res != nil {
 			eb_ad_voting[string(res)]++
 		}
 
@@ -78,11 +77,11 @@ func do_mining(s string) {
 	if cnt > 0 {
 		fmt.Printf("Projected weekly income : %.0f BTC,  estimated hashrate : %s\n",
 			7*24*float64(totbtc)/float64(hrs)/1e8,
-			common.HashrateToString(float64(cnt)/float64(6*hrs) * diff * 7158278.826667))
+			common.HashrateToString(float64(cnt)/float64(6*hrs)*diff*7158278.826667))
 	}
-	bph := float64(tot_blocks)/float64(hrs)
+	bph := float64(tot_blocks) / float64(hrs)
 	fmt.Printf("Total network hashrate : %s @ average diff %.0f  (%.2f bph)\n",
-		common.HashrateToString(bph/6 * diff * 7158278.826667), diff, bph)
+		common.HashrateToString(bph/6*diff*7158278.826667), diff, bph)
 	fmt.Printf("%d blocks in %d hours. Average size %.1f KB,  next diff in %d blocks\n",
 		tot_blocks, hrs, float64(tot_blocks_len/tot_blocks)/1e3, 2016-bte.Height%2016)
 
@@ -93,7 +92,6 @@ func do_mining(s string) {
 		fmt.Printf(" %s \t %d \t %.1f%%\n", k, v, float64(v)*100/float64(tot_blocks))
 	}
 }
-
 
 func init() {
 	newUi("minerstat m", false, do_mining, "Look for the miner ID in recent blocks (optionally specify number of hours)")

@@ -2,24 +2,23 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"flag"
 	"bytes"
+	"flag"
+	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 	"io/ioutil"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/ltc"
+	"os"
 )
 
-
 var (
-	addr = flag.String("a", "", "base58 encoded bitcoin address that supposedly signed the message (required)")
-	sign = flag.String("s", "", "base64 encoded signature of the message (required)")
-	mess = flag.String("m", "", "the message (optional)")
-	mfil = flag.String("f", "", "the filename containing a signed message (optional)")
-	unix = flag.Bool("u", false, "remove all \\r characters from the message (optional)")
-	help = flag.Bool("h", false, "print this help")
-	verb = flag.Bool("v", false, "verbose mode")
+	addr     = flag.String("a", "", "base58 encoded bitcoin address that supposedly signed the message (required)")
+	sign     = flag.String("s", "", "base64 encoded signature of the message (required)")
+	mess     = flag.String("m", "", "the message (optional)")
+	mfil     = flag.String("f", "", "the filename containing a signed message (optional)")
+	unix     = flag.Bool("u", false, "remove all \\r characters from the message (optional)")
+	help     = flag.Bool("h", false, "print this help")
+	verb     = flag.Bool("v", false, "verbose mode")
 	litecoin = flag.Bool("ltc", false, "litecoin mode")
 )
 
@@ -28,13 +27,13 @@ func main() {
 
 	flag.Parse()
 
-	if *help || *addr=="" || *sign=="" {
+	if *help || *addr == "" || *sign == "" {
 		flag.PrintDefaults()
 		return
 	}
 
 	ad, er := btc.NewAddrFromString(*addr)
-	if !*litecoin && ad!=nil && ad.Version==ltc.AddrVerPubkey(false) {
+	if !*litecoin && ad != nil && ad.Version == ltc.AddrVerPubkey(false) {
 		*litecoin = true
 	}
 	if er != nil {
@@ -49,9 +48,9 @@ func main() {
 		return
 	}
 
-	if *mess!="" {
+	if *mess != "" {
 		msg = []byte(*mess)
-	} else if *mfil!="" {
+	} else if *mfil != "" {
 		msg, er = ioutil.ReadFile(*mfil)
 		if er != nil {
 			println(er.Error())
@@ -93,7 +92,7 @@ func main() {
 		ok := btc.EcdsaVerify(pk, btcsig.Bytes(), hash)
 		if ok {
 			sa := btc.NewAddrFromPubkey(pk, ad.Version)
-			if ad.Hash160!=sa.Hash160 {
+			if ad.Hash160 != sa.Hash160 {
 				fmt.Println("BAD signature for", ad.String())
 				if bytes.IndexByte(msg, '\r') != -1 {
 					fmt.Println("You have CR chars in the message. Try to verify with -u switch.")

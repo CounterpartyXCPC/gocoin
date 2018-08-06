@@ -1,15 +1,14 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"bytes"
-	"strconv"
-	"io/ioutil"
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"fmt"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"io/ioutil"
+	"os"
+	"strconv"
 )
-
 
 func raw_tx_from_file(fn string) *btc.Tx {
 	d, er := ioutil.ReadFile(fn)
@@ -32,7 +31,6 @@ func raw_tx_from_file(fn string) *btc.Tx {
 	return tx
 }
 
-
 func write_tx_file(tx *btc.Tx) {
 	signedrawtx := tx.Serialize()
 	tx.SetHash(signedrawtx)
@@ -40,7 +38,7 @@ func write_tx_file(tx *btc.Tx) {
 	hs := tx.Hash.String()
 	fmt.Println(hs)
 
-	f, _ := os.Create(hs[:8]+".txt")
+	f, _ := os.Create(hs[:8] + ".txt")
 	if f != nil {
 		f.Write([]byte(hex.EncodeToString(signedrawtx)))
 		f.Close()
@@ -48,9 +46,8 @@ func write_tx_file(tx *btc.Tx) {
 	}
 }
 
-
 func main() {
-	if len(os.Args)!=5 {
+	if len(os.Args) != 5 {
 		fmt.Println("This tool needs to be executed with 4 arguments:")
 		fmt.Println(" 1) Name of the unsigned transaction file")
 		fmt.Println(" 2) Input index to add the key & signature to")
@@ -59,7 +56,7 @@ func main() {
 		return
 	}
 	tx := raw_tx_from_file(os.Args[1])
-	if tx==nil {
+	if tx == nil {
 		return
 	}
 

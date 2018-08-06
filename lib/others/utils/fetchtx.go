@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"io/ioutil"
 	"net/http"
 )
@@ -38,7 +38,6 @@ func GetTxFromExplorer(txid *btc.Uint256, testnet bool) (rawtx []byte) {
 	}
 	return
 }
-
 
 // Download raw transaction from webbtc.com
 func GetTxFromWebBTC(txid *btc.Uint256) (raw []byte) {
@@ -77,7 +76,6 @@ func GetTxFromBlockchainInfo(txid *btc.Uint256) (rawtx []byte) {
 	return
 }
 
-
 // Download (and re-assemble) raw transaction from blockcypher.com
 func GetTxFromBlockcypher(txid *btc.Uint256, currency string) (rawtx []byte) {
 	var url string
@@ -103,7 +101,6 @@ func GetTxFromBlockcypher(txid *btc.Uint256, currency string) (rawtx []byte) {
 	}
 	return
 }
-
 
 func verify_txid(txid *btc.Uint256, rawtx []byte) bool {
 	tx, _ := btc.NewTx(rawtx)
@@ -142,7 +139,6 @@ func GetTxFromWeb(txid *btc.Uint256) (raw []byte) {
 
 	return
 }
-
 
 // Download testnet's raw transaction from a web server
 func GetTestnetTxFromWeb(txid *btc.Uint256) (raw []byte) {

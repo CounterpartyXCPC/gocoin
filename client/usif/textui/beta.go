@@ -2,8 +2,8 @@ package textui
 
 import (
 	"fmt"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"time"
 )
 

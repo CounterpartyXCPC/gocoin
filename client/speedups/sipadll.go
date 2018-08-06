@@ -10,8 +10,8 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"os"
 	"syscall"
 	"unsafe"

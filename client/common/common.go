@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/chain"
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/others/utils"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 	"log"
 	"os"
 	"runtime"
@@ -23,8 +23,8 @@ const (
 )
 
 var (
-	LogBuffer = new(bytes.Buffer)
-	Log *log.Logger = log.New(LogBuffer, "", 0)
+	LogBuffer             = new(bytes.Buffer)
+	Log       *log.Logger = log.New(LogBuffer, "", 0)
 
 	BlockChain   *chain.Chain
 	GenesisBlock *btc.Uint256
