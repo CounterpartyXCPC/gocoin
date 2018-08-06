@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 // https://api.blockchair.com/bitcoin/outputs?q=is_spent(0),recipient(bc1qdvpxmyvyu9urhadl6sk69gcjsfqsvrjsqfk5aq)

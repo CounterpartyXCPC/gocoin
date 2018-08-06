@@ -5,13 +5,14 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 	"io/ioutil"
 	"os"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
 const (

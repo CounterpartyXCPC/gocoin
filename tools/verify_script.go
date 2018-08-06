@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 	"syscall"
 	"unsafe"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
 const (

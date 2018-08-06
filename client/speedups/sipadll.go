@@ -10,11 +10,12 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"os"
 	"syscall"
 	"unsafe"
+
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 var (

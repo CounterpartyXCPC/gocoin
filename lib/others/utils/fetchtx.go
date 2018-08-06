@@ -4,9 +4,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 // Download (and re-assemble) raw transaction from blockexplorer.com

@@ -3,11 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 type unspRec struct {

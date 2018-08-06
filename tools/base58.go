@@ -4,10 +4,11 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 var (

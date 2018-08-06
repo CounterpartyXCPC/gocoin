@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"os"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 func main() {

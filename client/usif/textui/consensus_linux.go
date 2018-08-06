@@ -54,12 +54,13 @@ import "C"
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 	"sync"
 	"sync/atomic"
 	"unsafe"
+
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
 var (

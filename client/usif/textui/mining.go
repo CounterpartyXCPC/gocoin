@@ -2,11 +2,12 @@ package textui
 
 import (
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"regexp"
 	"strconv"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 func do_mining(s string) {
@@ -51,7 +52,7 @@ func do_mining(s string) {
 		tot_blocks_len += len(bl)
 		diff += btc.GetDifficulty(block.Bits())
 
-		if (block.Version()&0x20000002) == 0x20000002 {
+		if (block.Version() & 0x20000002) == 0x20000002 {
 			segwit_cnt++
 		}
 

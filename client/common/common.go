@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 	"log"
 	"os"
 	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 )
 
 const (

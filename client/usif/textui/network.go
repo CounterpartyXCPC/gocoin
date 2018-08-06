@@ -2,12 +2,13 @@ package textui
 
 import (
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"sort"
 	"strconv"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 )
 
 type SortedKeys []struct {

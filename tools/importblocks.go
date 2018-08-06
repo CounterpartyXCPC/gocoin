@@ -3,12 +3,13 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/blockdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"os"
-	"time"
 )
 
 const Trust = true // Set this to false if you want to re-check all scripts

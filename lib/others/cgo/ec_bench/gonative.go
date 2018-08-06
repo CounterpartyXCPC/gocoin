@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 var CNT int = 100e3

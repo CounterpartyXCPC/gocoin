@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"io/ioutil"
 	"os"
 	"strconv"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 /*

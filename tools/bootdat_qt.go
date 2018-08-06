@@ -4,9 +4,11 @@ package main
 import (
 	"fmt"
 	"os"
+
 	//"time"
 	"encoding/binary"
 	"encoding/hex"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 	//"github.com/counterpartyxcpc/gocoin-cash/lib/others/blockdb"

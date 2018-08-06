@@ -7,9 +7,10 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"os"
 	"strconv"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 func main() {

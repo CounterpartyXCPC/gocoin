@@ -2,6 +2,7 @@ package ltc
 
 import (
 	"bytes"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"

@@ -1,19 +1,20 @@
 package chain
 
 import (
+	"bytes"
+	"encoding/binary"
+	"errors"
 	"fmt"
 	"time"
-	"bytes"
-	"errors"
-	"encoding/binary"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/script"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
 // Make sure to call this function with ch.BlockIndexAccess locked
 func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bool) {
 	// Size limits
-	if len(bl.Raw)<81 {
+	if len(bl.Raw) < 81 {
 		er = errors.New("CheckBlock() : size limits failed - RPC_Result:bad-blk-length")
 		dos = true
 		return
@@ -34,7 +35,7 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 	}
 
 	// Check timestamp (must not be higher than now +2 hours)
-	if int64(bl.BlockTime()) > time.Now().Unix() + 2 * 60 * 60 {
+	if int64(bl.BlockTime()) > time.Now().Unix()+2*60*60 {
 		er = errors.New("CheckBlock() : block timestamp too far in the future - RPC_Result:time-too-new")
 		dos = true
 		return
@@ -46,19 +47,19 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 			er = errors.New("Genesis")
 			return
 		} else {
-			er = errors.New("CheckBlock: "+bl.Hash.String()+" already in - RPC_Result:duplicate")
+			er = errors.New("CheckBlock: " + bl.Hash.String() + " already in - RPC_Result:duplicate")
 			return
 		}
 	}
 
 	prevblk, ok := ch.BlockIndex[btc.NewUint256(bl.ParentHash()).BIdx()]
 	if !ok {
-		er = errors.New("CheckBlock: "+bl.Hash.String()+" parent not found - RPC_Result:bad-prevblk")
+		er = errors.New("CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
 		maybelater = true
 		return
 	}
 
-	bl.Height = prevblk.Height+1
+	bl.Height = prevblk.Height + 1
 
 	// Reject the block if it reaches into the chain deeper than our unwind buffer
 	lst_now := ch.LastBlock()
@@ -90,7 +91,7 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 		ver < 4 && bl.Height >= ch.Consensus.BIP65Height {
 		// bad block version
 		erstr := fmt.Sprintf("0x%08x", ver)
-		er = errors.New("CheckBlock() : Rejected Version="+erstr+" block - RPC_Result:bad-version("+erstr+")")
+		er = errors.New("CheckBlock() : Rejected Version=" + erstr + " block - RPC_Result:bad-version(" + erstr + ")")
 		dos = true
 		return
 	}
@@ -105,7 +106,6 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 
 	return
 }
-
 
 func (ch *Chain) ApplyBlockFlags(bl *btc.Block) {
 	if bl.BlockTime() >= BIP16SwitchTime {
@@ -132,15 +132,14 @@ func (ch *Chain) ApplyBlockFlags(bl *btc.Block) {
 
 }
 
-
 func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 	// Size limits
-	if len(bl.Raw)<81 {
+	if len(bl.Raw) < 81 {
 		er = errors.New("CheckBlock() : size limits failed low - RPC_Result:bad-blk-length")
 		return
 	}
 
-	if bl.Txs==nil {
+	if bl.Txs == nil {
 		er = bl.BuildTxList()
 		if er != nil {
 			return
@@ -154,18 +153,18 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 
 	if !bl.Trusted {
 		// We need to be satoshi compatible
-		if len(bl.Txs)==0 || !bl.Txs[0].IsCoinBase() {
-			er = errors.New("CheckBlock() : first tx is not coinbase: "+bl.Hash.String()+" - RPC_Result:bad-cb-missing")
+		if len(bl.Txs) == 0 || !bl.Txs[0].IsCoinBase() {
+			er = errors.New("CheckBlock() : first tx is not coinbase: " + bl.Hash.String() + " - RPC_Result:bad-cb-missing")
 			return
 		}
 
 		// Enforce rule that the coinbase starts with serialized block height
-		if bl.Height>=ch.Consensus.BIP34Height {
+		if bl.Height >= ch.Consensus.BIP34Height {
 			var exp [6]byte
 			var exp_len int
 			binary.LittleEndian.PutUint32(exp[1:5], bl.Height)
-			for exp_len=5; exp_len>1; exp_len-- {
-				if exp[exp_len]!=0 || exp[exp_len-1]>=0x80 {
+			for exp_len = 5; exp_len > 1; exp_len-- {
+				if exp[exp_len] != 0 || exp[exp_len-1] >= 0x80 {
 					break
 				}
 			}
@@ -173,15 +172,15 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 			exp_len++
 
 			if !bytes.HasPrefix(bl.Txs[0].TxIn[0].ScriptSig, exp[:exp_len]) {
-				er = errors.New("CheckBlock() : Unexpected block number in coinbase: "+bl.Hash.String()+" - RPC_Result:bad-cb-height")
+				er = errors.New("CheckBlock() : Unexpected block number in coinbase: " + bl.Hash.String() + " - RPC_Result:bad-cb-height")
 				return
 			}
 		}
 
 		// And again...
-		for i:=1; i<len(bl.Txs); i++ {
+		for i := 1; i < len(bl.Txs); i++ {
 			if bl.Txs[i].IsCoinBase() {
-				er = errors.New("CheckBlock() : more than one coinbase: "+bl.Hash.String()+" - RPC_Result:bad-cb-multiple")
+				er = errors.New("CheckBlock() : more than one coinbase: " + bl.Hash.String() + " - RPC_Result:bad-cb-multiple")
 				return
 			}
 		}
@@ -205,19 +204,19 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 		var blockTime uint32
 		var had_witness bool
 
-		if (bl.VerifyFlags&script.VER_CSV) != 0 {
+		if (bl.VerifyFlags & script.VER_CSV) != 0 {
 			blockTime = bl.MedianPastTime
 		} else {
 			blockTime = bl.BlockTime()
 		}
 
 		// Verify merkle root of witness data
-		if (bl.VerifyFlags&script.VER_WITNESS)!=0 {
+		if (bl.VerifyFlags & script.VER_WITNESS) != 0 {
 			var i int
-			for i=len(bl.Txs[0].TxOut)-1; i>=0; i-- {
+			for i = len(bl.Txs[0].TxOut) - 1; i >= 0; i-- {
 				o := bl.Txs[0].TxOut[i]
-				if len(o.Pk_script) >= 38 && bytes.Equal(o.Pk_script[:6], []byte{0x6a,0x24,0xaa,0x21,0xa9,0xed}) {
-					if len(bl.Txs[0].SegWit)!=1 || len(bl.Txs[0].SegWit[0])!=1 || len(bl.Txs[0].SegWit[0][0])!=32 {
+				if len(o.Pk_script) >= 38 && bytes.Equal(o.Pk_script[:6], []byte{0x6a, 0x24, 0xaa, 0x21, 0xa9, 0xed}) {
+					if len(bl.Txs[0].SegWit) != 1 || len(bl.Txs[0].SegWit[0]) != 1 || len(bl.Txs[0].SegWit[0][0]) != 32 {
 						er = errors.New("CheckBlock() : invalid witness nonce size - RPC_Result:bad-witness-nonce-size")
 						println(er.Error())
 						println(bl.Hash.String(), len(bl.Txs[0].SegWit))
@@ -243,7 +242,7 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 
 		if !had_witness {
 			for _, t := range bl.Txs {
-				if t.SegWit!=nil {
+				if t.SegWit != nil {
 					er = errors.New("CheckBlock(): unexpected witness data found - RPC_Result:unexpected-witness")
 					return
 				}
@@ -255,7 +254,6 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 	}
 	return
 }
-
 
 func (ch *Chain) CheckBlock(bl *btc.Block) (er error, dos bool, maybelater bool) {
 	er, dos, maybelater = ch.PreCheckBlock(bl)

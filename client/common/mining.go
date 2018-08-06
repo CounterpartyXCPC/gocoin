@@ -3,9 +3,10 @@ package common
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"io/ioutil"
 	"sync"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 type oneMinerId struct {

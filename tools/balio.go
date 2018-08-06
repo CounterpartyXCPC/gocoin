@@ -5,11 +5,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 	"io"
 	"io/ioutil"
 	"net"
@@ -17,6 +12,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/counterpartyxcpc/gocoin-cash"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 const MAX_UNSPENT_AT_ONCE = 20

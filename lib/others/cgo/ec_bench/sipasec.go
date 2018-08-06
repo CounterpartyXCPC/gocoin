@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/cgo/sipasec"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/cgo/sipasec"
 )
 
 var CNT int = 100e3

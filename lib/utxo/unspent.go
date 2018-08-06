@@ -3,6 +3,7 @@ package utxo
 import (
 	"encoding/binary"
 	"fmt"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 

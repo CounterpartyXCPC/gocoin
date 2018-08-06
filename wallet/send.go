@@ -2,9 +2,10 @@ package main
 
 import (
 	"bufio"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"os"
 	"strings"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 // Resolved while parsing "-send" parameter

@@ -5,10 +5,11 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 	"io/ioutil"
 	"os"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 )
 
 var (

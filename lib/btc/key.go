@@ -3,6 +3,7 @@ package btc
 import (
 	"encoding/hex"
 	"errors"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/secp256k1"
 )
 

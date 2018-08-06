@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/cgo/openssl"
 	"sync"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/cgo/openssl"
 )
 
 var CNT int = 15 * 250

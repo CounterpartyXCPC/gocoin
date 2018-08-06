@@ -5,13 +5,14 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 const (

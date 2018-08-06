@@ -7,10 +7,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 )
 
 type RpcError struct {

@@ -3,6 +3,11 @@ package webui
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
@@ -10,10 +15,6 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 func p_cfg(w http.ResponseWriter, r *http.Request) {

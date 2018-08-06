@@ -3,14 +3,15 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"time"
+
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
-	"io/ioutil"
-	"os"
-	"time"
 )
 
 func host_init() {

@@ -3,11 +3,12 @@ package rpcapi
 import (
 	"encoding/hex"
 	"fmt"
+	"sort"
+	"time"
+
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"sort"
-	"time"
 )
 
 const MAX_TXS_LEN = 999e3 // 999KB, with 1KB margin to not exceed 1MB with conibase

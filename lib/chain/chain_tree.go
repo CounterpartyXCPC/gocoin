@@ -3,9 +3,10 @@ package chain
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"sort"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 type BlockTreeNode struct {

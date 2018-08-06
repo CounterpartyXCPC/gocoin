@@ -2,6 +2,7 @@ package chain
 
 import (
 	"errors"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 

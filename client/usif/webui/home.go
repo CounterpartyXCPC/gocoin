@@ -2,6 +2,11 @@ package webui
 
 import (
 	"encoding/json"
+	"net/http"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
@@ -9,10 +14,6 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
-	"net/http"
-	"strings"
-	"sync"
-	"time"
 )
 
 var (

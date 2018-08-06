@@ -11,6 +11,7 @@ import (
 	"crypto/sha512"
 	"encoding/binary"
 	"errors"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/secp256k1"
 )
 

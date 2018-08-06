@@ -7,12 +7,13 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/golang/snappy"
 	"io/ioutil"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/golang/snappy"
 )
 
 const (

@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"io/ioutil"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 const MultiToSignOut = "multi2sign.txt"

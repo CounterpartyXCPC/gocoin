@@ -2,6 +2,7 @@ package rpcapi
 
 import (
 	"encoding/hex"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	//"github.com/counterpartyxcpc/gocoin-cash/client/common"
 )

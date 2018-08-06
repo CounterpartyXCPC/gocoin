@@ -4,9 +4,10 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/secp256k1"
 	"math/big"
 	"sync/atomic"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/secp256k1"
 )
 
 var (
@@ -54,4 +55,3 @@ func EcdsaSign(priv, hash []byte) (r, s *big.Int, err error) {
 	}
 	return &sig.R.Int, &sig.S.Int, nil
 }
-

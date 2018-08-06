@@ -5,9 +5,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"io/ioutil"
 	"testing"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 type oneinp struct {

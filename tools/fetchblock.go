@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+
 	"github.com/counterpartyxcpc/gocoin-cash"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
-	"io/ioutil"
-	"os"
 )
 
 func main() {

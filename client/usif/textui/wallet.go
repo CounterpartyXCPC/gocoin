@@ -3,18 +3,19 @@ package textui
 import (
 	"bytes"
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/client/wallet"
-	"github.com/piotrnar/gocoin/lib/btc"
 	"sort"
 	"strconv"
+
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/client/wallet"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 type OneWalletAddrs struct {
-	Typ  int // 0-p2kh, 1-p2sh, 2-segwit_prog
-	Key  []byte
-	rec  *wallet.OneAllAddrBal
+	Typ int // 0-p2kh, 1-p2sh, 2-segwit_prog
+	Key []byte
+	rec *wallet.OneAllAddrBal
 }
 
 type SortedWalletAddrs []OneWalletAddrs
@@ -64,7 +65,7 @@ func all_addrs(par string) {
 			if c > 3 {
 				cnt = int(c)
 			} else {
-				mode = int(c+1)
+				mode = int(c + 1)
 				fmt.Println("Counting only addr type", ([]string{"P2KH", "P2SH", "P2WKH", "P2WSH"})[int(c)])
 			}
 		}
@@ -78,50 +79,49 @@ func all_addrs(par string) {
 		MIN_OUTS = 0
 	}
 
-	if mode==0 || mode==1 {
+	if mode == 0 || mode == 1 {
 		for k, rec := range wallet.AllBalancesP2KH {
 			ptkh_vals += rec.Value
 			ptkh_outs += uint64(rec.Count())
 			if sort_by_cnt && rec.Count() >= MIN_OUTS || !sort_by_cnt && rec.Value >= MIN_BTC {
-				best = append(best, OneWalletAddrs{Typ:0, Key: new_slice(k[:]), rec: rec})
+				best = append(best, OneWalletAddrs{Typ: 0, Key: new_slice(k[:]), rec: rec})
 			}
 		}
 		fmt.Println(btc.UintToBtc(ptkh_vals), "BTC in", ptkh_outs, "unspent recs from", len(wallet.AllBalancesP2KH), "P2KH addresses")
 	}
 
-	if mode==0 || mode==2 {
+	if mode == 0 || mode == 2 {
 		for k, rec := range wallet.AllBalancesP2SH {
 			ptsh_vals += rec.Value
 			ptsh_outs += uint64(rec.Count())
 			if sort_by_cnt && rec.Count() >= MIN_OUTS || !sort_by_cnt && rec.Value >= MIN_BTC {
-				best = append(best, OneWalletAddrs{Typ:1, Key: new_slice(k[:]), rec: rec})
+				best = append(best, OneWalletAddrs{Typ: 1, Key: new_slice(k[:]), rec: rec})
 			}
 		}
 		fmt.Println(btc.UintToBtc(ptsh_vals), "BTC in", ptsh_outs, "unspent recs from", len(wallet.AllBalancesP2SH), "P2SH addresses")
 	}
 
-	if mode==0 || mode==3 {
+	if mode == 0 || mode == 3 {
 		for k, rec := range wallet.AllBalancesP2WKH {
 			ptwkh_vals += rec.Value
 			ptwkh_outs += uint64(rec.Count())
 			if sort_by_cnt && rec.Count() >= MIN_OUTS || !sort_by_cnt && rec.Value >= MIN_BTC {
-				best = append(best, OneWalletAddrs{Typ:2, Key: new_slice(k[:]), rec: rec})
+				best = append(best, OneWalletAddrs{Typ: 2, Key: new_slice(k[:]), rec: rec})
 			}
 		}
 		fmt.Println(btc.UintToBtc(ptwkh_vals), "BTC in", ptwkh_outs, "unspent recs from", len(wallet.AllBalancesP2WKH), "P2WKH addresses")
 	}
 
-	if mode==0 || mode==4 {
+	if mode == 0 || mode == 4 {
 		for k, rec := range wallet.AllBalancesP2WSH {
 			ptwsh_vals += rec.Value
 			ptwsh_outs += uint64(rec.Count())
 			if sort_by_cnt && rec.Count() >= MIN_OUTS || !sort_by_cnt && rec.Value >= MIN_BTC {
-				best = append(best, OneWalletAddrs{Typ:2, Key: new_slice(k[:]), rec: rec})
+				best = append(best, OneWalletAddrs{Typ: 2, Key: new_slice(k[:]), rec: rec})
 			}
 		}
 		fmt.Println(btc.UintToBtc(ptwsh_vals), "BTC in", ptwsh_outs, "unspent recs from", len(wallet.AllBalancesP2WSH), "P2WSH addresses")
 	}
-
 
 	if sort_by_cnt {
 		fmt.Println("Top addresses with at least", MIN_OUTS, "unspent outputs:", len(best))
@@ -147,17 +147,17 @@ func all_addrs(par string) {
 
 	for i := 0; i < len(best) && i < cnt; i++ {
 		switch best[i].Typ {
-			case 0:
-				copy(pkscr_p2kh[3:23], best[i].Key)
-				ad = btc.NewAddrFromPkScript(pkscr_p2kh[:], common.CFG.Testnet)
-			case 1:
-				copy(pkscr_p2sk[2:22], best[i].Key)
-				ad = btc.NewAddrFromPkScript(pkscr_p2sk[:], common.CFG.Testnet)
-			case 2:
-				ad = new(btc.BtcAddr)
-				ad.SegwitProg = new(btc.SegwitProg)
-				ad.SegwitProg.HRP = btc.GetSegwitHRP(common.CFG.Testnet)
-				ad.SegwitProg.Program = best[i].Key
+		case 0:
+			copy(pkscr_p2kh[3:23], best[i].Key)
+			ad = btc.NewAddrFromPkScript(pkscr_p2kh[:], common.CFG.Testnet)
+		case 1:
+			copy(pkscr_p2sk[2:22], best[i].Key)
+			ad = btc.NewAddrFromPkScript(pkscr_p2sk[:], common.CFG.Testnet)
+		case 2:
+			ad = new(btc.BtcAddr)
+			ad.SegwitProg = new(btc.SegwitProg)
+			ad.SegwitProg.HRP = btc.GetSegwitHRP(common.CFG.Testnet)
+			ad.SegwitProg.Program = best[i].Key
 		}
 		fmt.Println(i+1, ad.String(), btc.UintToBtc(best[i].rec.Value), "BTC in", best[i].rec.Count(), "inputs")
 	}
@@ -219,14 +219,14 @@ func all_val_stats(s string) {
 func wallet_on_off(s string) {
 	if s == "on" {
 		select {
-			case wallet.OnOff <- true:
-			default:
+		case wallet.OnOff <- true:
+		default:
 		}
 		return
 	} else if s == "off" {
 		select {
-			case wallet.OnOff <- false:
-			default:
+		case wallet.OnOff <- false:
+		default:
 		}
 		return
 	}
@@ -241,7 +241,6 @@ func wallet_on_off(s string) {
 			fmt.Println("Wallet functionality is currently DISABLED. Execute 'wallet on' to enable it.")
 		}
 	}
-
 
 	if pend := common.GetUint32(&common.WalletOnIn); pend > 0 {
 		fmt.Println("Wallet functionality will auto enable in", pend, "seconds")

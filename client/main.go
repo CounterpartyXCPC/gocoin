@@ -2,6 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"os/signal"
+	"runtime"
+	"runtime/debug"
+	"time"
+	"unsafe"
+
 	"github.com/counterpartyxcpc/gocoin-cash"
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
@@ -15,13 +23,6 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"io/ioutil"
-	"os"
-	"os/signal"
-	"runtime"
-	"runtime/debug"
-	"time"
-	"unsafe"
 )
 
 var (

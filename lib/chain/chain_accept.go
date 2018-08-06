@@ -3,11 +3,12 @@ package chain
 import (
 	"errors"
 	"fmt"
+	"sync"
+	"sync/atomic"
+
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
-	"sync"
-	"sync/atomic"
 )
 
 // TrustedTxChecker is meant to speed up verifying transactions that had

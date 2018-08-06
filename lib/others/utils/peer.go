@@ -2,8 +2,9 @@ package utils
 
 import (
 	"encoding/binary"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"hash/crc64"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 type OnePeer struct {

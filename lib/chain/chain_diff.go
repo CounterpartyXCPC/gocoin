@@ -1,8 +1,9 @@
 package chain
 
 import (
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"math/big"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 const (

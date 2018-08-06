@@ -6,15 +6,16 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash"
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash"
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
 )
 
 var start_time time.Time

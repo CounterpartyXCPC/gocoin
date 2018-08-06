@@ -6,13 +6,14 @@ import (
 	"encoding/binary"
 	"flag"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
-	"github.com/golang/snappy"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"sync"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/golang/snappy"
 )
 
 /*

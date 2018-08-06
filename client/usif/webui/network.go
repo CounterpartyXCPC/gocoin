@@ -3,15 +3,16 @@ package webui
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"html"
 	"io/ioutil"
 	"net/http"
 	"runtime/debug"
 	"strconv"
 	"strings"
+
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 func p_net(w http.ResponseWriter, r *http.Request) {

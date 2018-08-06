@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 	"os"
 	"sort"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 )
 
 type manyPeers []*utils.OnePeer

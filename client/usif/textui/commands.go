@@ -4,15 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/client/usif"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/peersdb"
-	"github.com/piotrnar/gocoin/lib/others/qdb"
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/utxo"
 	"io/ioutil"
 	"os"
 	"runtime"
@@ -22,6 +13,16 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash/client/common"
+	"github.com/counterpartyxcpc/gocoin-cash/client/network"
+	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
+	"github.com/piotrnar/gocoin"
 )
 
 type oneUiCmd struct {

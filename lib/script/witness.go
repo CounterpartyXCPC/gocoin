@@ -1,11 +1,12 @@
 package script
 
 import (
-	"fmt"
 	"bytes"
-	"encoding/hex"
 	"crypto/sha256"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"encoding/hex"
+	"fmt"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 )
 
 type witness_ctx struct {
@@ -13,7 +14,7 @@ type witness_ctx struct {
 }
 
 func (w *witness_ctx) IsNull() bool {
-	return w.stack.size()==0
+	return w.stack.size() == 0
 }
 
 func VerifyWitnessProgram(witness *witness_ctx, amount uint64, tx *btc.Tx, inp int, witversion int, program []byte, flags uint32) bool {
@@ -50,7 +51,7 @@ func VerifyWitnessProgram(witness *witness_ctx, amount uint64, tx *btc.Tx, inp i
 			witness.stack.push(scriptPubKey)
 		} else if len(program) == 20 {
 			// Special case for pay-to-pubkeyhash; signature + pubkey in witness
-			if (witness.stack.size() != 2) {
+			if witness.stack.size() != 2 {
 				if DBG_ERR {
 					fmt.Println("20-SCRIPT_ERR_WITNESS_PROGRAM_MISMATCH", tx.Hash.String())
 				}
@@ -71,7 +72,7 @@ func VerifyWitnessProgram(witness *witness_ctx, amount uint64, tx *btc.Tx, inp i
 			}
 			return false
 		}
-	} else if (flags&VER_WITNESS_PROG) != 0 {
+	} else if (flags & VER_WITNESS_PROG) != 0 {
 		if DBG_ERR {
 			fmt.Println("SCRIPT_ERR_DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM")
 		}
@@ -85,7 +86,7 @@ func VerifyWitnessProgram(witness *witness_ctx, amount uint64, tx *btc.Tx, inp i
 		fmt.Println("*****************", stack.size())
 	}
 	// Disallow stack item size > MAX_SCRIPT_ELEMENT_SIZE in witness stack
-	for i:=0; i<stack.size(); i++ {
+	for i := 0; i < stack.size(); i++ {
 		if len(stack.at(i)) > btc.MAX_SCRIPT_ELEMENT_SIZE {
 			if DBG_ERR {
 				fmt.Println("SCRIPT_ERR_PUSH_SIZE")

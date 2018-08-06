@@ -3,8 +3,9 @@ package btc
 import (
 	"bytes"
 	"errors"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/secp256k1"
 	"math/big"
+
+	"github.com/counterpartyxcpc/gocoin-cash/lib/secp256k1"
 )
 
 // Get ECDSA public key in bitcoin protocol format, from the give private key
