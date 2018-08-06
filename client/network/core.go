@@ -43,6 +43,8 @@ const (
 
 	MAX_INV_HISTORY = 500
 
+	SERVICE_SEGWIT = 0x8
+
 	TxsCounterPeriod = 6*time.Second // how long for one tick
 	TxsCounterBufLen = 60 // how many ticks
 	OnlineImmunityMinutes = int(TxsCounterBufLen*TxsCounterPeriod/time.Minute)
@@ -608,9 +610,9 @@ func ConnectionActive(ad *peersdb.PeerAddr) (yes bool) {
 func maxmsgsize(cmd string) uint32 {
 	switch cmd {
 		case "inv": return 3+50000*36 // the spec says "max 50000 entries"
-		case "tx": return 500e3 // max tx size 500KB, originally used for segwit
+		case "tx": return 500e3 // max segwit tx size 500KB
 		case "addr": return 3+1000*30 // max 1000 addrs
-		case "block": return 8e6 // max block size 8MB, was seg2x blocksize
+		case "block": return 8e6 // max seg2x block size 8MB
 		case "getblocks": return 4+3+500*32+32 // we allow up to 500 locator hashes
 		case "getdata": return 3+50000*36 // the spec says "max 50000 entries"
 		case "headers": return 3+50000*36 // the spec says "max 50000 entries"

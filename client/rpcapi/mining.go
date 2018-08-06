@@ -71,7 +71,7 @@ func GetNextBlockTemplate(r *GetBlockTemplateResp) {
 	r.Target = hex.EncodeToString(append(zer[:32-len(target)], target...))
 	r.Mutable = []string{"time","transactions","prevblock"}
 	r.Noncerange = "00000000ffffffff"
-	r.Sigoplimit = btc.MAX_BLOCK_SIGOPS_COST
+	r.Sigoplimit = btc.MAX_BLOCK_SIGOPS_COST / btc.WITNESS_SCALE_FACTOR
 	r.Sizelimit = 1e6
 	r.Bits = fmt.Sprintf("%08x", bits)
 	r.Height = uint(height)

@@ -18,6 +18,7 @@ type one_test_vector struct {
 	exp_res bool
 	desc string
 
+	witness [][]byte
 	value uint64
 }
 
@@ -46,20 +47,73 @@ func TestScritps(t *testing.T) {
 					continue
 				}
 
-				//var skip bool
-				//var bfield int
-				//var e error
+				var skip bool
+				var bfield int
+				var e error
 				var all_good bool
 
 				vec := new(one_test_vector)
-                                /*
 				for ii := range mm {
-					
+					switch segwitdata := mm[ii].(type) {
+						case []interface{}:
+							for iii := range segwitdata {
+								switch segwitdata[iii].(type) {
+									case string:
+										var by []byte
+										s := segwitdata[iii].(string)
+										by, e = hex.DecodeString(s)
+										if e!=nil {
+											t.Error("error parsing serwit script", s)
+											skip = true
+											break
+										}
+										vec.witness = append(vec.witness, by)
+
+									case float64:
+										vec.value = uint64(1e8*segwitdata[iii].(float64))
+								}
+							}
+
+						case string:
+							s := mm[ii].(string)
+							if bfield==0 {
+								vec.sigscr, e = btc.DecodeScript(s)
+								if e!=nil {
+									t.Error("error parsing script", s)
+									skip = true
+									break
+								}
+							} else if bfield==1 {
+								vec.pkscr, e = btc.DecodeScript(s)
+								if e!=nil {
+									skip = true
+									break
+								}
+							} else if bfield==2 {
+								vec.flags, e = decode_flags(s)
+								if e != nil {
+									println("error parsing flag", e.Error())
+									skip = true
+									break
+								}
+							} else if bfield==3 {
+								vec.exp_res = s=="OK"
+								all_good = true
+							} else if bfield==4 {
+								vec.desc = s
+								skip = true
+								break
+							}
+							bfield++
+
+						default:
+							panic("Enexpected test vector")
+							skip = true
+					}
 					if skip {
 						break
 					}
 				}
-                                */
 				if all_good {
 					vecs = append(vecs, vec)
 				}
@@ -79,10 +133,11 @@ func TestScritps(t *testing.T) {
 		flags := v.flags
 		if (flags & VER_CLEANSTACK) != 0 {
 			flags |= VER_P2SH
+			flags |= VER_WITNESS
 		}
 
 		credit_tx := mk_credit_tx(v.pkscr, v.value)
-		spend_tx := mk_spend_tx(credit_tx, v.sigscr)
+		spend_tx := mk_spend_tx(credit_tx, v.sigscr, v.witness)
 
 		if DBG_SCR {
 			println("desc:", v, tot, v.desc)
@@ -90,7 +145,7 @@ func TestScritps(t *testing.T) {
 			println("sigscr:", hex.EncodeToString(v.sigscr))
 			println("credit:", hex.EncodeToString(credit_tx.Serialize()))
 			println("spend:", hex.EncodeToString(spend_tx.Serialize()))
-			println("------------------------------ testing vector", tot, v.value)
+			println("------------------------------ testing vector", tot, len(v.witness), v.value)
 		}
 		res := VerifyTxScript(v.pkscr, v.value, 0, spend_tx, flags)
 
@@ -139,10 +194,16 @@ func decode_flags(s string) (fl uint32, e error) {
 				fl |= VER_CLTV
 			case "CHECKSEQUENCEVERIFY":
 				fl |= VER_CSV
+			case "WITNESS":
+				fl |= VER_WITNESS
+			case "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM":
+				fl |= VER_WITNESS_PROG
 			case "MINIMALIF":
 				fl |= VER_MINIMALIF
 			case "NULLFAIL":
 				fl |= VER_NULLFAIL
+			case "WITNESS_PUBKEYTYPE":
+				fl |= VER_WITNESS_PUBKEY
 			default:
 				e = errors.New("Unsupported flag "+ss[i])
 				return
@@ -164,7 +225,7 @@ func mk_credit_tx(pk_scr []byte, value uint64) (input_tx *btc.Tx) {
 	return
 }
 
-func mk_spend_tx(input_tx *btc.Tx, sig_scr []byte) (output_tx *btc.Tx) {
+func mk_spend_tx(input_tx *btc.Tx, sig_scr []byte, witness [][]byte) (output_tx *btc.Tx) {
 	output_tx = new(btc.Tx)
 	output_tx.Version = 1
 	output_tx.TxIn = []*btc.TxIn{ &btc.TxIn{Input:btc.TxPrevOut{Hash:btc.Sha2Sum(input_tx.Serialize()), Vout:0},
@@ -172,6 +233,16 @@ func mk_spend_tx(input_tx *btc.Tx, sig_scr []byte) (output_tx *btc.Tx) {
 	output_tx.TxOut = []*btc.TxOut{ &btc.TxOut{Value:input_tx.TxOut[0].Value} }
 	// Lock_time = 0
 
+	if len(witness) > 0 {
+		output_tx.SegWit = make([][][]byte, 1)
+		output_tx.SegWit[0] = witness
+		if DBG_SCR {
+			println("tx has", len(witness), "ws")
+			for xx := range witness {
+				println("", xx, hex.EncodeToString(witness[xx]))
+			}
+		}
+	}
 	output_tx.SetHash(output_tx.Serialize())
 	return
 }

@@ -163,9 +163,15 @@ func show_info(par string) {
 	network.Mutex_net.Unlock()
 
 	network.TxMutex.Lock()
-	
-	fmt.Printf("Txs in mem pool: %d (%dMB), Rejected: %d (%dMB),  Pending:%d/%d\n",
-		len(network.TransactionsToSend), network.TransactionsToSendSize>>20, 
+	var sw_cnt, sw_bts uint64
+	for _, v := range network.TransactionsToSend {
+		if v.SegWit != nil {
+			sw_cnt++
+			sw_bts += uint64(v.Size)
+		}
+	}
+	fmt.Printf("Txs in mem pool: %d (%dMB),  SegWit: %d (%dMB),  Rejected: %d (%dMB),  Pending:%d/%d\n",
+		len(network.TransactionsToSend), network.TransactionsToSendSize>>20, sw_cnt, sw_bts>>20,
 		len(network.TransactionsRejected), network.TransactionsRejectedSize>>20,
 		len(network.TransactionsPending), len(network.NetTxs))
 	fmt.Printf(" WaitingForInputs: %d (%d KB),  SpentOutputs: %d,  AverageFee: %.1f SpB\n",
@@ -281,6 +287,16 @@ func dump_block(s string) {
 	if crec.Block == nil {
 		crec.Block, _ = btc.NewBlock(crec.Data)
 	}
+	/*
+		if crec.Block.NoWitnessData == nil {
+			crec.Block.BuildNoWitnessData()
+		}
+		if !bytes.Equal(crec.Data, crec.Block.NoWitnessData) {
+			ioutil.WriteFile(h.String()+".old", crec.Block.NoWitnessData, 0700)
+			fmt.Println("Old block saved")
+		}
+	*/
+
 }
 
 func ui_quit(par string) {

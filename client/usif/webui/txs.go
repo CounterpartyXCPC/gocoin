@@ -106,13 +106,24 @@ func output_tx_xml(w http.ResponseWriter, tx *btc.Tx) {
 			fmt.Fprint(w, "<block>", po.BlockHeight, "</block>")
 
 			if btc.IsP2SH(po.Pk_script) {
-				fmt.Fprint(w, "<input_sigops>", btc.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig), "</input_sigops>")
+				fmt.Fprint(w, "<input_sigops>", btc.WITNESS_SCALE_FACTOR * btc.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig), "</input_sigops>")
 			}
+			fmt.Fprint(w, "<witness_sigops>", tx.CountWitnessSigOps(i, po.Pk_script), "</witness_sigops>")
 		} else {
 			w.Write([]byte("<status>Unknown input</status>"))
 		}
 		fmt.Fprint(w, "<sequence>", tx.TxIn[i].Sequence, "</sequence>")
-                w.Write([]byte("</input>"))
+
+		if tx.SegWit!=nil {
+			w.Write([]byte("<segwit>"))
+			for _, wit := range tx.SegWit[i] {
+				w.Write([]byte("<witness>"))
+				w.Write([]byte(hex.EncodeToString(wit)))
+				w.Write([]byte("</witness>"))
+			}
+			w.Write([]byte("</segwit>"))
+		}
+		w.Write([]byte("</input>"))
 	}
 	w.Write([]byte("</input_list>"))
 
@@ -142,11 +153,13 @@ func tx_xml(w http.ResponseWriter, v *network.OneTxToSend, verbose bool) {
 	}
 
 	fmt.Fprint(w, "<size>", v.Size, "</size>")
+	fmt.Fprint(w, "<nwsize>", v.NoWitSize, "</nwsize>")
 	fmt.Fprint(w, "<weight>", v.Weight(), "</weight>")
+	fmt.Fprint(w, "<sw_compress>", 1000 * (int(v.Size) - int(v.NoWitSize)) / int(v.Size), "</sw_compress>")
 	fmt.Fprint(w, "<inputs>", len(v.TxIn), "</inputs>")
 	fmt.Fprint(w, "<outputs>", len(v.TxOut), "</outputs>")
 	fmt.Fprint(w, "<lock_time>", v.Lock_time, "</lock_time>")
-	
+	fmt.Fprint(w, "<witness_cnt>", len(v.SegWit), "</witness_cnt>")
 	if verbose {
 		output_tx_xml(w, v.Tx)
 	}
@@ -211,6 +224,8 @@ func (tl sortedTxList) Less(i, j int) bool {
 			res = tl[j].Firstseen.UnixNano() > tl[i].Firstseen.UnixNano()
 		case "siz":
 			res = tl[j].Size < tl[i].Size
+		case "nws":
+			res = tl[j].NoWitSize < tl[i].NoWitSize
 		case "wgh":
 			res = tl[j].Weight() < tl[i].Weight()
 		case "inp":
@@ -227,6 +242,10 @@ func (tl sortedTxList) Less(i, j int) bool {
 			res = !tl[j].Final && tl[i].Final
 		case "ver":
 			res = int(tl[j].VerifyTime) < int(tl[i].VerifyTime)
+		case "swc":
+			sw_compr_i := float64(int(tl[i].Size) - int(tl[i].NoWitSize)) / float64(tl[i].Size)
+			sw_compr_j := float64(int(tl[j].Size) - int(tl[j].NoWitSize)) / float64(tl[j].Size)
+			res = sw_compr_i > sw_compr_j
 		default: /*spb*/
 			spb_i := float64(tl[i].Fee)/float64(tl[i].Weight())
 			spb_j := float64(tl[j].Fee)/float64(tl[j].Weight())

@@ -200,9 +200,20 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		}
 		return
 	}
-
 	if sta == PH_STATUS_NEW {
 		b2g.SendInvs = true
+	}
+
+	if common.BlockChain.Consensus.Enforce_SEGWIT != 0 && c.Node.SendCmpctVer < 2 {
+		if b2g.Block.Height >= common.BlockChain.Consensus.Enforce_SEGWIT {
+			common.CountSafe("CmpctBlockIgnore")
+			println("Ignore compact block", b2g.Block.Height, "from non-segwit node", c.ConnID)
+			if (c.Node.Services & SERVICE_SEGWIT) != 0 {
+				// it only makes sense to ask this node for block's data, if it supports segwit
+				c.MutexSetBool(&c.X.GetBlocksDataNow, true)
+			}
+			return
+		}
 	}
 
 	// if we got here, we shall download this block

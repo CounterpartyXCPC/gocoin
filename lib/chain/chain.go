@@ -33,10 +33,13 @@ type Chain struct {
 		MaxPOWValue *big.Int
 		GensisTimestamp uint32
 		Enforce_CSV uint32 // if non zero CVS verifications will be enforced from this block onwards
+		Enforce_SEGWIT uint32 // if non zero CVS verifications will be enforced from this block onwards
 		BIP9_Treshold uint32 // It is not really used at this moment, but maybe one day...
 		BIP34Height uint32
 		BIP65Height uint32
 		BIP66Height uint32
+		BIP91Height uint32
+		S2XHeight uint32
 	}
 }
 
@@ -67,12 +70,15 @@ func NewChainExt(dbrootdir string, genesis *btc.Uint256, rescan bool, opts *NewC
 		ch.Consensus.BIP65Height = 581885
 		ch.Consensus.BIP66Height = 330776
 		ch.Consensus.Enforce_CSV = 770112
+		ch.Consensus.Enforce_SEGWIT = 834624
 		ch.Consensus.BIP9_Treshold = 1512
 	} else {
 		ch.Consensus.BIP34Height = 227931
 		ch.Consensus.BIP65Height = 388381
 		ch.Consensus.BIP66Height = 363725
 		ch.Consensus.Enforce_CSV = 419328
+		ch.Consensus.Enforce_SEGWIT = 481824 // https://www.reddit.com/r/Bitcoin/comments/6okd1n/bip91_lock_in_is_guaranteed_as_of_block_476768/
+		ch.Consensus.BIP91Height = 477120
 		ch.Consensus.BIP9_Treshold = 1916
 	}
 
@@ -164,6 +170,25 @@ func (ch *Chain) testnet() bool {
 	return ch.Genesis.Hash[0]==0x43 // it's simple, but works
 }
 
+
+// For SegWit2X
+func (ch *Chain) MaxBlockWeight(height uint32) uint {
+	if ch.Consensus.S2XHeight != 0 && height >= ch.Consensus.S2XHeight {
+		return 2 * btc.MAX_BLOCK_WEIGHT
+	} else {
+		return btc.MAX_BLOCK_WEIGHT
+	}
+}
+
+
+// For SegWit2X
+func (ch *Chain) MaxBlockSigopsCost(height uint32) uint32 {
+	if ch.Consensus.S2XHeight != 0 && height >= ch.Consensus.S2XHeight {
+		return 2 * btc.MAX_BLOCK_SIGOPS_COST
+	} else {
+		return btc.MAX_BLOCK_SIGOPS_COST
+	}
+}
 
 func (ch *Chain) LastBlock() (res *BlockTreeNode) {
 	ch.blockTreeAccess.Lock()

@@ -241,7 +241,12 @@ func addr_from_pkscr(scr []byte) *btc.BtcAddr {
 
 // make sure the version byte in the given address is what we expect
 func assert_address_version(a *btc.BtcAddr) {
-	if a.Version!=ver_pubkey() && a.Version!=ver_script() {
+	if a.SegwitProg != nil {
+		if a.SegwitProg.HRP != btc.GetSegwitHRP(testnet) {
+			println("Sending address", a.String(), "has an incorrect HRP string", a.SegwitProg.HRP)
+			cleanExit(1)
+		}
+	} else if a.Version!=ver_pubkey() && a.Version!=ver_script() {
 		println("Sending address", a.String(), "has an incorrect version", a.Version)
 		cleanExit(1)
 	}

@@ -143,6 +143,17 @@ func CalcMerkle(mtr [][32]byte) (res []byte, mutated bool) {
 }
 
 
+func GetWitnessMerkle(txs []*Tx) (res []byte, mutated bool) {
+	mtr := make([][32]byte, len(txs), 3*len(txs)) // make the buffer 3 times longer as we use append() inside CalcMerkle
+	//mtr[0] = make([]byte, 32) // null
+	for i:=1; i<len(txs); i++ {
+		mtr[i] = txs[i].WTxID().Hash
+	}
+	res, mutated = CalcMerkle(mtr)
+	return
+}
+
+
 func ReadAll(rd io.Reader, b []byte) (er error) {
 	var n int
 	for i:=0; i<len(b); i+=n {
@@ -430,6 +441,33 @@ func GetP2SHSigOpCount(scr []byte) uint {
 	return GetSigOpCount(data, true)
 }
 
+func IsWitnessProgram(scr []byte) (version int, program []byte) {
+	if len(scr) < 4 || len(scr) > 42 {
+		return
+	}
+	if scr[0]!=OP_0 && (scr[0]<OP_1 || scr[0]>OP_16) {
+		return
+	}
+	if int(scr[1]) + 2 == len(scr) {
+		version = DecodeOP_N(scr[0])
+		program = scr[2:]
+	}
+	return
+}
+
+func WitnessSigOps(witversion int, witprogram []byte, witness [][]byte) uint {
+	if witversion == 0 {
+		if len(witprogram)==20 {
+			return 1
+		}
+
+		if len(witprogram)==32 && len(witness) > 0 {
+			subscript := witness[len(witness)-1]
+			return GetSigOpCount(subscript, true)
+		}
+	}
+    return 0;
+}
 
 func IsPushOnly(scr []byte) bool {
 	idx := 0
