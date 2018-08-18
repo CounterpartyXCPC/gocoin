@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/piotrnar/gocoin/client/common"
+	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/piotrnar/gocoin/lib/chain"
 	"time"
-
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 )
 
 const (
@@ -85,6 +84,8 @@ func (c *OneConnection) HandleHeaders(pl []byte) (new_headers_got int) {
 		return
 	}
 
+	HeadersReceived.Add(1)
+
 	if cnt > 0 {
 		MutexRcv.Lock()
 		defer MutexRcv.Unlock()
@@ -138,6 +139,7 @@ func (c *OneConnection) HandleHeaders(pl []byte) (new_headers_got int) {
 		}
 	} else {
 		common.CountSafe("EmptyHeadersRcvd")
+		HeadersReceived.Add(4)
 	}
 
 	c.Mutex.Lock()
