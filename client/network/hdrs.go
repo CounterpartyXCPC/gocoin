@@ -136,6 +136,8 @@ func (c *OneConnection) HandleHeaders(pl []byte) (new_headers_got int) {
 				}
 			}
 		}
+	} else {
+		common.CountSafe("EmptyHeadersRcvd")
 	}
 
 	c.Mutex.Lock()
