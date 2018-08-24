@@ -1,17 +1,16 @@
 package network
 
 import (
-	"bytes"
-	"encoding/binary"
-	"errors"
-	"fmt"
 	"os"
-	"strings"
+	"fmt"
 	"time"
-
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"bytes"
+	"errors"
+	"strings"
+	"encoding/binary"
+	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/piotrnar/gocoin/client/common"
 )
 
 var IgnoreExternalIpFrom = []string{}
@@ -24,7 +23,7 @@ func (c *OneConnection) SendVersion() {
 	binary.Write(b, binary.LittleEndian, uint64(time.Now().Unix()))
 
 	b.Write(c.PeerAddr.NetAddr.Bytes())
-	if ExternalAddrLen() > 0 {
+	if ExternalAddrLen()>0 {
 		b.Write(BestExternalAddr())
 	} else {
 		b.Write(bytes.Repeat([]byte{0}, 26))
@@ -39,7 +38,7 @@ func (c *OneConnection) SendVersion() {
 
 	binary.Write(b, binary.LittleEndian, uint32(common.Last.BlockHeight()))
 	if !common.GetBool(&common.CFG.TXPool.Enabled) {
-		b.WriteByte(0) // don't notify me about txs
+		b.WriteByte(0)  // don't notify me about txs
 	}
 
 	c.SendRawMsg("version", b.Bytes())
@@ -67,7 +66,7 @@ func (c *OneConnection) HandleVersion(pl []byte) error {
 					Mutex_net.Unlock()
 					v.Mutex.Lock()
 					/*println("Peer with nonce", hex.EncodeToString(pl[72:80]), "from", c.PeerAddr.Ip(),
-					"already connected as ", v.ConnID, "from ", v.PeerAddr.Ip(), v.Node.Agent)*/
+						"already connected as ", v.ConnID, "from ", v.PeerAddr.Ip(), v.Node.Agent)*/
 					v.Mutex.Unlock()
 					common.CountSafe("VerNonceSame")
 					return errors.New("Peer already connected")
@@ -93,13 +92,13 @@ func (c *OneConnection) HandleVersion(pl []byte) error {
 		if len(pl) >= 86 {
 			le, of := btc.VLen(pl[80:])
 			of += 80
-			c.Node.Agent = string(pl[of : of+le])
+			c.Node.Agent = string(pl[of:of+le])
 			of += le
 			if len(pl) >= of+4 {
-				c.Node.Height = binary.LittleEndian.Uint32(pl[of : of+4])
+				c.Node.Height = binary.LittleEndian.Uint32(pl[of:of+4])
 				c.X.GetBlocksDataNow = true
 				of += 4
-				if len(pl) > of && pl[of] == 0 {
+				if len(pl) > of && pl[of]==0 {
 					c.Node.DoNotRelayTxs = true
 				}
 			}
@@ -112,7 +111,7 @@ func (c *OneConnection) HandleVersion(pl []byte) error {
 			if bytes.Equal(pl[40:44], c.PeerAddr.Ip4[:]) {
 				if common.FLAG.Log {
 					ExternalIpMutex.Lock()
-					f, _ := os.OpenFile("badip_log.txt", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0660)
+					f, _ := os.OpenFile("badip_log.txt", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0660);
 					if f != nil {
 						fmt.Fprintf(f, "%s: OWN IP from %s @ %s - %d\n",
 							time.Now().Format("2006-01-02 15:04:05"),
@@ -127,7 +126,7 @@ func (c *OneConnection) HandleVersion(pl []byte) error {
 				!bytes.Equal(pl[66:70], c.PeerAddr.Ip4[:]) {
 				if common.FLAG.Log {
 					ExternalIpMutex.Lock()
-					f, _ := os.OpenFile("badip_log.txt", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0660)
+					f, _ := os.OpenFile("badip_log.txt", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0660);
 					if f != nil {
 						fmt.Fprintf(f, "%s: BAD IP=%d.%d.%d.%d from %s @ %s - %d\n",
 							time.Now().Format("2006-01-02 15:04:05"),
@@ -146,19 +145,19 @@ func (c *OneConnection) HandleVersion(pl []byte) error {
 			if _, known := ExternalIp4[c.Node.ReportedIp4]; !known { // New IP
 				use_this_ip = true
 				for x, v := range IgnoreExternalIpFrom {
-					if c.Node.Agent == v {
+					if c.Node.Agent==v {
 						use_this_ip = false
 						common.CountSafe(fmt.Sprint("IgnoreExtIP", x))
 						break
 					}
 				}
-				if use_this_ip && common.IsListenTCP() {
+				if use_this_ip && common.IsListenTCP() && common.GetExternalIp()=="" {
 					fmt.Printf("New external IP %d.%d.%d.%d from ConnID=%d\n> ",
 						pl[40], pl[41], pl[42], pl[43], c.ConnID)
 				}
 			}
 			if use_this_ip {
-				ExternalIp4[c.Node.ReportedIp4] = [2]uint{ExternalIp4[c.Node.ReportedIp4][0] + 1,
+				ExternalIp4[c.Node.ReportedIp4] = [2]uint {ExternalIp4[c.Node.ReportedIp4][0]+1,
 					uint(time.Now().Unix())}
 			}
 			ExternalIpMutex.Unlock()

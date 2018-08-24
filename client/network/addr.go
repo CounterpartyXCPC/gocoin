@@ -3,15 +3,15 @@ package network
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
+	"github.com/piotrnar/gocoin/client/common"
+	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/piotrnar/gocoin/lib/others/peersdb"
+	"github.com/piotrnar/gocoin/lib/others/qdb"
+	"github.com/piotrnar/gocoin/lib/others/sys"
 	"sort"
 	"sync"
 	"time"
-
-	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
 var (
@@ -37,22 +37,39 @@ type ExternalIpRec struct {
 func GetExternalIPs() (arr []ExternalIpRec) {
 	ExternalIpMutex.Lock()
 	defer ExternalIpMutex.Unlock()
-	if len(ExternalIp4) > 0 {
-		arr = make([]ExternalIpRec, len(ExternalIp4))
-		var idx int
-		for ip, rec := range ExternalIp4 {
-			arr[idx].IP = ip
-			arr[idx].Cnt = rec[0]
-			arr[idx].Tim = rec[1]
-			idx++
+
+	arr = make([]ExternalIpRec, 0, len(ExternalIp4)+1)
+	var arx *ExternalIpRec
+
+	if external_ip := common.GetExternalIp(); external_ip != "" {
+		var a, b, c, d int
+		if n, _ := fmt.Sscanf(external_ip, "%d.%d.%d.%d", &a, &b, &c, &d); n == 4 && (uint(a|b|c|d)&0xffffff00) == 0 {
+			arx = new(ExternalIpRec)
+			arx.IP = (uint32(a) << 24) | (uint32(b) << 16) | (uint32(c) << 8) | uint32(d)
+			arx.Cnt = 1e6
+			arx.Tim = uint(time.Now().Unix()) + 60
+			arr = append(arr, *arx)
 		}
-		sort.Slice(arr, func(i, j int) bool {
-			if arr[i].Cnt > 3 && arr[j].Cnt > 3 || arr[i].Cnt == arr[j].Cnt {
-				return arr[i].Tim > arr[j].Tim
-			}
-			return arr[i].Cnt > arr[j].Cnt
-		})
 	}
+
+	if len(ExternalIp4) > 0 {
+		for ip, rec := range ExternalIp4 {
+			if arx != nil && arx.IP==ip {
+				continue
+			}
+			arr = append(arr, ExternalIpRec{IP:ip, Cnt:rec[0], Tim:rec[1]})
+		}
+
+		if len(arr) > 1 {
+			sort.Slice(arr, func(i, j int) bool {
+				if arr[i].Cnt > 3 && arr[j].Cnt > 3 || arr[i].Cnt == arr[j].Cnt {
+					return arr[i].Tim > arr[j].Tim
+				}
+				return arr[i].Cnt > arr[j].Cnt
+			})
+		}
+	}
+
 	return
 }
 
