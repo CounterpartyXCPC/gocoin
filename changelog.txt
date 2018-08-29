@@ -213,7 +213,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * Client: drop_slowest_peer changed to drop_worst_peer - do not drop peers that send new blocks
 * WebUI: "Blocks" tab shows some new statistics
 * Client: Keep per-peer list of the last 500 invs, to avoid duplicate sending
-* "Version" moved from "github.com/piotrnar/gocoin/lib" to "github.com/piotrnar/gocoin"
+* "Version" moved from "github.com/counterpartyxcpc/gocoin-cash/lib" to "github.com/counterpartyxcpc/gocoin-cash"
 * Leave external dependencies (siphash, snappy, ripemd160) to be dealt with by "go get"
 * Client: support for BIP-152 - "Compact Block Relay"
 

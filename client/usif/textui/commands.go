@@ -22,7 +22,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
-	"github.com/piotrnar/gocoin"
+	"github.com/counterpartyxcpc/gocoin-cash"
 )
 
 type oneUiCmd struct {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"github.com/piotrnar/gocoin"
+	"github.com/counterpartyxcpc/gocoin-cash"
 )
 
 var (
