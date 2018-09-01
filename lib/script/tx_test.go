@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type oneinp struct {

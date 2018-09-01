@@ -8,7 +8,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 const MAX_TXS_LEN = 999e3 // 999KB, with 1KB margin to not exceed 1MB with conibase

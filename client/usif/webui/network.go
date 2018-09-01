@@ -12,7 +12,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func p_net(w http.ResponseWriter, r *http.Request) {

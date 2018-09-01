@@ -6,7 +6,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )

@@ -3,7 +3,7 @@ package chain
 import (
 	"errors"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func nextBlock(ch *Chain, hash, header []byte, height, blen, txs uint32) {

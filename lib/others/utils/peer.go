@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"hash/crc64"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type OnePeer struct {

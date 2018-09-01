@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 var CNT int = 100e3

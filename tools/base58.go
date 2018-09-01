@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 var (

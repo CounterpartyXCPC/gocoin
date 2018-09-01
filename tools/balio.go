@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/counterpartyxcpc/gocoin-cash"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"

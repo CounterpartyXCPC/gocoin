@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type one_test_vector struct {

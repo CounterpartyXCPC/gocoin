@@ -11,7 +11,7 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 	"github.com/golang/snappy"
 )

@@ -18,7 +18,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif/textui"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif/webui"
 	"github.com/counterpartyxcpc/gocoin-cash/client/wallet"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"

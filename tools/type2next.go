@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func main() {

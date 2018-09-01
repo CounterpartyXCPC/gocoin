@@ -9,7 +9,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 
-	"github.com/counterpartyxcpc/gocoin-cash/lib/btc"
+	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
 	//"github.com/counterpartyxcpc/gocoin-cash/lib/others/blockdb"
 	//"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
