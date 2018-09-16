@@ -28,6 +28,23 @@ type BtcAddr struct {
 	}
 }
 
+type CashAddr struct {
+	Version  byte
+	Hash160  [20]byte
+	Checksum []byte
+	Pubkey   []byte
+	Enc58str string
+
+	// *SegwitProg // if this is not nil, means that this is a native segwit address
+
+	// This is used only by the client
+	Extra struct {
+		Label  string
+		Wallet string
+		Virgin bool
+	}
+}
+
 type SegwitProg struct {
 	HRP     string
 	Version int
