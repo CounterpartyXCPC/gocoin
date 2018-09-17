@@ -67,7 +67,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 )
 
-// @todo - udate this below to reflect BCH
+// @todo - update this below to reflect BCH
 var (
 	addr     = flag.String("a", "", "base58 encoded bitcoin address that supposedly signed the message (required)")
 	sign     = flag.String("s", "", "base64 encoded signature of the message (required)")
