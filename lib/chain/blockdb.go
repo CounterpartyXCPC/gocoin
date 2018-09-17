@@ -72,15 +72,24 @@ import (
 )
 
 const (
-	BLOCK_TRUSTED = 0x01
-	BLOCK_INVALID = 0x02
-	BLOCK_COMPRSD = 0x04
-	BLOCK_SNAPPED = 0x08
-	BLOCK_LENGTH  = 0x10
-	BLOCK_INDEX   = 0x20
 
-	MAX_BLOCKS_TO_WRITE = 1024 // flush the data to disk when exceeding
-	MAX_DATA_WRITE      = 16 * 1024 * 1024
+	// BlockTRUSTED is set constant.
+	BlockTRUSTED = 0x01
+	// BlockINVALID is set constant.
+	BlockINVALID = 0x02
+	// BlockCOMPRSD is set constant.
+	BlockCOMPRSD = 0x04
+	// BlockSNAPPED is set constant.
+	BlockSNAPPED = 0x08
+	// BlockLENGTH is set constant.
+	BlockLENGTH = 0x10
+	// BlockINDEX is set constant.
+	BlockINDEX = 0x20
+
+	// MaxBlocksToWrite is set constant.
+	MaxBlocksToWrite = 1024 // flush the data to disk when exceeding
+	// MaxDataWrite is set constant.
+	MaxDataWrite = 16 * 1024 * 1024
 )
 
 /*
@@ -93,6 +102,8 @@ const (
 			bit(3) - "snappy" flag - this block is compressed with snappy (not gzip'ed)
 			bit(4) - if this bit is set, bytes [32:36] carry length of uncompressed block
 			bit(5) - if this bit is set, bytes [28:32] carry data file index
+
+			[0][28][32][32][36][136]
 
 		Used to be:
 		[4:36]  - 256-bit block hash - DEPRECATED! (hash the header to get the value)
@@ -108,6 +119,19 @@ const (
 		[56:136] - 80 bytes blocks header
 */
 
+type blockdataBCH struct {
+	blockdataBCHregisteredLocationWithinBlockDatafPOS   uint64 // where is this *[block]* registered within blockchain.dat [was "fpos" for BTC data - see example below line:115]
+	blockdataBCHregisteredIndexBlockWithinIndexDataIPOS int64  // where is this *tx_block_index_* registered within blockchain.idx (used to set flags) / -1 if not stored in the file (yet)
+	blockdataBCHblockdataLengthOnDiskBLEN               uint32 // how long the block is in blockchain.dat
+	blockdataBCHblockdataLengthawOLEN                   uint32 // original length fo the block (before compression)
+
+	blockdataBCHdatfileidx uint32 // use different blockchain.dat (if not zero, the filename is: blockchain-%08x.dat)
+
+	blockdataBCHtrusted    bool
+	blockdataBCHcompressed bool
+	blockdataBCHsnappied   bool
+}
+
 type oneBl struct {
 	fpos uint64 // where at the block is stored in blockchain.dat
 	ipos int64  // where at the record is stored in blockchain.idx (used to set flags) / -1 if not stored in the file (yet)
@@ -121,6 +145,18 @@ type oneBl struct {
 	snappied   bool
 }
 
+// BlockCachRec is for the cache 'mempool'
+type blockdataBlockCachRec struct {
+	Data []byte
+	*bch.Block
+
+	// This is for BIP152
+	BIP152 []byte // 8 bytes of nonce || 8 bytes of K0 LSB || 8 bytes of K1 LSB
+
+	LastUsed time.Time
+}
+
+// BlckCachRec is the cached 'mempool'
 type BlckCachRec struct {
 	Data []byte
 	*btc.Block
@@ -162,6 +198,25 @@ type BlockDB struct {
 
 	max_data_file_size uint64
 	data_files_keep    uint32
+}
+
+type blockdataBCHBlockDB struct {
+	blockdataBCHdirname                        string
+	blockdataBCHblockIndex                     map[[bch.Uint256IdxLen]byte]*blockdataBCH
+	blockdataBCHblockdata                      *os.File
+	blockdataBCHblockindx                      *os.File
+	blockdataBCHmutex, blockdataBCHdisk_access blockdataBCHsync.Mutex
+	blockdataBCHmax_cached_blocks              int
+	blockdataBCHcache                          map[[bch.Uint256IdxLen]byte]*BlckCachRec
+
+	blockdataBCHmaxidxfilepos, blockdataBCHmaxdatfilepos int64
+	blockdataBCHmaxdatfileidx                            uint32
+
+	blockdataBCHblocksToWrite chan oneB2W
+	blockdataBCHdatToWrite    uint64
+
+	blockdataBCHmax_data_file_size uint64
+	blockdataBCHdata_files_keep    uint32
 }
 
 func NewBlockDBExt(dir string, opts *BlockDBOpts) (db *BlockDB) {
