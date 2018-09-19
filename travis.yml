@@ -56,15 +56,7 @@
 language: go
 
 go:
-  - 1.9.x
-  - 1.10.x
   - 1.11.x
-
-services:
-  # - rabbitmq
-
-env:
- # - AMQP_URL=amqp://guest:guest@127.0.0.1:5672/
 
 before_install:
   - go get -v github.com/golang/lint/golint
@@ -77,4 +69,3 @@ script:
   - cd ./wallet
   - cd ./tools
   - go build btcversig.go
-
