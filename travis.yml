@@ -65,7 +65,7 @@ script:
   # - ./pre-commit
   # - go test -cpu=1,2 -v -tags integration ./...
 
-  - cd client
-  - cd ./wallet
-  - cd ./tools
-  - go build btcversig.go
+  # - cd client
+  # - cd ./wallet
+  # - cd ./tools
+  # - go build btcversig.go
