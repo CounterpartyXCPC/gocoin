@@ -1,9 +1,60 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:		multisig.go
+// Description:	Bictoin Cash Multisig Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package bch
 
 import (
-	"fmt"
 	"bytes"
 	"errors"
+	"fmt"
 )
 
 type MultiSig struct {
@@ -11,7 +62,6 @@ type MultiSig struct {
 	Signatures []*Signature
 	PublicKeys [][]byte
 }
-
 
 func NewMultiSig(n uint) (res *MultiSig) {
 	res = new(MultiSig)
@@ -28,7 +78,6 @@ func NewMultiSigFromP2SH(p []byte) (*MultiSig, error) {
 	return res, nil
 }
 
-
 func NewMultiSigFromScript(p []byte) (*MultiSig, error) {
 	r := new(MultiSig)
 
@@ -38,29 +87,29 @@ func NewMultiSigFromScript(p []byte) (*MultiSig, error) {
 		if er != nil {
 			return nil, errors.New("NewMultiSigFromScript: " + er.Error())
 		}
-		idx+= n
+		idx += n
 
 		switch stage {
-			case 0: // look for OP_FALSE
-				if opcode!=0 {
-					return nil, errors.New("NewMultiSigFromScript: first opcode must be OP_0")
-				}
-				stage = 1
+		case 0: // look for OP_FALSE
+			if opcode != 0 {
+				return nil, errors.New("NewMultiSigFromScript: first opcode must be OP_0")
+			}
+			stage = 1
 
-			case 1: // look for signatures
-				sig, _ := NewSignature(pv)
-				if sig!=nil {
-					r.Signatures = append(r.Signatures, sig)
-					break
-				}
-				er := r.ApplyP2SH(pv)
-				if er != nil {
-					return nil, er
-				}
-				stage = 6
+		case 1: // look for signatures
+			sig, _ := NewSignature(pv)
+			if sig != nil {
+				r.Signatures = append(r.Signatures, sig)
+				break
+			}
+			er := r.ApplyP2SH(pv)
+			if er != nil {
+				return nil, er
+			}
+			stage = 6
 
-			default:
-				return nil, errors.New(fmt.Sprintf("NewMultiSigFromScript: Unexpected opcode 0x%02X at the end of script", opcode))
+		default:
+			return nil, errors.New(fmt.Sprintf("NewMultiSigFromScript: Unexpected opcode 0x%02X at the end of script", opcode))
 		}
 	}
 
@@ -71,8 +120,7 @@ func NewMultiSigFromScript(p []byte) (*MultiSig, error) {
 	return r, nil
 }
 
-
-func (r *MultiSig) ApplyP2SH(p []byte) (error) {
+func (r *MultiSig) ApplyP2SH(p []byte) error {
 	var idx, stage int
 	stage = 2
 	for idx < len(p) {
@@ -80,36 +128,36 @@ func (r *MultiSig) ApplyP2SH(p []byte) (error) {
 		if er != nil {
 			return errors.New("ApplyP2SH: " + er.Error())
 		}
-		idx+= n
+		idx += n
 
 		switch stage {
-			case 2: // Look for number of required signatures
-				if opcode<OP_1 || opcode>OP_16 {
-					return errors.New(fmt.Sprint("ApplyP2SH: Unexpected number of required signatures ", opcode-OP_1+1))
-				}
-				r.SigsNeeded = uint(opcode-OP_1+1)
-				stage = 3
+		case 2: // Look for number of required signatures
+			if opcode < OP_1 || opcode > OP_16 {
+				return errors.New(fmt.Sprint("ApplyP2SH: Unexpected number of required signatures ", opcode-OP_1+1))
+			}
+			r.SigsNeeded = uint(opcode - OP_1 + 1)
+			stage = 3
 
-			case 3: // Look for public keys
-				if len(pv)==33 && (pv[0]|1)==3 || len(pv)==65 && pv[0]==4 {
-					r.PublicKeys = append(r.PublicKeys, pv)
-					break
-				}
-				stage = 4
-				fallthrough
+		case 3: // Look for public keys
+			if len(pv) == 33 && (pv[0]|1) == 3 || len(pv) == 65 && pv[0] == 4 {
+				r.PublicKeys = append(r.PublicKeys, pv)
+				break
+			}
+			stage = 4
+			fallthrough
 
-			case 4: // Look for number of public keys
-				if opcode-OP_1+1 != len(r.PublicKeys) {
-					return errors.New(fmt.Sprint("ApplyP2SH: Number of public keys mismatch ", opcode-OP_1+1, "/", len(r.PublicKeys)))
-				}
-				stage = 5
+		case 4: // Look for number of public keys
+			if opcode-OP_1+1 != len(r.PublicKeys) {
+				return errors.New(fmt.Sprint("ApplyP2SH: Number of public keys mismatch ", opcode-OP_1+1, "/", len(r.PublicKeys)))
+			}
+			stage = 5
 
-			case 5:
-				if opcode==OP_CHECKMULTISIG {
-					stage = 6
-				} else {
-					return errors.New(fmt.Sprintf("ApplyP2SH: Unexpected opcode 0x%02X at the end of script", opcode))
-				}
+		case 5:
+			if opcode == OP_CHECKMULTISIG {
+				stage = 6
+			} else {
+				return errors.New(fmt.Sprintf("ApplyP2SH: Unexpected opcode 0x%02X at the end of script", opcode))
+			}
 		}
 	}
 
@@ -120,20 +168,18 @@ func (r *MultiSig) ApplyP2SH(p []byte) (error) {
 	return nil
 }
 
-
 func (ms *MultiSig) P2SH() []byte {
 	buf := new(bytes.Buffer)
-	buf.WriteByte(byte(ms.SigsNeeded-1+OP_1))
+	buf.WriteByte(byte(ms.SigsNeeded - 1 + OP_1))
 	for i := range ms.PublicKeys {
 		pk := ms.PublicKeys[i]
 		WriteVlen(buf, uint64(len(pk)))
 		buf.Write(pk)
 	}
-	buf.WriteByte(byte(len(ms.PublicKeys)-1+OP_1))
+	buf.WriteByte(byte(len(ms.PublicKeys) - 1 + OP_1))
 	buf.WriteByte(OP_CHECKMULTISIG)
 	return buf.Bytes()
 }
-
 
 func (ms *MultiSig) Bytes() []byte {
 	buf := new(bytes.Buffer)
@@ -148,7 +194,6 @@ func (ms *MultiSig) Bytes() []byte {
 	buf.Write(p2sh)
 	return buf.Bytes()
 }
-
 
 func (ms *MultiSig) PkScript() (pkscr []byte) {
 	pkscr = make([]byte, 23)

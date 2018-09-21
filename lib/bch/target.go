@@ -1,3 +1,54 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:		target.go
+// Description:	Bictoin Cash Target Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package bch
 
 import (
@@ -5,11 +56,11 @@ import (
 )
 
 func SetCompact(nCompact uint32) (res *big.Int) {
-	size := nCompact>>24
-	neg := (nCompact&0x00800000)!=0
+	size := nCompact >> 24
+	neg := (nCompact & 0x00800000) != 0
 	word := nCompact & 0x007fffff
 	if size <= 3 {
-		word >>= 8*(3-size);
+		word >>= 8 * (3 - size)
 		res = big.NewInt(int64(word))
 	} else {
 		res = big.NewInt(int64(word))
@@ -21,10 +72,9 @@ func SetCompact(nCompact uint32) (res *big.Int) {
 	return res
 }
 
-
 func GetDifficulty(bits uint32) (diff float64) {
-	shift := int(bits >> 24) & 0xff
-	diff = float64(0x0000ffff) / float64(bits & 0x00ffffff)
+	shift := int(bits>>24) & 0xff
+	diff = float64(0x0000ffff) / float64(bits&0x00ffffff)
 	for shift < 29 {
 		diff *= 256.0
 		shift++
@@ -35,7 +85,6 @@ func GetDifficulty(bits uint32) (diff float64) {
 	}
 	return
 }
-
 
 func GetCompact(b *big.Int) uint32 {
 
@@ -61,7 +110,6 @@ func GetCompact(b *big.Int) uint32 {
 	}
 	return compact
 }
-
 
 func CheckProofOfWork(hash *Uint256, bits uint32) bool {
 	return hash.BigInt().Cmp(SetCompact(bits)) <= 0
