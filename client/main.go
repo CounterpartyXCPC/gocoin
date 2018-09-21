@@ -31,7 +31,7 @@ var (
 )
 
 const (
-	SaveBlockChainAfter = 2 * time.Second
+	SaveBlockChainAfter       = 2 * time.Second
 	SaveBlockChainAfterNoSync = 10 * time.Minute
 )
 
@@ -55,6 +55,7 @@ func blockMined(bl *btc.Block) {
 }
 
 func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
+	print("LocalAcceptBlock")
 	bl := newbl.Block
 	if common.FLAG.TrustAll || newbl.BlockTreeNode.Trusted {
 		bl.Trusted = true

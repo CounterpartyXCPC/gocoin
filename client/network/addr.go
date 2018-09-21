@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"sort"
+	"sync"
+	"time"
+
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"sort"
-	"sync"
-	"time"
 )
 
 var (
@@ -44,6 +45,7 @@ func GetExternalIPs() (arr []ExternalIpRec) {
 	if external_ip := common.GetExternalIp(); external_ip != "" {
 		var a, b, c, d int
 		if n, _ := fmt.Sscanf(external_ip, "%d.%d.%d.%d", &a, &b, &c, &d); n == 4 && (uint(a|b|c|d)&0xffffff00) == 0 {
+			println("ExternalIpRec")
 			arx = new(ExternalIpRec)
 			arx.IP = (uint32(a) << 24) | (uint32(b) << 16) | (uint32(c) << 8) | uint32(d)
 			arx.Cnt = 1e6
@@ -54,10 +56,10 @@ func GetExternalIPs() (arr []ExternalIpRec) {
 
 	if len(ExternalIp4) > 0 {
 		for ip, rec := range ExternalIp4 {
-			if arx != nil && arx.IP==ip {
+			if arx != nil && arx.IP == ip {
 				continue
 			}
-			arr = append(arr, ExternalIpRec{IP:ip, Cnt:rec[0], Tim:rec[1]})
+			arr = append(arr, ExternalIpRec{IP: ip, Cnt: rec[0], Tim: rec[1]})
 		}
 
 		if len(arr) > 1 {
@@ -148,7 +150,7 @@ func (c *OneConnection) ParseAddr(pl []byte) {
 			/*if c.Misbehave("AddrLocal", 1) {
 				break
 			}*/
-			//print(c.PeerAddr.Ip(), " ", c.Node.Agent, " ", c.Node.Version, " addr local ", a.String(), "\n> ")
+			print(c.PeerAddr.Ip(), " ", c.Node.Agent, " ", c.Node.Version, " addr local ", a.String(), "\n> ")
 		} else if time.Unix(int64(a.Time), 0).Before(time.Now().Add(time.Hour)) {
 			if time.Now().Before(time.Unix(int64(a.Time), 0).Add(peersdb.ExpirePeerAfter)) {
 				k := qdb.KeyType(a.UniqID())

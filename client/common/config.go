@@ -4,9 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/counterpartyxcpc/gocoin-cash"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 	"io/ioutil"
 	"os"
 	"runtime/debug"
@@ -14,6 +11,10 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/counterpartyxcpc/gocoin-cash"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 var (
@@ -29,14 +30,14 @@ var (
 	}
 
 	CFG struct { // Options that can come from either command line or common file
-		Testnet        bool
-		ConnectOnly    string
-		Datadir        string
-		TextUI_Enabled bool
-		UserAgent      string
+		Testnet          bool
+		ConnectOnly      string
+		Datadir          string
+		TextUI_Enabled   bool
+		UserAgent        string
 		LastTrustedBlock string
 
-		WebUI          struct {
+		WebUI struct {
 			Interface   string
 			AllowedIP   string // comma separated
 			ShowBlocks  uint32
@@ -77,7 +78,7 @@ var (
 			Enabled    bool // Global on/off swicth
 			FeePerByte float64
 			MaxTxSize  uint32
-			MemInputs bool
+			MemInputs  bool
 		}
 		Memory struct {
 			GCPercTrshold int
@@ -85,13 +86,13 @@ var (
 			MaxCachedBlks uint
 			FreeAtStart   bool // Free all possible memory after initial loading of block chain
 			CacheOnDisk   bool
-			MaxDataFileMB uint // 0 for unlimited size
+			MaxDataFileMB uint   // 0 for unlimited size
 			DataFilesKeep uint32 // 0 for all
 		}
 		AllBalances struct {
-			MinValue   uint64 // Do not keep balance records for values lower than this
-			UseMapCnt  int
-			AutoLoad   bool
+			MinValue  uint64 // Do not keep balance records for values lower than this
+			UseMapCnt int
+			AutoLoad  bool
 		}
 		Stat struct {
 			HashrateHrs uint
@@ -105,7 +106,7 @@ var (
 			PingPeriodSec   uint // zero to not ping
 		}
 		UTXOSave struct {
-			SecondsToTake uint  // zero for as fast as possible, 600 for do it in 10 minutes
+			SecondsToTake uint   // zero for as fast as possible, 600 for do it in 10 minutes
 			BlocksToHold  uint32 // zero for immediatelly, one for every other block...
 		}
 	}
@@ -227,7 +228,6 @@ func InitConfig() {
 		}
 	}
 
-
 	Reset()
 }
 
@@ -261,11 +261,11 @@ func Reset() {
 	BlockExpireEvery = time.Duration(CFG.DropPeers.BlckExpireHours) * time.Hour
 	PingPeerEvery = time.Duration(CFG.DropPeers.PingPeriodSec) * time.Second
 
-	atomic.StoreUint64(&maxMempoolSizeBytes, uint64(CFG.TXPool.MaxSizeMB) * 1e6)
-	atomic.StoreUint64(&maxRejectedSizeBytes, uint64(CFG.TXPool.MaxRejectMB) * 1e6)
-	atomic.StoreUint64(&minFeePerKB, uint64(CFG.TXPool.FeePerByte * 1000))
+	atomic.StoreUint64(&maxMempoolSizeBytes, uint64(CFG.TXPool.MaxSizeMB)*1e6)
+	atomic.StoreUint64(&maxRejectedSizeBytes, uint64(CFG.TXPool.MaxRejectMB)*1e6)
+	atomic.StoreUint64(&minFeePerKB, uint64(CFG.TXPool.FeePerByte*1000))
 	atomic.StoreUint64(&minminFeePerKB, MinFeePerKB())
-	atomic.StoreUint64(&routeMinFeePerKB, uint64(CFG.TXRoute.FeePerByte * 1000))
+	atomic.StoreUint64(&routeMinFeePerKB, uint64(CFG.TXRoute.FeePerByte*1000))
 
 	ips := strings.Split(CFG.WebUI.AllowedIP, ",")
 	WebUIAllowed = nil

@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"time"
+
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
-	"time"
 )
 
 const (
@@ -40,7 +41,7 @@ func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 	}
 
 	common.CountSafe("HeaderNew")
-	//fmt.Println("", i, bl.Hash.String(), " - NEW!")
+	fmt.Println("", bl.Hash.String(), " - NEW!")
 
 	common.BlockChain.BlockIndexAccess.Lock()
 	defer common.BlockChain.BlockIndexAccess.Unlock()

@@ -204,8 +204,8 @@ func verify_block(blk []byte, sl one_idx_rec, off int) {
 }
 
 func decomp_block(fl uint32, buf []byte) (blk []byte) {
-	if (fl & chain.BLOCK_COMPRSD) != 0 {
-		if (fl & chain.BLOCK_SNAPPED) != 0 {
+	if (fl & chain.BlockCOMPRSD) != 0 {
+		if (fl & chain.BlockSNAPPED) != 0 {
 			blk, _ = snappy.Decode(nil, buf)
 		} else {
 			gz, _ := gzip.NewReader(bytes.NewReader(buf))

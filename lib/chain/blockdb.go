@@ -121,7 +121,7 @@ const (
 
 type blockdataBCH struct {
 	blockdataBCHregisteredLocationWithinBlockDatafPOS   uint64 // where is this *[block]* registered within blockchain.dat [was "fpos" for BTC data - see example below line:115]
-	blockdataBCHregisteredIndexBlockWithinIndexDataIPOS int64  // where is this *tx_block_index_* registered within blockchain.idx (used to set flags) / -1 if not stored in the file (yet)
+	blockdataBCHregisteredIndexBlockWithinIndexDataIPOS int64  // where is this *tx_BlockINDEX_* registered within blockchain.idx (used to set flags) / -1 if not stored in the file (yet)
 	blockdataBCHblockdataLengthOnDiskBLEN               uint32 // how long the block is in blockchain.dat
 	blockdataBCHblockdataLengthawOLEN                   uint32 // original length fo the block (before compression)
 
@@ -148,7 +148,7 @@ type oneBl struct {
 // BlockCachRec is for the cache 'mempool'
 type blockdataBlockCachRec struct {
 	Data []byte
-	*bch.Block
+	*btc.Block
 
 	// This is for BIP152
 	BIP152 []byte // 8 bytes of nonce || 8 bytes of K0 LSB || 8 bytes of K1 LSB
@@ -200,25 +200,6 @@ type BlockDB struct {
 	data_files_keep    uint32
 }
 
-type blockdataBCHBlockDB struct {
-	blockdataBCHdirname                        string
-	blockdataBCHblockIndex                     map[[bch.Uint256IdxLen]byte]*blockdataBCH
-	blockdataBCHblockdata                      *os.File
-	blockdataBCHblockindx                      *os.File
-	blockdataBCHmutex, blockdataBCHdisk_access blockdataBCHsync.Mutex
-	blockdataBCHmax_cached_blocks              int
-	blockdataBCHcache                          map[[bch.Uint256IdxLen]byte]*BlckCachRec
-
-	blockdataBCHmaxidxfilepos, blockdataBCHmaxdatfilepos int64
-	blockdataBCHmaxdatfileidx                            uint32
-
-	blockdataBCHblocksToWrite chan oneB2W
-	blockdataBCHdatToWrite    uint64
-
-	blockdataBCHmax_data_file_size uint64
-	blockdataBCHdata_files_keep    uint32
-}
-
 func NewBlockDBExt(dir string, opts *BlockDBOpts) (db *BlockDB) {
 	db = new(BlockDB)
 	db.dirname = dir
@@ -239,7 +220,7 @@ func NewBlockDBExt(dir string, opts *BlockDBOpts) (db *BlockDB) {
 	db.max_data_file_size = opts.MaxDataFileSize
 	db.data_files_keep = opts.DataFilesKeep
 
-	db.blocksToWrite = make(chan oneB2W, MAX_BLOCKS_TO_WRITE)
+	db.blocksToWrite = make(chan oneB2W, MaxBlocksToWrite)
 	return
 }
 
@@ -310,7 +291,7 @@ func (db *BlockDB) BlockAdd(height uint32, bl *btc.Block) (e error) {
 		db.addToCache(bl.Hash, bl.Raw, bl)
 		db.datToWrite += uint64(len(bl.Raw))
 		db.blocksToWrite <- oneB2W{idx: idx, h: bl.Hash.Hash, data: bl.Raw, height: height, txcount: uint32(bl.TxCount)}
-		flush = len(db.blocksToWrite) >= MAX_BLOCKS_TO_WRITE || db.datToWrite >= MAX_DATA_WRITE
+		flush = len(db.blocksToWrite) >= MaxBlocksToWrite || db.datToWrite >= MaxDataWrite
 	} else {
 		//println("Block", bl.Hash.String(), "already in", rec.trusted, bl.Trusted)
 		if !rec.trusted && bl.Trusted {
@@ -401,13 +382,13 @@ func (db *BlockDB) writeOne() (written bool) {
 
 	rec.datfileidx = db.maxdatfileidx
 	rec.fpos = uint64(db.maxdatfilepos)
-	fl[0] |= BLOCK_COMPRSD | BLOCK_SNAPPED // gzip compression is deprecated
+	fl[0] |= BlockCOMPRSD | BlockSNAPPED // gzip compression is deprecated
 	if rec.trusted {
-		fl[0] |= BLOCK_TRUSTED
+		fl[0] |= BlockTRUSTED
 	}
 
 	//copy(fl[4:32], b2w.h[:28])
-	fl[0] |= BLOCK_LENGTH | BLOCK_INDEX
+	fl[0] |= BlockLENGTH | BlockINDEX
 	binary.LittleEndian.PutUint32(fl[32:36], uint32(len(b2w.data)))
 	binary.LittleEndian.PutUint32(fl[28:32], rec.datfileidx)
 
@@ -456,7 +437,7 @@ func (db *BlockDB) BlockInvalid(hash []byte) {
 		delete(db.blockIndex, idx)
 	} else {
 		// write the new flag to disk
-		db.setBlockFlag(cur, BLOCK_INVALID)
+		db.setBlockFlag(cur, BlockINVALID)
 	}
 	db.mutex.Unlock()
 }
@@ -472,7 +453,7 @@ func (db *BlockDB) BlockTrusted(hash []byte) {
 	}
 	if !cur.trusted {
 		//fmt.Println("mark", btc.NewUint256(hash).String(), "as trusted")
-		db.setBlockFlag(cur, BLOCK_TRUSTED)
+		db.setBlockFlag(cur, BlockTRUSTED)
 	}
 	db.mutex.Unlock()
 }
@@ -607,6 +588,7 @@ func (db *BlockDB) BlockGet(hash *btc.Uint256) (bl []byte, trusted bool, e error
 func (db *BlockDB) BlockLength(hash *btc.Uint256, decode_if_needed bool) (length uint32, e error) {
 	db.mutex.Lock()
 	rec, ok := db.blockIndex[hash.BIdx()]
+
 	if !ok {
 		db.mutex.Unlock()
 		e = errors.New("Block not in the index")
@@ -657,24 +639,24 @@ func (db *BlockDB) LoadBlockIndex(ch *Chain, walk func(ch *Chain, hash, hdr []by
 		bh = binary.LittleEndian.Uint32(b[36:40])
 		BlockHash := btc.NewSha2Hash(b[56:136])
 
-		if (b[0] & BLOCK_INVALID) != 0 {
+		if (b[0] & BlockINVALID) != 0 {
 			// just ignore it
 			fmt.Println("BlockDB: Block", binary.LittleEndian.Uint32(b[36:40]), BlockHash.String(), "is invalid")
 			continue
 		}
 
 		ob := new(oneBl)
-		ob.trusted = (b[0] & BLOCK_TRUSTED) != 0
-		ob.compressed = (b[0] & BLOCK_COMPRSD) != 0
-		ob.snappied = (b[0] & BLOCK_SNAPPED) != 0
+		ob.trusted = (b[0] & BlockTRUSTED) != 0
+		ob.compressed = (b[0] & BlockCOMPRSD) != 0
+		ob.snappied = (b[0] & BlockSNAPPED) != 0
 		ob.fpos = binary.LittleEndian.Uint64(b[40:48])
 		blen := binary.LittleEndian.Uint32(b[48:52])
 		ob.blen = blen
-		if (b[0] & BLOCK_LENGTH) != 0 {
+		if (b[0] & BlockLENGTH) != 0 {
 			blen = binary.LittleEndian.Uint32(b[32:36])
 			ob.olen = blen
 		}
-		if (b[0] & BLOCK_INDEX) != 0 {
+		if (b[0] & BlockINDEX) != 0 {
 			ob.datfileidx = binary.LittleEndian.Uint32(b[28:32])
 		}
 		if blen > 0 && ob.datfileidx != 0xffffffff && ob.datfileidx > db.maxdatfileidx {

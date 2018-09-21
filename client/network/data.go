@@ -14,7 +14,7 @@ import (
 func (c *OneConnection) ProcessGetData(pl []byte) {
 	//var notfound []byte
 
-	//println(c.PeerAddr.Ip(), "getdata")
+	// println(c.PeerAddr.Ip(), "getdata")
 	b := bytes.NewReader(pl)
 	cnt, e := btc.ReadVLen(b)
 	if e != nil {
@@ -51,7 +51,7 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 					if crec.Block.NoWitnessData == nil {
 						crec.Block.BuildNoWitnessData()
 					}
-					//println("block size", len(crec.Data), "->", len(bl))
+					println("block size", len(crec.Data), "->", len(bl))
 					bl = crec.Block.NoWitnessData
 				}
 				c.SendRawMsg("block", bl)
@@ -101,6 +101,7 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 
 // This function is called from a net conn thread
 func netBlockReceived(conn *OneConnection, b []byte) {
+	println("netBlockReceived")
 	if len(b) < 100 {
 		conn.DoS("ShortBlock")
 		return
@@ -108,7 +109,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 
 	hash := btc.NewSha2Hash(b[:80])
 	idx := hash.BIdx()
-	//println("got block data", hash.String())
+	println("got block data", hash.String())
 
 	MutexRcv.Lock()
 

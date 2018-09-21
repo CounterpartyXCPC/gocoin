@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dchest/siphash"
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/dchest/siphash"
 )
 
 var (
@@ -177,6 +177,7 @@ func delB2G_callback(hash *btc.Uint256) {
 }
 
 func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
+	println("ProcessCmpctBlock")
 	if len(pl) < 90 {
 		println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "cmpctblock error A", hex.EncodeToString(pl))
 		c.DoS("CmpctBlkErrA")
