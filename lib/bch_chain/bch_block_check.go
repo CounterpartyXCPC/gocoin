@@ -25,7 +25,7 @@
 // or brand(s) by CCA.
 
 // File:		bch_block_check.go
-// Description:	Bictoin Cash ECDSA Package
+// Description:	Bictoin Cash Chain Package
 
 // Credits:
 
@@ -64,7 +64,9 @@ import (
 
 // Make sure to call this function with ch.BlockIndexAccess locked
 func (ch *Chain) BCHPreCheckBlock(bl *bch.Block) (er error, dos bool, maybelater bool) {
-	// Size limits
+
+	// Size limitsn (NOTE: This is more a BTC )
+	// @todo [BCH] Bitcoin Cash - Size Fri Sep 21, 2018 - Julian Smith
 	if len(bl.Raw) < 81 {
 		er = errors.New("CheckBlock() : size limits failed - RPC_Result:bad-blk-length")
 		dos = true
