@@ -3,10 +3,11 @@
 **Gocoin-cash** is a full **Bitcoin Cash** solution written in Go language (golang) and is based on 
 the original work of of Gocoin (https://github.com/piotrnar/gocoin) by Piotr Narewski.
 
-The software architecture is focused on maximum performance of the node
-\and cold storage security of the wallet.
+The software architecture is focused on maximum performance of the node and cold storage security of the wallet.
 
-The **client** (p2p node) is an application independent from the **wallet**.
+**Client**
+
+The client (p2p node) is an application independent from the wallet.
 It keeps the entire UTXO set in RAM, providing the best block processing performance on the market.
 
 In it's original form, With a decent machine and a fast connection (e.g. 4 vCPUs from Google Cloud or 
@@ -15,23 +16,23 @@ height ~512000) for the Bitcoin core chain.
 
 Benchmarks for the Bitcoin BCH chain to follow.
 
-The **wallet** is designed to be used offline.
+**Wallet**
 
+The wallet is designed to be used offline.
 It is deterministic and password seeded.
-
 As long as you remember the password, you do not need any backups ever.
 
 # Requirements
 
 ## Hardware
 
-**client**:
+**Client**:
 
 * 64-bit architecture OS and Go compiler.
 * File system supporting files larger than 4GB.
 * At least 15GB of system memory (RAM).
 
-**wallet**:
+**Wallet**:
 
 * Any platform that you can make your Go (cross)compiler to build for (Raspberry Pi works).
 * For security reasons make sure to use encrypted swap file (if there is a swap file).
@@ -77,7 +78,8 @@ Go to the `wallet/` folder and execute `go build` there.
 ## Tools
 Go to the `tools/` folder and execute:
 
-	go build btcversig.go
+	go build <tool>
+	example: go build btcversig.go
 
 Repeat the `go build` for each source file of the tool you want to build.
 
