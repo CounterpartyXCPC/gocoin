@@ -99,7 +99,7 @@ type Chain struct {
 
 	Consensus struct {
 		Window, EnforceUpgrade, RejectBlock uint
-		MaxPOWBits                          uint32
+		MaxPOWBits                          uint32 //
 		MaxPOWValue                         *big.Int
 		GensisTimestamp                     uint32
 		Enforce_CSV                         uint32 // if non zero CVS verifications will be enforced from this block onwards
