@@ -9,10 +9,10 @@ var (
 	DbLockFileHndl *os.File
 )
 
-func LockDatabaseDir(GocoinHomeDir string) {
+func LockDatabaseDir(GocoinCashHomeDir string) {
 	var e error
-	os.MkdirAll(GocoinHomeDir, 0770)
-	DbLockFileName = GocoinHomeDir+".lock"
+	os.MkdirAll(GocoinCashHomeDir, 0770)
+	DbLockFileName = GocoinCashHomeDir + ".lock"
 	os.Remove(DbLockFileName)
 	DbLockFileHndl, e = os.OpenFile(DbLockFileName, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0660)
 	if e != nil {

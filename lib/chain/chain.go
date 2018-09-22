@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
 var AbortNow bool // set it to true to abort any activity

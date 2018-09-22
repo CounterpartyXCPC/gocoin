@@ -12,7 +12,7 @@ import (
 	"time"
 
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 )
@@ -34,9 +34,9 @@ var (
 
 	Last TheLastBlock
 
-	GocoinHomeDir  string
-	StartTime      time.Time
-	MaxPeersNeeded int
+	GocoinCashHomeDir string
+	StartTime         time.Time
+	MaxPeersNeeded    int
 
 	CounterMutex sync.Mutex
 	Counter      map[string]uint64 = make(map[string]uint64)

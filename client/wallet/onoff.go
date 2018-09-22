@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
 var (
@@ -108,11 +108,11 @@ func UpdateMapSizes() {
 
 	buf := new(bytes.Buffer)
 	gob.NewEncoder(buf).Encode(WalletAddrsCount)
-	ioutil.WriteFile(common.GocoinHomeDir+MAPSIZ_FILE_NAME, buf.Bytes(), 0600)
+	ioutil.WriteFile(common.GocoinCashHomeDir+MAPSIZ_FILE_NAME, buf.Bytes(), 0600)
 }
 
 func LoadMapSizes() {
-	d, er := ioutil.ReadFile(common.GocoinHomeDir + MAPSIZ_FILE_NAME)
+	d, er := ioutil.ReadFile(common.GocoinCashHomeDir + MAPSIZ_FILE_NAME)
 	if er != nil {
 		println("LoadMapSizes:", er.Error())
 		return

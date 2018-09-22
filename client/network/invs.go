@@ -8,7 +8,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 )
 
 const (
@@ -212,7 +212,7 @@ func (c *OneConnection) GetBlocks(pl []byte) {
 
 						inv := new(bytes.Buffer)
 						btc.WriteVlen(inv, uint64(len(invs)))
-						for k, _ := range invs {
+						for k := range invs {
 							binary.Write(inv, binary.LittleEndian, uint32(2))
 							inv.Write(k[:])
 						}

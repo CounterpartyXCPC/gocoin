@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 var (
@@ -303,8 +303,8 @@ func Reset() {
 }
 
 func MkTempBlocksDir() {
-	// no point doing it before GocoinHomeDir is set in host_init()
-	if CFG.Memory.CacheOnDisk && GocoinHomeDir != "" {
+	// no point doing it before GocoinCashHomeDir is set in host_init()
+	if CFG.Memory.CacheOnDisk && GocoinCashHomeDir != "" {
 		os.Mkdir(TempBlocksDir(), 0700)
 	}
 }
@@ -468,7 +468,7 @@ func RejectedTxsLimits() (size uint64, cnt int) {
 }
 
 func TempBlocksDir() string {
-	return GocoinHomeDir + "tmpblk" + string(os.PathSeparator)
+	return GocoinCashHomeDir + "tmpblk" + string(os.PathSeparator)
 }
 
 func GetExternalIp() (res string) {

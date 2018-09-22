@@ -5,7 +5,7 @@ import (
 	"time"
 
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
@@ -59,10 +59,9 @@ var (
 	CachedBlocks    []*BlockRcvd
 	CachedBlocksLen sys.SyncInt
 
-	DiscardedBlocks map[BIDX] bool = make(map[BIDX] bool)
+	DiscardedBlocks map[BIDX]bool = make(map[BIDX]bool)
 
 	HeadersReceived sys.SyncInt
-
 )
 
 func AddB2G(b2g *OneBlockToGet) {

@@ -50,11 +50,11 @@ func (t2s *OneTxToSend) WriteBytes(wr io.Writer) {
 
 func MempoolSave(force bool) {
 	if !force && !common.CFG.TXPool.SaveOnDisk {
-		os.Remove(common.GocoinHomeDir + MEMPOOL_FILE_NAME2)
+		os.Remove(common.GocoinCashHomeDir + MEMPOOL_FILE_NAME2)
 		return
 	}
 
-	f, er := os.Create(common.GocoinHomeDir + MEMPOOL_FILE_NAME2)
+	f, er := os.Create(common.GocoinCashHomeDir + MEMPOOL_FILE_NAME2)
 	if er != nil {
 		println(er.Error())
 		return
@@ -90,7 +90,7 @@ func MempoolLoad2() bool {
 	var i int
 	var cnt1, cnt2 uint
 
-	f, er := os.Open(common.GocoinHomeDir + MEMPOOL_FILE_NAME2)
+	f, er := os.Open(common.GocoinCashHomeDir + MEMPOOL_FILE_NAME2)
 	if er != nil {
 		fmt.Println("MempoolLoad:", er.Error())
 		return false

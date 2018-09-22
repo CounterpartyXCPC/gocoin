@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 func main() {

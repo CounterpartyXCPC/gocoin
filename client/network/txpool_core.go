@@ -9,7 +9,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
@@ -436,7 +436,7 @@ func HandleNetTx(ntx *TxRcvd, retry bool) (accepted bool) {
 		var totweight int
 		var totfees uint64
 
-		for ctx, _ := range rbf_tx_list {
+		for ctx := range rbf_tx_list {
 			totweight += ctx.Weight()
 			totfees += ctx.Fee
 		}
@@ -492,7 +492,7 @@ func HandleNetTx(ntx *TxRcvd, retry bool) (accepted bool) {
 	}
 
 	if rbf_tx_list != nil {
-		for ctx, _ := range rbf_tx_list {
+		for ctx := range rbf_tx_list {
 			// we dont remove with children because we have all of them on the list
 			ctx.Delete(false, TX_REJECTED_REPLACED)
 			common.CountSafe("TxRemovedByRBF")
@@ -569,7 +569,7 @@ func (rec *OneTxToSend) isRoutable() bool {
 }
 
 func RetryWaitingForInput(wtg *OneWaitingList) {
-	for k, _ := range wtg.Ids {
+	for k := range wtg.Ids {
 		pendtxrcv := &TxRcvd{Tx: TransactionsRejected[k].Tx}
 		if HandleNetTx(pendtxrcv, true) {
 			common.CountSafe("TxRetryAccepted")

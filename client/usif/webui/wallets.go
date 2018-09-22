@@ -18,7 +18,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
 	"github.com/counterpartyxcpc/gocoin-cash/client/wallet"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
 func p_wal(w http.ResponseWriter, r *http.Request) {

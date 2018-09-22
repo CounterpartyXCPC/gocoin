@@ -311,7 +311,7 @@ func tcp_server() {
 func ConnectFriends() {
 	common.CountSafe("ConnectFriends")
 
-	f, _ := os.Open(common.GocoinHomeDir + "friends.txt")
+	f, _ := os.Open(common.GocoinCashHomeDir + "friends.txt")
 	if f == nil {
 		return
 	}
@@ -790,7 +790,7 @@ func (c *OneConnection) Run() {
 
 	c.Mutex.Lock()
 	MutexRcv.Lock()
-	for k, _ := range c.GetBlockInProgress {
+	for k := range c.GetBlockInProgress {
 		if rec, ok := BlocksToGet[k]; ok {
 			rec.InProgress--
 		} else {

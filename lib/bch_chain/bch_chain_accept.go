@@ -58,8 +58,8 @@ import (
 	"sync/atomic"
 
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 // TrustedTxChecker is meant to speed up verifying transactions that had

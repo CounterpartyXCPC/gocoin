@@ -8,39 +8,39 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 func host_init() {
-	common.GocoinHomeDir = common.CFG.Datadir + string(os.PathSeparator)
+	common.GocoinCashHomeDir = common.CFG.Datadir + string(os.PathSeparator)
 
 	common.Testnet = common.CFG.Testnet // So chaging this value would will only affect the behaviour after restart
 	if common.CFG.Testnet {             // testnet3
-		common.GenesisBlock = btc.NewUint256FromString("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943")
+		common.GenesisBlock = bch.NewUint256FromString("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943")
 		common.Magic = [4]byte{0x0B, 0x11, 0x09, 0x07}
-		common.GocoinHomeDir += common.DataSubdir() + string(os.PathSeparator)
+		common.GocoinCashHomeDir += common.DataSubdir() + string(os.PathSeparator)
 		common.MaxPeersNeeded = 2000
 	} else {
-		common.GenesisBlock = btc.NewUint256FromString("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
+		common.GenesisBlock = bch.NewUint256FromString("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
 		common.Magic = [4]byte{0xF9, 0xBE, 0xB4, 0xD9}
-		common.GocoinHomeDir += common.DataSubdir() + string(os.PathSeparator)
+		common.GocoinCashHomeDir += common.DataSubdir() + string(os.PathSeparator)
 		common.MaxPeersNeeded = 5000
 	}
 
 	// Lock the folder
-	os.MkdirAll(common.GocoinHomeDir, 0770)
-	sys.LockDatabaseDir(common.GocoinHomeDir)
+	os.MkdirAll(common.GocoinCashHomeDir, 0770)
+	sys.LockDatabaseDir(common.GocoinCashHomeDir)
 
-	common.SecretKey, _ = ioutil.ReadFile(common.GocoinHomeDir + "authkey")
+	common.SecretKey, _ = ioutil.ReadFile(common.GocoinCashHomeDir + "authkey")
 	if len(common.SecretKey) != 32 {
 		common.SecretKey = make([]byte, 32)
 		rand.Read(common.SecretKey)
-		ioutil.WriteFile(common.GocoinHomeDir+"authkey", common.SecretKey, 0600)
+		ioutil.WriteFile(common.GocoinCashHomeDir+"authkey", common.SecretKey, 0600)
 	}
-	common.PublicKey = btc.Encodeb58(btc.PublicFromPrivate(common.SecretKey, true))
+	common.PublicKey = bch.Encodeb58(btc.PublicFromPrivate(common.SecretKey, true))
 	fmt.Println("Public auth key:", common.PublicKey)
 
 	__exit := make(chan bool)
@@ -82,7 +82,7 @@ func host_init() {
 		BlockMinedCB:     blockMined}
 
 	sta := time.Now()
-	common.BlockChain = chain.NewChainExt(common.GocoinHomeDir, common.GenesisBlock, common.FLAG.Rescan, ext,
+	common.BlockChain = chain.NewChainExt(common.GocoinCashHomeDir, common.GenesisBlock, common.FLAG.Rescan, ext,
 		&chain.BlockDBOpts{
 			MaxCachedBlocks: int(common.CFG.Memory.MaxCachedBlks),
 			MaxDataFileSize: uint64(common.CFG.Memory.MaxDataFileMB) << 20,

@@ -14,15 +14,15 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/counterpartyxcpc/gocoin-cash"
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
-	"github.com/counterpartyxcpc/gocoin-cash"
 )
 
 type oneUiCmd struct {
@@ -191,7 +191,7 @@ func show_info(par string) {
 func show_counters(par string) {
 	common.CounterMutex.Lock()
 	ck := make([]string, 0)
-	for k, _ := range common.Counter {
+	for k := range common.Counter {
 		if par == "" || strings.HasPrefix(k, par) {
 			ck = append(ck, k)
 		}

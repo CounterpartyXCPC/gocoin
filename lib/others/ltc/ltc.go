@@ -4,8 +4,8 @@ import (
 	"bytes"
 
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 const LTC_ADDR_VERSION = 48

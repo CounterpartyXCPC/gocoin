@@ -205,7 +205,7 @@ func check_txs(par string) {
 
 func load_mempool(par string) {
 	if par == "" {
-		par = common.GocoinHomeDir + "mempool.dmp"
+		par = common.GocoinCashHomeDir + "mempool.dmp"
 	}
 	var abort bool
 	__exit := make(chan bool)

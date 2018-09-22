@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
 // https://api.blockchair.com/bitcoin/outputs?q=is_spent(0),recipient(bc1qdvpxmyvyu9urhadl6sk69gcjsfqsvrjsqfk5aq)

@@ -19,7 +19,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif/webui"
 	"github.com/counterpartyxcpc/gocoin-cash/client/wallet"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
@@ -331,7 +331,7 @@ func main() {
 		peersdb.Testnet = common.Testnet
 		peersdb.ConnectOnly = common.CFG.ConnectOnly
 		peersdb.Services = common.Services
-		peersdb.InitPeers(common.GocoinHomeDir)
+		peersdb.InitPeers(common.GocoinCashHomeDir)
 		if common.FLAG.UnbanAllPeers {
 			var keys []qdb.KeyType
 			var vals [][]byte

@@ -15,9 +15,9 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
 )
 
 const MAX_UNSPENT_AT_ONCE = 20

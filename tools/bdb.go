@@ -12,7 +12,7 @@ import (
 	"sync"
 
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/golang/snappy"
 )
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
 var (

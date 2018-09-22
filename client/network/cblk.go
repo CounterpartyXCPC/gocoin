@@ -13,7 +13,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/chain"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/dchest/siphash"
 )
 
