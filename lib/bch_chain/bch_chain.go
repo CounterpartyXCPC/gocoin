@@ -81,10 +81,21 @@ type Chain struct {
 	// UASF-User activated soft fork	|	aka: ""
 	// The New York Agreement	|	aka: ""
 	// SegWit	|	aka: ""
-	// SegWit2x	|	aka: ""
 	// BIP 141	|	aka: ""
-	// BIP 91	|	aka: "Consensus.BIP91Height"
+	// BIP 91 [SegWit2x]	|	aka: "Consensus.BIP91Height"
 	// BIP 148	|	aka: ""
+
+	// The official date and time for the fork is:
+	// Fork Date: 2017-08-01  12:20 p.m. UTC
+
+	//
+	//
+	//
+	//
+	//
+
+	// Block Size Limit Increase
+	// Bitcoin Cash started off with an immediate increase of the block size limit to 8MB.
 
 	Consensus struct {
 		Window, EnforceUpgrade, RejectBlock uint
