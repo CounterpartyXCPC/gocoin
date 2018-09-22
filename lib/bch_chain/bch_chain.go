@@ -58,7 +58,7 @@ import (
 	"sync"
 
 	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/utxo"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
 var AbortNow bool // set it to true to abort any activity
@@ -76,6 +76,15 @@ type Chain struct {
 	BlockIndex       map[[btc.Uint256IdxLen]byte]*BlockTreeNode
 
 	CB NewChanOpts // callbacks used by Unspent database
+
+	// UAHF-User activated hard fork	|	aka: ""
+	// UASF-User activated soft fork	|	aka: ""
+	// The New York Agreement	|	aka: ""
+	// SegWit	|	aka: ""
+	// SegWit2x	|	aka: ""
+	// BIP 141	|	aka: ""
+	// BIP 91	|	aka: "Consensus.BIP91Height"
+	// BIP 148	|	aka: ""
 
 	Consensus struct {
 		Window, EnforceUpgrade, RejectBlock uint
