@@ -77,25 +77,33 @@ type Chain struct {
 
 	CB NewChanOpts // callbacks used by Unspent database
 
-	// UAHF-User activated hard fork	|	aka: ""
-	// UASF-User activated soft fork	|	aka: ""
-	// The New York Agreement	|	aka: ""
-	// SegWit	|	aka: ""
-	// BIP 141	|	aka: ""
+	// UAHF-User activated hard fork [Bitcoin Cash]	|	aka: ""
+	// UASF-User activated soft fork [BIP 148]	|	aka: ""
+	// The New York Agreement []	|	aka: ""
+	// SegWit [BIP 141]		|	aka: ""
+	// BIP 141 [Segregated Witness]		|	aka: ""
 	// BIP 91 [SegWit2x]	|	aka: "Consensus.BIP91Height"
-	// BIP 148	|	aka: ""
+	// BIP 148 [UASF]		|	aka: ""
 
 	// The official date and time for the fork is:
 	// Fork Date: 2017-08-01  12:20 p.m. UTC
 
-	//
-	//
-	//
-	//
-	//
-
 	// Block Size Limit Increase
 	// Bitcoin Cash started off with an immediate increase of the block size limit to 8MB.
+
+	// Replay and Wipeout Protection
+	// When BCH split, it was applying what was described as a well thought out replay and wipeout protection plan
+	// for both chains. With this, everyone involved will have minimum disruptions and both the chains can peacefully
+	// coexist from there. Until the coming hash wars. ;)
+
+	// New Transaction Type
+	// As part of the replay protection technology, Bitcoin Cash has introduced a new transaction type with additional
+	// benefits such as input value signing for improved hardware wallet security, and elimination of the quadratic hashing
+	// problem. (Source-https://www.bitcoincash.org/)
+
+	// Q. How is transaction replay being handled between the new and the old blockchain?
+	// A. Bitcoin Cash transactions use a new flag SIGHASH_FORKID, which is non standard to the legacy blockchain.
+	// This prevents Bitcoin Cash transactions from being replayed on the Bitcoin blockchain and vice versa.
 
 	Consensus struct {
 		Window, EnforceUpgrade, RejectBlock uint
