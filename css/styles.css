@@ -1,0 +1,1944 @@
+/* Template: Riga - Mobile App Landing Page Template
+   Author: InovatikThemes
+   Created: Apr 2018
+   Description: Master CSS file
+*/
+
+/*****************************************
+Table Of Contents:
+
+01. General Styles
+02. Preloader
+03. Navigation
+04. Header
+05. Testimonials
+06. Features
+07. Facts
+08. Screenshots
+09. Description 1
+10. Description 2
+11. Video
+12. Statistics Numbers
+13. More Apps
+14. Contact
+15. Copyright
+16. Back To Top Button
+17. Terms & Conditions And Privacy Policy
+18. Media Queries
+******************************************/
+
+/*****************************************
+Colors:
+- Text: #fff
+- Primary color orange: #fc8b56
+- Navigation and backgrounds dark gray: #374450
+- Backgrounds lighter dark gray: #43515d
+
+******************************************/
+
+
+/******************************/
+/*     01. General Styles     */
+/******************************/
+body,
+html {
+    width: 100%;
+	height: 100%;
+}
+
+body, p {
+	color: #fff; 
+	font: 300 15px/25px "Fira Sans", sans-serif;
+}
+
+h1 {
+	font: 600 3rem/3.5rem "Fira Sans", sans-serif;
+}
+
+h2 {
+	font: 600 2.25rem/2.875rem "Fira Sans", sans-serif;
+}
+
+h3 {
+	font: 600 1.5rem/2rem "Fira Sans", sans-serif;
+}
+
+h4 {
+	font: 600 1.375rem/1.875rem "Fira Sans", sans-serif;
+}
+
+h5 {
+	font: 600 1rem/1.5rem "Fira Sans", sans-serif;
+}
+
+.header-h1 {
+	margin-bottom: 1.5rem;
+	font: 600 3rem/3.625rem "Fira Sans", sans-serif;
+}
+
+.header-p {
+	margin-bottom: 2.375rem;
+	font: 300 1.125rem/1.75rem "Fira Sans", sans-serif;
+}
+
+.under-heading {
+	margin-top: 1rem;
+	margin-bottom: 4rem;
+}
+
+a {
+	color: #fff; 
+}
+
+a:hover {
+	color: #fff;
+	text-decoration: none;
+}
+
+.underline-light {
+	color: #fc8b56;
+}
+
+.quote-text {
+	font: italic 300 15px/25px "Fira Sans", sans-serif;
+}
+
+.quote-author {
+	font: italic 600 1.125rem/1.75rem "Fira Sans", sans-serif;
+}
+
+.button-solid,
+.button-solid-large {
+	display: inline-block;
+	padding: 7px 30px 6px 30px;
+	border: 1px solid #fc8b56;
+	border-radius: 50px;
+	background-color: #fc8b56;
+	color: #fff;
+	font: 400 15px/25px "Fira Sans", sans-serif;
+	transition: all 0.3s ease;
+}
+
+.button-solid:hover,
+.button-solid-large:hover {
+	border: 1px solid #fc8b56;
+	background-color: transparent;
+	color: #fc8b56;
+}
+
+.button-solid-large {
+	padding: 9px 36px 8px 36px;
+	font: 400 17px/26px "Fira Sans", sans-serif;
+}
+
+.button-solid-white {
+	display: inline-block;
+	padding: 7px 30px 6px 30px;
+	border: 1px solid #fff;
+	border-radius: 50px;
+	background-color: #fff;
+	color: #fc8b56;
+	font: 400 15px/25px "Fira Sans", sans-serif;
+	transition: all 0.3s ease;
+}
+
+.button-solid-white:hover {
+	background-color: transparent;
+	color: #fff;
+}
+
+.button-outline {
+	display: inline-block;
+	padding: 7px 30px 6px 30px;
+	border: 1px solid #fff;
+	border-radius: 50px;
+	background-color: transparent;
+	color: #fff;
+	font: 400 15px/25px "Fira Sans", sans-serif;
+	transition: all 0.3s ease;
+}
+
+.button-outline:hover {
+	background-color: #fff;
+	color: #43515d;
+}
+
+.section-divide-hr {
+	width: 84%;
+	height: 1px;
+	margin-right: auto;
+	margin-left: auto;
+	border: none;
+	background-color: #405266;
+	opacity: 0.2;
+}
+
+.form-control-input,
+.form-control-select {
+	width: 100%;
+	height: 2.75rem; /* looks bad in IE if you use padding instead of height*/
+	padding-left: 1rem;
+    border: 1px solid #fff;
+	border-radius: 6px;
+	background-color: #fff;
+	color: #405266;
+	font: 300 15px/25px "Fira Sans", sans-serif;
+	-webkit-appearance: none; /* removes inner shadow on form inputs on ios safari */
+}
+
+.form-control-select {
+	padding-top: 1px;
+	color: #7c8b9c;
+}
+
+select {
+    /* you should keep these firsts rules in place to maintain cross-browser behavior */
+    -webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+    background-image: url('../images/down-arrow.png');
+    background-position: 95% center;
+    background-repeat: no-repeat;
+    outline: none;
+}
+
+select::-ms-expand {
+    display: none; /* removes the ugly default down arrow on select form field in IE11 */
+}
+
+.form-control-textarea {
+	display: block; /* used to eliminate a bottom gap difference between Chrome and IE/FF */
+	width: 100%;
+	height: 8rem; /* used instead of html rows to normalize height between Chrome and IE/FF */
+	padding-top: 0.75rem;
+	padding-left: 1rem;
+	border: 1px solid #fff;
+	border-radius: 6px;
+	background-color: #fff;
+	color: #405266;
+	font: 300 15px/25px "Fira Sans", sans-serif;
+}
+
+.form-control-input::placeholder,
+.form-control-textarea::placeholder {
+	color: #87919c;
+}
+
+.form-control-input::-webkit-input-placeholder,
+.form-control-textarea::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	color: #87919c;
+}
+
+.form-control-input::-moz-placeholder,
+.form-control-textarea::-moz-placeholder { /* Firefox 19+ */
+	color: #87919c;
+}
+
+.form-control-input:-ms-input-placeholder,
+.form-control-textarea:-ms-input-placeholder { /* IE 10+ */
+	color: #87919c;
+}
+
+.form-control-input:-moz-placeholder,
+.form-control-textarea:-moz-placeholder { /* Firefox 18- */
+	color: #87919c;
+}
+
+.form-control-submit-button {
+	display: inline-block;
+	width: 100%;
+	height: 2.75rem;
+	border: 1px solid #fc8b56;
+	border-radius: 50px;
+	background-color: #fc8b56;
+	color: #fff;
+	font: 400 15px/25px "Fira Sans", sans-serif;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.form-control-submit-button:hover {
+	border: 1px solid #fff;
+	background-color: #fff;
+	color: #fc8b56;
+}
+
+/* Form Success And Error Message Formatting */
+#msgCSubmit.h3.text-center.tada.animated,
+#msgCSubmit.h3.text-center {
+	margin-top: 2px;
+	margin-bottom: 0;
+	font: 400 1.125rem/1rem "Fira Sans", sans-serif;
+}
+
+#msgCSubmit.h3.text-center.tada.animated,
+#msgCSubmit.h3.text-center {
+	color: #fff;
+}
+
+#msgCSubmit.h3.text-center.tada.animated,
+#msgCSubmit.h3.text-center {
+	display: block;
+}
+
+.form-group.has-error.has-danger {
+	margin-bottom: 0.625rem;
+}
+
+.help-block.with-errors {
+	margin-top: 0.375rem;
+	font-size: 13px;
+	line-height: 1rem;
+}
+
+.help-block.with-errors .list-unstyled {
+	margin-bottom: 0rem;
+}
+
+
+/* end of form success and error message formatting */
+
+/* Form Success And Error Message Animation From Animate.css */
+@-webkit-keyframes tada {
+	from {
+		-webkit-transform: scale3d(1, 1, 1);
+		-ms-transform: scale3d(1, 1, 1);
+		transform: scale3d(1, 1, 1);
+	}
+	10%, 20% {
+		-webkit-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+		-ms-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+		transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+	}
+	30%, 50%, 70%, 90% {
+		-webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+		-ms-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+		transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+	}
+	40%, 60%, 80% {
+		-webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+		-ms-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+		transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+	}
+	to {
+		-webkit-transform: scale3d(1, 1, 1);
+		-ms-transform: scale3d(1, 1, 1);
+		transform: scale3d(1, 1, 1);
+	}
+}
+
+@keyframes tada {
+	from {
+		-webkit-transform: scale3d(1, 1, 1);
+		-ms-transform: scale3d(1, 1, 1);
+		transform: scale3d(1, 1, 1);
+	}
+	10%, 20% {
+		-webkit-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+		-ms-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+		transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+	}
+	30%, 50%, 70%, 90% {
+		-webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+		-ms-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+		transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+	}
+	40%, 60%, 80% {
+		-webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+		-ms-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+		transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+	}
+	to {
+		-webkit-transform: scale3d(1, 1, 1);
+		-ms-transform: scale3d(1, 1, 1);
+		transform: scale3d(1, 1, 1);
+	}
+}
+
+.tada {
+	-webkit-animation-name: tada;
+	animation-name: tada;
+}
+
+.animated {
+	-webkit-animation-duration: 1s;
+	animation-duration: 1s;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+}
+/* end of form success and error message animation from Animate.css */
+
+/* Fade-move Animation For Lightbox */
+/* at start */
+.my-mfp-slide-bottom .zoom-anim-dialog {
+	opacity: 0;
+	transition: all 0.2s ease-out;
+	-webkit-transform: translateY(-20px) perspective( 600px ) rotateX( 10deg );
+	-ms-transform: translateY(-20px) perspective( 600px ) rotateX( 10deg );
+	transform: translateY(-20px) perspective( 600px ) rotateX( 10deg );
+}
+
+/* animate in */
+.my-mfp-slide-bottom.mfp-ready .zoom-anim-dialog {
+	opacity: 1;
+	-webkit-transform: translateY(0) perspective( 600px ) rotateX( 0 ); 
+	-ms-transform: translateY(0) perspective( 600px ) rotateX( 0 ); 
+	transform: translateY(0) perspective( 600px ) rotateX( 0 ); 
+}
+
+/* animate out */
+.my-mfp-slide-bottom.mfp-removing .zoom-anim-dialog {
+	opacity: 0;
+	-webkit-transform: translateY(-10px) perspective( 600px ) rotateX( 10deg ); 
+	-ms-transform: translateY(-10px) perspective( 600px ) rotateX( 10deg ); 
+	transform: translateY(-10px) perspective( 600px ) rotateX( 10deg ); 
+}
+
+/* dark overlay, start state */
+.my-mfp-slide-bottom.mfp-bg {
+	opacity: 0;
+	transition: opacity 0.3s ease-out;
+}
+
+/* animate in */
+.my-mfp-slide-bottom.mfp-ready.mfp-bg {
+	opacity: 0.8;
+}
+/* animate out */
+.my-mfp-slide-bottom.mfp-removing.mfp-bg {
+	opacity: 0;
+}
+/* end of fade-move animation for lightbox */
+
+/* Fade Animation For Image Slider Gallery */
+@-webkit-keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.fadeIn {
+	-webkit-animation: fadeIn 0.6s;
+	animation: fadeIn 0.6s;
+}
+
+@-webkit-keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+.fadeOut {
+	-webkit-animation: fadeOut 0.8s;
+	animation: fadeOut 0.8s;
+}
+/* end of fade animation for image slider gallery */
+
+/* Lightbox Numbered Text Magnific Popup */
+.lightbox-numbered-text {
+	position: relative;
+	max-width: 700px;
+	margin: 40px auto;
+	padding: 3rem 1rem;
+	border-radius: 10px;
+	background: #374450;
+	text-align: left;
+}
+
+.lightbox-numbered-text h3 {
+	text-align: center;
+	margin-bottom: 1.75rem;
+}
+
+.lightbox-numbered-text p.numbered-title {
+	margin-top: 0.25rem;
+	font: 400 1.25rem/1.875rem "Fira Sans", sans-serif;
+}
+
+.lightbox-numbered-text .numbered-row {
+	margin-top: 1.5rem;
+}
+
+.lightbox-numbered-text .bullet-number {
+	display: inline-block;
+	width: 39px;
+	height: 39px;
+	margin-right: 0.625rem;
+	border-radius: 6px;
+	background-color: #fc8b56;
+	color: #fff;
+	font: 600 1.25rem/2.5rem "Fira Sans", sans-serif;
+	text-align: center;
+	vertical-align: top;
+}
+
+.lightbox-numbered-text .numbered-text {
+	display: inline-block;
+	max-width: 80%;
+	vertical-align: top;
+}
+
+.lightbox-numbered-text .numbered-text p {
+	margin-bottom: 0.75rem;
+}
+
+.lightbox-numbered-text .back-button {
+	text-align: center;
+}
+
+.lightbox-numbered-text a.mfp-close.as-button {
+	position: relative;
+	width: auto;
+	height: auto;
+	margin-top: 0.75rem;
+	color: #fff;
+	opacity: 1;
+}
+
+.lightbox-numbered-text a.mfp-close.as-button:hover {
+	color: #fc8b56;
+}
+
+.lightbox-numbered-text button.mfp-close.x-button {
+	position: absolute;
+	top: -5px;
+	right: -6px;
+	width: 44px;
+	height: 44px;
+	color: #fff;
+}
+/* end of lightbox numbered text magnific popup */
+
+/* Lightbox Split Image Text Magnific Popup */
+.lightbox-split-image-text {
+	position: relative;
+	max-width: 710px;
+	margin: 40px auto;
+	padding: 3rem 1rem;
+	border-radius: 10px;
+	background: #374450;
+	text-align: left;
+}
+
+.lightbox-split-image-text img {
+	margin-right: auto;
+	margin-left: auto;
+	margin-bottom: 2rem;
+	border-radius: 10px;
+}
+
+.lightbox-split-image-text h3 {
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.lightbox-split-image-text hr {
+	width: 2.75rem;
+	height: 1px;
+	margin-top: 2px;
+	margin-bottom: 0.75rem;
+	margin-left: 0;
+	border: 0;
+	background-color: #fc8b56;
+	text-align: left;
+}
+
+.lightbox-split-image-text table {
+	margin-top: 13px;
+}
+
+.lightbox-split-image-text table tr {
+	line-height: 1.75em;
+}
+
+.lightbox-split-image-text table .icon-cell {
+	width: 2rem;
+	padding-right: 0.25rem;
+	text-align: center;
+}
+
+.lightbox-split-image-text table .fa {
+	color: #fc8b56;
+}
+
+.lightbox-split-image-text .testimonial-container {
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+	padding: 1rem 1.5rem 1rem 1.5rem;
+	background-color: #ebebeb;
+}
+
+.lightbox-split-image-text .quote-text {
+	margin-bottom: 0.125rem;
+}
+
+.lightbox-split-image-text .quote-author {
+	margin-bottom: 0;
+}
+
+.lightbox-split-image-text .button-outline,
+.lightbox-split-image-text .button-solid {
+	margin-top: 1.25rem;
+}
+
+.lightbox-split-image-text a.mfp-close.as-button {
+	position: relative;
+	width: auto;
+	height: auto;
+	margin-top: 0.625rem;
+	margin-right: 0.25rem;
+	color: #fff;
+	opacity: 1;
+}
+
+.lightbox-split-image-text a.mfp-close.as-button:hover {
+	color: #fc8b56;
+}
+
+.lightbox-split-image-text button.mfp-close.x-button {
+	position: absolute;
+	top: -5px;
+	right: -6px;
+	width: 44px;
+	height: 44px;
+	color: #fff;
+}
+/* end of lightbox split image text magnific popup */
+
+
+/*************************/
+/*     02. Preloader     */
+/*************************/
+.spinner-wrapper {
+	position: fixed;
+	z-index: 999999;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: #374450;
+}
+
+.spinner {
+	position: absolute;
+	top: 50%; /* centers the loading animation vertically one the screen */
+	left: 50%; /* centers the loading animation horizontally one the screen */
+	width: 60px;
+	height: 20px;
+	margin: -10px 0 0 -30px; /* is width and height divided by two */ 
+	text-align: center;
+}
+
+.spinner > div {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border-radius: 100%;
+	background-color: #eff2f5;
+	-webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+	animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+	-webkit-animation-delay: -0.32s;
+	animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+	-webkit-animation-delay: -0.16s;
+	animation-delay: -0.16s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+	0%, 80%, 100% { -webkit-transform: scale(0); }
+	40% { -webkit-transform: scale(1.0); }
+}
+
+@keyframes sk-bouncedelay {
+	0%, 80%, 100% { 
+		-webkit-transform: scale(0);
+		-ms-transform: scale(0);
+		transform: scale(0);
+	} 40% { 
+		-webkit-transform: scale(1.0);
+		-ms-transform: scale(1.0);
+		transform: scale(1.0);
+	}
+}
+
+
+/**************************/
+/*     03. Navigation     */
+/**************************/
+#menuToggle {
+	display: block;
+	position: fixed;
+	top: 47px;
+	right: 20px;
+	left: auto;
+	z-index: 4;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#menuToggle input {
+	display: block;
+	width: 40px;
+	height: 32px;
+	position: absolute;
+	top: -7px;
+	left: -5px;
+	cursor: pointer;
+	opacity: 0; /* hide this */
+	z-index: 4; /* and place it over the hamburger */
+	-webkit-touch-callout: none;
+}
+
+#menuToggle span {
+	display: block;
+	position: relative;
+	z-index: 3;
+	width: 33px;
+	height: 4px;
+	margin-bottom: 5px;
+	background: #fff;
+	border-radius: 3px;
+	transform-origin: 4px 0px;
+	transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+				background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+				opacity 0.55s ease;
+}
+
+#menuToggle span:first-child {
+	transform-origin: 0% 0%;
+}
+
+#menuToggle span:nth-last-child(2) {
+  	transform-origin: 0% 100%;
+}
+
+/* Transform burger lines in crossmark */
+#menuToggle input:checked ~ span {
+	opacity: 1;
+	transform: rotate(45deg) translate(-2px, -1px);
+	background: #fff;
+}
+
+/* Hide the middle burger line */
+#menuToggle input:checked ~ span:nth-last-child(3) {
+	opacity: 0;
+	transform: rotate(0deg) scale(0.2, 0.2);
+}
+
+/* Change direction of burger line */
+#menuToggle input:checked ~ span:nth-last-child(2) {
+	transform: rotate(-45deg) translate(0, -1px);
+}
+
+#menu {
+	position: absolute;
+	width: 220px;
+	margin: -100px 0 0 -170px;
+	padding: 125px 50px 35px 35px;
+	border-bottom-right-radius: 15px;
+	border-bottom-left-radius: 15px;
+	background: #374450;
+	list-style-type: none;
+	-webkit-font-smoothing: antialiased; /* to stop flickering of text in safari */
+	transform-origin: 0% 0%;
+	transform: translate(115%, 0);
+	transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
+}
+
+#menu li {
+	padding: 10px 0;
+	color: #fff;
+	font-size: 20px;
+}
+
+#menu li:active,
+#menu li:hover a {
+	color: #fc8b56;
+}
+
+#menuToggle input:checked ~ ul {
+	transform: none;
+}
+
+
+/*********************/
+/*    04. Header     */
+/*********************/
+.header {
+	position: relative;
+	background: linear-gradient(to right, #fc8b56, #fd5656);
+}
+
+.header .logo-img {
+	width: 97px;
+	height: 34px;
+	margin-top: 2.625rem;
+	margin-left: 1rem;
+}
+
+.header .logo-txt {
+	display: inline-block;
+	margin-top: 3.125rem;
+	margin-left: 1rem;
+	font: italic 600 2.75rem/1rem "Fira Sans", sans-serif;
+}
+
+.header .header-content {
+	padding-top: 4rem;
+	padding-bottom: 5rem;
+}
+
+.header .text-area {
+	text-align: center;
+	margin-bottom: 4rem;
+}
+
+.header .countdown {
+	font: 400 2.125rem/1.25rem "Fira Sans", sans-serif;
+	margin-bottom: 1.125rem;
+	text-align: center;
+}
+
+.header .countdown #clock .counter-number {
+	display: inline-block;
+	width: 96px;
+	height: 96px;
+	margin-right: 1rem;
+	margin-bottom: 1rem;
+	padding-top: 1.625rem;
+	border: 3px solid #fff;
+	border-radius: 50%;
+	background-color: transparent;
+	text-align: center;
+}
+
+.header .countdown #clock .separator {
+	display: none;
+	height: 30px;
+	vertical-align: top;
+	margin-top: 30px;
+	margin-right: 10px;
+	margin-left: 10px;
+}
+
+.header .countdown #clock .timer-text {
+	font: 400 0.875rem/1rem "Fira Sans", sans-serif;
+	text-align: center;
+}
+
+.form-control-input,
+.form-control-select {
+	height: 3rem; /* looks bad in IE if you use padding instead of height*/
+}
+
+.form-control-submit-button {
+	height: 3rem;
+}
+
+.header .form-control-submit-button {
+	border: 1px solid #d63144;
+	background-color: #d63144;
+}
+
+.header .form-control-submit-button:hover {
+	border: 1px solid #374450;
+	background-color: #374450;
+	color: #fff;
+}
+
+.header .help-block.with-errors {
+	margin-top: 0.5rem;
+}
+
+.header #msgSubmit.h3.text-error {
+	margin-top: 1rem;
+	color: #fff;
+	font: 400 1.25rem/1.75rem "Fira Sans", sans-serif;
+	text-align: center;
+}
+
+.header #msgSubmit.h3.text-confirmation {
+	color: #fff;
+	font: 400 1.25rem/1.25rem "Fira Sans", sans-serif;
+	text-align: center;
+}
+
+.header .image-area {
+	margin-right: auto;
+	margin-left: auto;
+}
+
+
+/****************************/
+/*     05. Testimonials     */
+/****************************/
+.section-1 {
+	padding-top: 5rem;
+	padding-bottom: 3rem;
+	background-color: #374450;
+	text-align: center;
+}
+
+.section-1 .swiper-container {
+	padding-bottom: 26px;
+}
+
+.section-1 .swiper-pagination {
+	bottom: 0px;
+}
+
+.section-1 .swiper-pagination-bullets .swiper-pagination-bullet {
+	width: 11px;
+	height: 11px;
+	margin: 0 6px;
+	background: #efefef;
+}
+
+.section-1 .card {
+	border: none;
+	background-color: transparent;
+	z-index: 1;
+}
+
+.section-1 .fa-star {
+	display: inline-block;
+	color: #fc8b56;
+	font-size: 26px;
+}
+
+.section-1 .quote-text {
+	margin-bottom: 0.5rem;
+	font-style: italic;
+}
+
+
+/************************/
+/*     06. Features     */
+/************************/
+.section-2 {
+	padding-top: 6.5rem;
+	padding-bottom: 4rem;
+	background-color: #43515d;
+}
+
+.section-2 .nav {
+	margin-bottom: 4rem;
+}
+
+.section-2 .nav-pills {
+	margin-right: auto;
+	margin-left: auto;
+	justify-content: center;
+}
+
+.section-2 .nav-link {
+	margin-right: 0.375rem;
+	margin-left: 0.375rem;
+	margin-bottom: 1rem;
+	padding: 0.625rem 2.375rem 0.625rem 2.375rem;
+	border: 1px solid #fff;
+	border-radius: 50px;
+	color: #fff;
+	font: 500 1.125rem/1.75rem "Fira Sans", sans-serif;
+}
+
+.section-2 .nav-link.active {
+	border: 1px solid #fc8b56;
+	background: #fc8b56;
+}
+
+.section-2 .nav-link .svg-inline--fa {
+	margin-right: 0.375rem;
+	font-size: 17px;
+}
+
+.section-2 .tab-content {
+	width: 100%; /* for proper display in IE11 */
+}
+
+.section-2 .card {
+	border: none;
+	background: transparent;
+}
+
+.section-2 .card-body {
+	padding-top: 0.75rem;
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.section-2 .card-title {
+	margin-bottom: 0.5rem;
+}
+
+.section-2 #pills-container-1 .card p {
+	margin-bottom: 0.5rem;
+}
+
+.section-2 #pills-container-1 .card.left-pane .card-icon {
+	margin-left: 0;
+}
+
+.section-2 #pills-container-1 img {
+	display: block;
+	margin-top: 2rem;
+	margin-right: auto;
+	margin-bottom: 4rem;
+	margin-left: auto;
+}
+
+.section-2 #pills-container-1 .card.right-pane .card-icon {
+	margin-left: 0;
+}
+
+.section-2 #pills-container-2 img {
+	display: block;
+	margin: 0 auto 2rem auto;
+}
+
+.section-2 #pills-container-2 .text-area {
+	margin-top: 1.5rem;
+}
+
+.section-2 #pills-container-2 h3 {
+	margin-bottom: 0.75rem;
+}
+
+.section-2 #pills-container-2 .icon-cards-area {
+	margin-top: 2.5rem;
+}
+
+.section-2 #pills-container-2 .icon-cards-area .card {
+	width: 100%; /* for proper display in IE11 */
+}
+
+.section-2 #pills-container-3 .icon-cards-area .card {
+	width: 100%; /* for proper display in IE11 */
+}
+
+.section-2 #pills-container-3 .text-area {
+	margin-top: 0.5rem;
+	margin-bottom: 4rem;
+}
+
+.section-2 #pills-container-3 h3 {
+	margin-bottom: 0.75rem;
+}
+
+.section-2 #pills-container-3 img {
+	margin-bottom: 3rem;
+}
+
+
+/********************/
+/*    07. Facts     */
+/********************/
+.section-3 {
+	padding-top: 6rem;
+	padding-bottom: 6rem;
+	background: linear-gradient(to right, #fc8b56, #fd5656);
+}
+
+.section-3 .item {
+	margin-bottom: 2rem;
+}
+
+.section-3 a[aria-expanded="true"] .circle-numbering {
+	display: inline-block;
+	width: 2.5rem;
+	height: 2.5rem;
+	margin-right: 0.75rem;
+	border: 1px solid #fff;
+	border-radius: 50%;
+	background-color: #fff;
+	color: #fc8b56;
+	font: 600 1rem/38px "Fira Sans", sans-serif;
+	text-align: center;
+	vertical-align: top;
+}
+
+.section-3 a[aria-expanded="false"] .circle-numbering {
+	display: inline-block;
+	width: 2.5rem;
+	height: 2.5rem;
+	margin-right: 0.75rem;
+	border: 1px solid #fff;
+	border-radius: 50%;
+	background-color: transparent;
+	color: #fff;
+	font: 600 1rem/38px "Fira Sans", sans-serif;
+	text-align: center;
+	vertical-align: top;
+}
+
+.section-3 .accordion-title {
+	display: inline-block;
+	width: 78%;
+	margin-top: 0.375rem;
+	font: 600 1.25rem/1.75rem "Fira Sans", sans-serif;
+}
+
+.section-3 .accordion-body {
+	margin-left: 3.25rem;
+}
+
+.section-3 img {
+	display: block;
+	margin-top: 3rem;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+
+/***************************/
+/*     08. Screenshots     */
+/***************************/
+.section-4 {
+	padding-top: 6.5rem;
+	padding-bottom: 6.5rem;
+	background: url('http://placehold.it/1920x600/273039/38424b/') center center no-repeat;
+	background-size: cover;
+}
+
+.section-4 .swiper-wrapper {
+	text-align: center;
+}
+
+.section-4 .swiper-button-next {
+	width: 3rem;
+	background-image: none;
+	right: 1.25rem;
+}
+
+.section-4 .swiper-button-prev {
+	width: 3rem;
+	background-image: none;
+	left: 1.25rem;
+}
+
+/* Image Slider Gallery Navigation */
+.section-4 .fa-fw {
+	width: 3rem;
+	font-size: 3rem;
+	cursor: pointer;
+}
+
+.section-4 .fa-fw .fa-1x {
+	font-size: 3rem;
+}
+
+.section-4 .swiper-button-prev .fa-fw .fa-1x {
+	margin-right: 0.825rem;
+}
+
+.section-4 .swiper-button-next .fa-fw .fa-1x {
+	margin-left: 0.825rem;
+}
+
+.section-4 .fa-fw .fa-circle {
+	color: #fc8b56;
+}
+
+.section-4 .fa-fw .fa-1x {
+    color: #efefef;
+}
+/* end of image slider gallery navigation */
+
+
+/*****************************/
+/*     09. Description 1     */
+/*****************************/
+.section-5 {
+	padding-top: 6rem;
+	padding-bottom: 6rem;
+	background-color: #43515d;
+}
+
+.section-5 .text-area {
+	margin-bottom: 2.5rem;
+}
+
+.section-5 h3 {
+	margin-bottom: 0.875rem;
+}
+
+.section-5 table {
+	margin-left: 1rem;
+}
+
+.section-5 table .icon-cell {
+	width: 1rem;
+	vertical-align: top;
+}
+
+
+/*****************************/
+/*     10. Description 2     */
+/*****************************/
+.section-6 {
+	padding-top: 6.5rem;
+	padding-bottom: 5.5rem;
+	background-color: #374450;
+}
+
+.section-6 .text-area {
+	margin-top: 2.5rem;
+}
+
+.section-6 h3 {
+	margin-bottom: 0.875rem;
+}
+
+.section-6 p {
+	margin-bottom: 1.375rem;
+}
+
+.section-6 .button-solid {
+	margin-right: 0.25rem;
+	margin-bottom: 1rem;
+}
+
+
+/*********************/
+/*     11. Video     */
+/*********************/
+.section-7 {
+	padding-top: 6rem;
+	padding-bottom: 5rem;
+	background: linear-gradient(to right, #fc8b56, #fd5656);
+	text-align: center;
+}
+
+.section-7 .under-heading {
+	margin-bottom: 4rem;
+}
+
+.section-7 .embed-responsive {
+	max-width: 800px;
+	margin-bottom: 2rem;
+}
+
+.section-7 .embed-responsive iframe {
+	border-radius: 25px;
+}
+
+
+/**********************************/
+/*     12. Statistics Numbers     */
+/**********************************/
+.section-8 {
+	padding-top: 6.25rem;
+	padding-bottom: 6.375rem;
+	background: url('http://placehold.it/1920x600/273039/38424b/') center center no-repeat;
+	background-size: cover;
+	text-align: center;
+}
+
+.section-8 #counter .cell {
+	display: inline-block;
+	width: 11rem;
+	margin-bottom: 2.25rem;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.section-8 #counter .number-count {
+	margin-bottom: 0.5rem;
+	color: #fff;
+	font: 600 4.5rem/3.75rem "Fira Sans", sans-serif;	
+}
+
+.section-8 #counter .cell p {
+	margin-bottom: 0;
+	color: #fff;
+	font: 300 15px/25px "Fira Sans", sans-serif;
+}
+
+.section-8 .header-p {
+	width: 80%;
+	margin-right: auto;
+	margin-bottom: 1.5rem;
+	margin-left: auto;
+}
+
+
+/*************************/
+/*     13. More Apps     */
+/*************************/
+.section-9 {
+	padding-top: 6rem;
+	padding-bottom: 2.5rem;
+	background-color: #43515d;
+	text-align: center;
+}
+
+.section-9 .card {
+	max-width: 370px;
+	margin: 0 auto 4rem auto;
+	border: none;
+	background-color: transparent;
+}
+
+.section-9 .popup-with-move-anim:first-of-type {
+	height: 100%; /* necessary to avoid an IE11 display problem */
+}
+
+/* Images Hover Animation */
+.section-9 .image-container {
+	overflow: hidden;
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+}
+
+.section-9 .image-container img {
+	margin: 0px;
+	transition: all 0.3s;
+}
+
+.section-9 .image-container img:hover {
+	-moz-transform: scale(1.15);
+	-webkit-transform: scale(1.15);
+	transform: scale(1.15);
+} 
+/* end of images hover animation */
+
+.section-9 .card-body {
+	padding: 1.625rem 1.125rem 1.875rem 1.125rem;
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+	background-color: #fc8b56;
+}
+
+.section-9 .card-body-red {
+	padding: 1.625rem 1.125rem 1.875rem 1.125rem;
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+	background-color: #fd5656;
+}
+
+.section-9 .card-title {
+	margin-bottom: 0.5rem;
+}
+
+.section-9 .card-body p,
+.section-9 .card-body-red p {
+	margin-bottom: 1rem;
+}
+
+
+/***********************/
+/*     14. Contact     */
+/***********************/
+.section-10 {
+	padding-top: 6rem;
+	padding-bottom: 5.5rem;
+	background-color: #374450;
+}
+
+.section-10 h2 {
+	margin-bottom: 3rem;
+}
+
+.section-10 .text-area {
+	margin-bottom: 3rem;
+}
+
+.section-10 .contact-list {
+	margin-top: 1rem;
+	margin-bottom: 2rem;
+}
+
+.section-10 li .svg-inline--fa {
+	margin-right: 0.5rem;
+}
+
+.section-10 .fa-fw {
+	width: 3rem;
+	margin-top: 0.5rem;
+	margin-right: 0.125rem;
+	font-size: 3rem;
+	cursor: pointer;
+}
+
+.section-10 .fa-fw .fa-1x {
+	font-size: 2rem;
+}
+
+.section-10 .fa-fw .fa-circle.facebook {
+    color: #3b5998;
+}
+
+.section-10 .fa-fw .fa-circle.twitter {
+    color: #45b0e3;
+}
+
+.section-10 .fa-fw .fa-circle.google-plus {
+    color: #dd4b39;
+}
+
+.section-10 .fa-fw .fa-circle.instagram {
+    color: #d51a6f;
+}
+
+.section-10 .fa-fw .fa-circle.linkedin {
+    color: #0177b5;
+}
+
+.section-10 .fa-fw .fa-circle.youtube {
+    color: #ff0000;
+}
+
+/* Default Social Icon */
+.section-10 .fa-fw .fa-circle {
+	color: #3b5998;
+	transition: color 0.3s ease;
+}
+
+.section-10 .fa-fw:hover .fa-circle {
+	color: #fff;
+}
+
+.section-10 .fa-fw .fa-1x {
+    color: #efefef;
+	transition: color 0.3s ease;
+}
+
+.section-10 .fa-fw:hover .fa-1x {
+    color: #3b5998;
+}
+/* end of default social icon */
+
+
+/*************************/
+/*     15. Copyright     */
+/*************************/
+.section-11 {
+	padding-top: 1.5rem;
+	padding-bottom: 0.125rem;
+	background-color: #303c47;
+	text-align: center;
+}
+
+
+/**********************************/
+/*     16. Back To Top Button     */
+/**********************************/
+a.back-to-top {
+	position: fixed;
+	z-index: 999;
+	right: 12px;
+	bottom: 12px;
+	display: none;
+	width: 42px;
+	height: 42px;
+	border-radius: 30px;
+	background: #405266 url("../images/up-arrow.png") no-repeat center 47%;
+	background-size: 18px 18px; 
+	text-indent: -9999px;
+}
+
+a:hover.back-to-top {
+	background-color: #e4103d; 
+}
+
+
+/*****************************************************/
+/*     17. Terms & Conditions And Privacy Policy     */
+/*****************************************************/
+.page-header {
+	padding-top: 6rem;
+	padding-bottom: 5rem;
+	background-color: #374450;
+	text-align: center;
+}
+
+.page-header .logo-img {
+	position: absolute;
+	z-index: 2;
+	width: 97px;
+	height: 34px;
+	top: 2.625rem;
+	left: 1rem;
+}
+
+.page-header .logo-txt {
+	position: absolute;
+	z-index: 2;
+	display: inline-block;
+	top: 3.125rem;
+	left: 1rem;
+	font: italic 600 2.75rem/1rem "Fira Sans", sans-serif;
+}
+
+.page-header h1 {
+	color: #f2f2f2;
+}
+
+.page-section-1 {
+	padding-top: 4rem;
+	padding-bottom: 5.5rem;
+	background-color: #43515d;
+}
+
+.page-section-1 p,
+.page-section-1 ul {
+	line-height: 27px;
+}
+
+.page-section-1 .breadcrumbs .list-inline-item {
+	margin-right: 0.25rem;
+	font-size: 0.875rem;
+}
+
+
+/*****************************/
+/*     18. Media Queries     */
+/*****************************/	
+/* Min-width width 768px */
+@media (min-width: 768px)	{
+	
+	/* General Settings */
+	.lightbox-numbered-text {
+		padding: 3rem 2rem;
+	}
+
+	.lightbox-numbered-text .numbered-text {
+		max-width: 90%;
+	}
+
+	.lightbox-split-image-text {
+		padding: 3rem 3rem;
+	}
+
+	/* Header */
+	.header .header-content {
+		padding-top: 5rem;
+		padding-bottom: 7rem;
+	}
+
+	.header .text-area {
+		margin-bottom: 6rem;
+	}
+
+	.header .image-area {
+		margin-top: 2rem;
+		max-width: 660px;
+	}
+	
+	/* Features */
+	.section-2 .card-body {
+		margin-right: 0.5rem;
+		margin-left: 0.5rem;
+	}
+
+	.section-2 #pills-container-2 img {
+		margin-bottom: 0;
+	}
+
+	.section-2 #pills-container-2 .text-area {
+		margin-top: 0;
+		margin-right: 0.5rem;
+		margin-left: 0.5rem;
+	}
+
+	.section-2 #pills-container-2 .icon-cards-area .card {
+		display: inline-block;
+		width: 44%;
+		margin-right: 1rem;
+		vertical-align: top;
+	}
+
+	.section-2 #pills-container-3 .text-area {
+		margin-right: 0.5rem;
+		margin-left: 0.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.section-2 #pills-container-3 .icon-cards-area .card {
+		display: inline-block;
+		width: 44%;
+		margin-right: 1rem;
+		vertical-align: top;
+	}
+
+	.section-2 #pills-container-3 img {
+		margin-bottom: 0;
+	}
+	
+	/* Facts */
+	.section-3 #detailsAccordion {
+		width: 80%;
+		margin-right: auto;
+		margin-left: auto;
+	}
+
+	.section-3 .accordion-title {
+		width: 90%;
+	}
+
+	/* Description 1 */
+	.section-5 {
+		padding-top: 6.5rem;
+	}
+
+	.section-5 .text-area {
+		margin-bottom: 0;
+	}
+
+	/* Description 2 */
+	.section-6 {
+		padding-bottom: 6.25rem;
+	}
+	.section-6 .text-area {
+		margin-top: 0;
+	}
+
+	.section-6 .button-solid {
+		margin-bottom: 0;
+	}
+
+	/* Contact */
+	.section-10 .fa-fw {
+		margin-right: 0.375rem;
+	}
+
+	/* Terms & Conditions And Privacy Policy */
+	.page-header {
+		padding-top: 9rem;
+		padding-bottom: 8rem;
+	}
+}
+
+
+/* Min-width width 992px */
+@media (min-width: 992px) {
+	
+	/* General Styles */
+	h1 {
+		font: 600 3.5rem/4.25rem "Fira Sans", sans-serif;
+	}
+	
+	h2 {
+		font: 600 2.75rem/3.25rem "Fira Sans", sans-serif;
+	}
+	
+	h3 {
+		font: 600 2rem/2.75rem "Fira Sans", sans-serif;
+	}
+	
+	.header-h1 {
+		margin-bottom: 1.25rem;
+		font: 600 3.5rem/4.25rem "Fira Sans", sans-serif;
+	}
+
+	.header-p {
+		width: 80%;
+		margin-right: auto;
+		margin-left: auto;
+		font: 300 1.25rem/2rem "Fira Sans", sans-serif;
+	}
+
+	.under-heading {
+		width: 60%;
+		margin-right: auto;
+		margin-left: auto;
+	}
+
+	.lightbox-split-image-text img {
+		max-width: 98%;
+		margin-bottom: 0;
+	}
+	
+	/* Navigation */
+	#menuToggle {
+		right: 40px;
+	}
+
+	/* Header */
+	.header {
+		height: 100%;
+	}
+
+	.header .logo-img {
+		width: 114px;
+		height: 40px;
+		margin-top: 2.25rem;
+		margin-left: 2.5rem;
+	}
+
+	.header .logo-txt {
+		margin-top: 3rem;
+		margin-left: 2rem;
+		font: italic 600 3.25rem/1rem "Fira Sans", sans-serif;
+	}
+
+	.header .header-content {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		height: 92vh;
+		padding-top: 0;
+		padding-bottom: 2rem;
+	}
+
+	.header .form-group {
+		display: inline-block;
+	}
+
+	.header .form-control-input {
+		width: 16rem;
+		padding-left: 1.75rem;
+		border-radius: 50px;
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	.header .form-control-submit-button {
+		padding-right: 1.9rem;
+		padding-left: 1.8rem;
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+
+	.header .help-block.with-errors,
+	.header .form-message {
+		position: absolute;
+		right: 0;
+		left: 0;
+	}
+
+	.header .help-block.with-errors {
+		margin-top: 0.625rem;
+	}
+
+	/* Features */
+	.section-2 #pills-container-1 .card.left-pane .card-icon {
+		margin-right: 0;
+		margin-left: auto;
+	}
+
+	.section-2 #pills-container-1 .card.left-pane {
+		text-align: right;
+	}
+
+	.section-2 #pills-container-1 img {
+		margin-bottom: 0;
+	}
+	
+	.section-2 #pills-container-1 .card.right-pane .card-icon {
+		margin-right: auto;
+		margin-left: 0;
+	}
+
+	.section-2 #pills-container-2 .icon-cards-area .card {
+		width: 48%;
+		margin-right: 0.25rem;
+		margin-left: 0.25rem;
+	}
+
+	.section-2 #pills-container-3 .icon-cards-area .card {
+		width: 47%;
+	}
+
+	/* Facts */
+	.section-3 #detailsAccordion {
+		width: 65%;
+	}
+
+	/* Description 2 */
+	.section-6 .text-area {
+		margin-top: 1rem;
+		margin-left: 2rem;
+	}
+
+	/* Video */
+	.section-7 .quote-text {
+		width: 60%;
+		margin-right: auto;
+		margin-left: auto;
+	}
+
+	/* More Apps */
+	.section-9 {
+		padding-bottom: 3.5rem;
+	}
+
+	/* Contact */
+	.section-10 form {
+		max-width: 470px;
+	}
+
+	.section-10 .text-area {
+		margin-top: 0.625rem;
+		margin-bottom: 0;
+	}
+
+	/* Terms & Conditions And Privacy Policy */
+	.page-header .logo-img {
+		width: 114px;
+		height: 40px;
+		top: 2.25rem;
+		left: 2.5rem;
+	}
+	
+	.page-header .logo-txt {
+		top: 3rem;
+		left: 2rem;
+		font: italic 600 3.25rem/1rem "Fira Sans", sans-serif;
+	}
+}
+
+
+/* Min-width width 1200px */
+@media (min-width: 1200px) {
+	
+	/* General Styles */
+	.header-h1 {
+		font: 600 4rem/4.75rem "Fira Sans", sans-serif;
+	}
+	
+	.header-p {
+		width: 70%;
+	}
+
+	/* Header */
+	.header .countdown {
+		font: 400 2.75rem/1.25rem "Fira Sans", sans-serif;
+	}
+	
+	.header .countdown #clock .counter-number {
+		width: 128px;
+		height: 128px;
+		padding-top: 2.75rem;
+	}
+
+	/* Features */
+	.section-2 {
+		padding-bottom: 4.5rem;
+	}
+
+	.section-2 .card-body {
+		margin-right: 1rem;
+		margin-left: 1rem;
+	}
+
+	.section-2 #pills-container-1 .card {
+		margin-bottom: 0.5rem;
+	}
+
+	.section-2 #pills-container-1 .card.left-pane .card-icon {
+		margin-right: 1rem;
+	}
+
+	.section-2 #pills-container-1 img {
+		margin-top: 0;
+	}
+
+	.section-2 #pills-container-1 .card.right-pane .card-icon {
+		margin-left: 1rem;
+	}
+
+	.section-2 #pills-container-2 .container {
+		padding-right: 2.5rem;
+		padding-left: 2.5rem;
+	}
+
+	.section-2 #pills-container-2 .text-area {
+		margin-top: 1.5rem;
+		margin-right: 1.5rem;
+		margin-left: 1.5rem;
+	}
+
+	.section-2 #pills-container-2 .card-icon {
+		margin-left: 1rem;
+	}
+	
+	.section-2 #pills-container-2 .icon-cards-area {
+		margin-top: 2.5rem;
+		margin-left: 0.375rem;
+	}
+
+	.section-2 #pills-container-3 .container {
+		padding-right: 2.5rem;
+		padding-left: 2.5rem;
+	}
+	
+	.section-2 #pills-container-3 .icon-cards-area {
+		margin-top: 1rem;
+	}
+	
+	.section-2 #pills-container-3 .card-icon {
+		margin-left: 1rem;
+	}
+
+	.section-2 #pills-container-3 .text-area {
+		margin-right: 1.5rem;
+		margin-left: 1rem;
+	}
+
+	/* Facts */
+	.section-3 .accordion-title {
+		width: 91%;
+	}
+
+	.section-3 #detailsAccordion {
+		width: 55%;
+	}
+
+	/* Description 1 */
+	.section-5 .text-area {
+		margin-top: 3.5rem;
+		margin-right: 1rem;
+	}
+
+	/* Description 2 */
+	.section-6 .text-area {
+		margin-top: 3rem;
+		margin-left: 1rem;
+	}
+
+	/* More Apps */
+	.section-9 .card {
+		max-width: 248px;
+	}
+
+	/* Contact */
+	.section-10 .text-area {
+		margin-left: 3rem;
+	}
+	
+	.section-10 form {
+		margin-left: 1rem;
+	}
+}
