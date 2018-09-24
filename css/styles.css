@@ -801,7 +801,7 @@ select::-ms-expand {
 }
 
 .header .logo-img {
-	width: 97px;
+	/*width: 97px;*/
 	height: 34px;
 	margin-top: 2.625rem;
 	margin-left: 1rem;
