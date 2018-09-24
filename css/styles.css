@@ -1395,6 +1395,14 @@ select::-ms-expand {
 	font-size: 2rem;
 }
 
+.section-10 .fa-fw .fa-circle.github {
+    color: #495057;
+}
+
+.section-10 .fa-fw .fa-circle.reddit {
+    color: #ff4502;
+}
+
 .section-10 .fa-fw .fa-circle.facebook {
     color: #3b5998;
 }
