@@ -797,7 +797,7 @@ select::-ms-expand {
 /*********************/
 .header {
 	position: relative;
-	background: linear-gradient(to right, #fc8b56, #fd5656);
+	background: linear-gradient(to right, #ff9900, #fdff85);
 }
 
 .header .logo-img {
