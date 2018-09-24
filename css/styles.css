@@ -1691,7 +1691,7 @@ a:hover.back-to-top {
 	}
 
 	.header .logo-img {
-		width: 114px;
+		/*width: 114px;*/
 		height: 40px;
 		margin-top: 2.25rem;
 		margin-left: 2.5rem;
