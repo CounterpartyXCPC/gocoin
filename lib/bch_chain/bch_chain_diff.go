@@ -49,7 +49,7 @@
 
 // =====================================================================
 
-package chain
+package bch_chain
 
 import (
 	"math/big"
