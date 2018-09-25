@@ -900,6 +900,46 @@ select::-ms-expand {
 }
 
 
+.header .apple-store {
+	display: inline-block;
+	width: 224px;
+	height: 56px;
+	margin-right: 0.25rem;
+	margin-left: 0.25rem;
+	margin-bottom: 0.625rem;
+	background: url('../images/apple-store.png');
+	background-size: cover;
+	transition: all 0.2s;
+}
+
+.header .apple-store:hover {
+	background: url('../images/apple-store-hover.png');
+	background-size: cover;
+}
+
+.header .google-store {
+	display: inline-block;
+	width: 224px;
+	height: 56px;
+	margin-right: 0.25rem;
+	margin-left: 0.25rem;
+	margin-bottom: 0.625rem;
+	background: url('../images/google-store.png');
+	background-size: cover;
+	transition: all 0.2s;
+}
+
+.header .google-store:hover {
+	background: url('../images/google-store-hover.png');
+	background-size: cover;
+}
+
+.header .image-area {
+	max-width: 325px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
 /****************************/
 /*     05. Testimonials     */
 /****************************/
@@ -1563,6 +1603,10 @@ a:hover.back-to-top {
 		margin-top: 2rem;
 		max-width: 660px;
 	}
+
+	.header .google-store {
+		margin-bottom: 0rem;
+	}
 	
 	/* Features */
 	.section-2 .card-body {
@@ -1838,6 +1882,11 @@ a:hover.back-to-top {
 	
 	.header-p {
 		width: 70%;
+	}
+
+
+	.header .apple-store {
+		margin-bottom: 0rem;
 	}
 
 	/* Header */
