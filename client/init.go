@@ -15,6 +15,9 @@ import (
 )
 
 func host_init() {
+
+	fmt.Println("Init function called")
+
 	common.GocoinCashHomeDir = common.CFG.Datadir + string(os.PathSeparator)
 
 	common.Testnet = common.CFG.Testnet // So chaging this value would will only affect the behaviour after restart
