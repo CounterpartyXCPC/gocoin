@@ -81,7 +81,7 @@ func (ch *Chain) BCHPreCheckBlock(bl *bch.Block) (er error, dos bool, maybelater
 	}
 
 	// Check proof-of-work
-	if !btc.CheckProofOfWork(bl.Hash, bl.Bits()) {
+	if !bch.CheckProofOfWork(bl.Hash, bl.Bits()) {
 		er = errors.New("CheckBlock() : proof of work failed - RPC_Result:high-hash")
 		dos = true
 		return
@@ -105,7 +105,7 @@ func (ch *Chain) BCHPreCheckBlock(bl *bch.Block) (er error, dos bool, maybelater
 		}
 	}
 
-	prevblk, ok := ch.BlockIndex[btc.NewUint256(bl.ParentHash()).BIdx()]
+	prevblk, ok := ch.BlockIndex[bch.NewUint256(bl.ParentHash()).BIdx()]
 	if !ok {
 		er = errors.New("CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
 		maybelater = true
@@ -117,9 +117,9 @@ func (ch *Chain) BCHPreCheckBlock(bl *bch.Block) (er error, dos bool, maybelater
 	// Reject the block if it reaches into the chain deeper than our unwind buffer
 	lst_now := ch.LastBlock()
 	if prevblk != lst_now && int(lst_now.Height)-int(bl.Height) >= MovingCheckopintDepth {
-		er = errors.New(fmt.Sprint("CheckBlock: btc.Block ", bl.Hash.String(),
+		er = errors.New(fmt.Sprint("CheckBlock: bch.Block ", bl.Hash.String(),
 			" hooks too deep into the chain: ", bl.Height, "/", lst_now.Height, " ",
-			btc.NewUint256(bl.ParentHash()).String(), " - RPC_Result:bad-prevblk"))
+			bch.NewUint256(bl.ParentHash()).String(), " - RPC_Result:bad-prevblk"))
 		return
 	}
 
@@ -177,7 +177,7 @@ func (ch *Chain) PreCheckBlock(bl *bch.Block) (er error, dos bool, maybelater bo
 	}
 
 	// Check proof-of-work
-	if !btc.CheckProofOfWork(bl.Hash, bl.Bits()) {
+	if !bch.CheckProofOfWork(bl.Hash, bl.Bits()) {
 		er = errors.New("CheckBlock() : proof of work failed - RPC_Result:high-hash")
 		dos = true
 		return
@@ -201,7 +201,7 @@ func (ch *Chain) PreCheckBlock(bl *bch.Block) (er error, dos bool, maybelater bo
 		}
 	}
 
-	prevblk, ok := ch.BlockIndex[btc.NewUint256(bl.ParentHash()).BIdx()]
+	prevblk, ok := ch.BlockIndex[bch.NewUint256(bl.ParentHash()).BIdx()]
 	if !ok {
 		er = errors.New("CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
 		maybelater = true
@@ -213,9 +213,9 @@ func (ch *Chain) PreCheckBlock(bl *bch.Block) (er error, dos bool, maybelater bo
 	// Reject the block if it reaches into the chain deeper than our unwind buffer
 	lst_now := ch.LastBlock()
 	if prevblk != lst_now && int(lst_now.Height)-int(bl.Height) >= MovingCheckopintDepth {
-		er = errors.New(fmt.Sprint("CheckBlock: btc.Block ", bl.Hash.String(),
+		er = errors.New(fmt.Sprint("CheckBlock: bch.Block ", bl.Hash.String(),
 			" hooks too deep into the chain: ", bl.Height, "/", lst_now.Height, " ",
-			btc.NewUint256(bl.ParentHash()).String(), " - RPC_Result:bad-prevblk"))
+			bch.NewUint256(bl.ParentHash()).String(), " - RPC_Result:bad-prevblk"))
 		return
 	}
 
@@ -375,8 +375,8 @@ func (ch *Chain) PostCheckBlock(bl *bch.Block) (er error) {
 					// The malleation check is ignored; as the transaction tree itself
 					// already does not permit it, it is impossible to trigger in the
 					// witness tree.
-					merkle, _ := btc.GetWitnessMerkle(bl.Txs)
-					with_nonce := btc.Sha2Sum(append(merkle, bl.Txs[0].SegWit[0][0]...))
+					merkle, _ := bch.GetWitnessMerkle(bl.Txs)
+					with_nonce := bch.Sha2Sum(append(merkle, bl.Txs[0].SegWit[0][0]...))
 
 					if !bytes.Equal(with_nonce[:], o.Pk_script[6:38]) {
 						er = errors.New("CheckBlock(): Witness Merkle mismatch - RPC_Result:bad-witness-merkle-match")
