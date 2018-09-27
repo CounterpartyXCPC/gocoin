@@ -11,31 +11,30 @@ Table Of Contents:
 02. Preloader
 03. Navigation
 04. Header
-05. Testimonials
-06. Features
-07. Facts
-08. Screenshots
-09. Description 1
-10. Description 2
-11. Video
-12. Statistics Numbers
-13. More Apps
-14. Contact
-15. Copyright
-16. Back To Top Button
-17. Terms & Conditions And Privacy Policy
-18. Media Queries
+05. [section-1] Testimonials
+06. [section-2] Features
+07. [section-3] Facts
+08. [section-4] Screenshots
+09. [section-5] Payment Card
+10. [section-5] Description 2
+11. [section-5] Video
+12. [section-5] Statistics Numbers
+13. [section-5] More Apps
+14. [section-5] Contact
+15. [section-5] Copyright
+16. [section-5] Back To Top Button
+17. [section-5] Terms & Conditions And Privacy Policy
+18. [section-5] Media Queries
 ******************************************/
 
 /*****************************************
 Colors:
+/*****************************************
 - Text: #fff
 - Primary color orange: #febf2f
 - Navigation and backgrounds dark gray: #374450
 - Backgrounds lighter dark gray: #43515d
-
 ******************************************/
-
 
 /******************************/
 /*     01. General Styles     */
@@ -1167,7 +1166,7 @@ select::-ms-expand {
 .section-4 {
 	padding-top: 6.5rem;
 	padding-bottom: 6.5rem;
-	background: url('http://placehold.it/1920x600/273039/38424b/') center center no-repeat;
+	background: url('https://placehold.it/1920x600/273039/38424b/') center center no-repeat;
 	background-size: cover;
 }
 
