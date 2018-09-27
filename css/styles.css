@@ -31,7 +31,7 @@ Table Of Contents:
 Colors:
 /*****************************************
 - Text: #fff
-- Primary color orange: #febf2f
+- Primary color orange: #ff9900
 - Navigation and backgrounds dark gray: #374450
 - Backgrounds lighter dark gray: #43515d
 ******************************************/
@@ -95,7 +95,7 @@ a:hover {
 }
 
 .underline-light {
-	color: #febf2f;
+	color: #ff9900;
 }
 
 .quote-text {
@@ -110,9 +110,9 @@ a:hover {
 .button-solid-large {
 	display: inline-block;
 	padding: 7px 30px 6px 30px;
-	border: 1px solid #febf2f;
+	border: 1px solid #ff9900;
 	border-radius: 50px;
-	background-color: #febf2f;
+	background-color: #ff9900;
 	color: #fff;
 	font: 400 15px/25px "Fira Sans", sans-serif;
 	transition: all 0.3s ease;
@@ -120,9 +120,9 @@ a:hover {
 
 .button-solid:hover,
 .button-solid-large:hover {
-	border: 1px solid #febf2f;
+	border: 1px solid #ff9900;
 	background-color: transparent;
-	color: #febf2f;
+	color: #ff9900;
 }
 
 .button-solid-large {
@@ -136,7 +136,7 @@ a:hover {
 	border: 1px solid #fff;
 	border-radius: 50px;
 	background-color: #fff;
-	color: #febf2f;
+	color: #ff9900;
 	font: 400 15px/25px "Fira Sans", sans-serif;
 	transition: all 0.3s ease;
 }
@@ -249,9 +249,9 @@ select::-ms-expand {
 	display: inline-block;
 	width: 100%;
 	height: 2.75rem;
-	border: 1px solid #febf2f;
+	border: 1px solid #ff9900;
 	border-radius: 50px;
-	background-color: #febf2f;
+	background-color: #ff9900;
 	color: #fff;
 	font: 400 15px/25px "Fira Sans", sans-serif;
 	cursor: pointer;
@@ -261,7 +261,7 @@ select::-ms-expand {
 .form-control-submit-button:hover {
 	border: 1px solid #fff;
 	background-color: #fff;
-	color: #febf2f;
+	color: #ff9900;
 }
 
 /* Form Success And Error Message Formatting */
@@ -490,7 +490,7 @@ select::-ms-expand {
 	height: 39px;
 	margin-right: 0.625rem;
 	border-radius: 6px;
-	background-color: #febf2f;
+	background-color: #ff9900;
 	color: #fff;
 	font: 600 1.25rem/2.5rem "Fira Sans", sans-serif;
 	text-align: center;
@@ -521,7 +521,7 @@ select::-ms-expand {
 }
 
 .lightbox-numbered-text a.mfp-close.as-button:hover {
-	color: #febf2f;
+	color: #ff9900;
 }
 
 .lightbox-numbered-text button.mfp-close.x-button {
@@ -564,7 +564,7 @@ select::-ms-expand {
 	margin-bottom: 0.75rem;
 	margin-left: 0;
 	border: 0;
-	background-color: #febf2f;
+	background-color: #ff9900;
 	text-align: left;
 }
 
@@ -583,7 +583,7 @@ select::-ms-expand {
 }
 
 .lightbox-split-image-text table .fa {
-	color: #febf2f;
+	color: #ff9900;
 }
 
 .lightbox-split-image-text .testimonial-container {
@@ -617,7 +617,7 @@ select::-ms-expand {
 }
 
 .lightbox-split-image-text a.mfp-close.as-button:hover {
-	color: #febf2f;
+	color: #ff9900;
 }
 
 .lightbox-split-image-text button.mfp-close.x-button {
@@ -783,7 +783,7 @@ select::-ms-expand {
 
 #menu li:active,
 #menu li:hover a {
-	color: #febf2f;
+	color: #ff9900;
 }
 
 #menuToggle input:checked ~ ul {
@@ -972,7 +972,7 @@ select::-ms-expand {
 
 .section-1 .fa-star {
 	display: inline-block;
-	color: #febf2f;
+	color: #ff9900;
 	font-size: 26px;
 }
 
@@ -1013,8 +1013,8 @@ select::-ms-expand {
 }
 
 .section-2 .nav-link.active {
-	border: 1px solid #febf2f;
-	background: #febf2f;
+	border: 1px solid #ff9900;
+	background: #ff9900;
 }
 
 .section-2 .nav-link .svg-inline--fa {
@@ -1106,7 +1106,9 @@ select::-ms-expand {
 .section-3 {
 	padding-top: 6rem;
 	padding-bottom: 6rem;
-	background: linear-gradient(to right, #febf2f, #fd5656);
+	/* background: linear-gradient(to right, #ff9900, #fd5656); */
+	background: linear-gradient(to right, #ff9900, #fdff85);
+
 }
 
 .section-3 .item {
@@ -1121,7 +1123,7 @@ select::-ms-expand {
 	border: 1px solid #fff;
 	border-radius: 50%;
 	background-color: #fff;
-	color: #febf2f;
+	color: #ff9900;
 	font: 600 1rem/38px "Fira Sans", sans-serif;
 	text-align: center;
 	vertical-align: top;
@@ -1206,7 +1208,7 @@ select::-ms-expand {
 }
 
 .section-4 .fa-fw .fa-circle {
-	color: #febf2f;
+	color: #ff9900;
 }
 
 .section-4 .fa-fw .fa-1x {
@@ -1275,7 +1277,8 @@ select::-ms-expand {
 .section-7 {
 	padding-top: 6rem;
 	padding-bottom: 5rem;
-	background: linear-gradient(to right, #febf2f, #fd5656);
+	/* background: linear-gradient(to right, #ff9900, #fd5656); */
+	background: linear-gradient(to right, #ff9900, #fdff85);
 	text-align: center;
 }
 
@@ -1376,7 +1379,7 @@ select::-ms-expand {
 	padding: 1.625rem 1.125rem 1.875rem 1.125rem;
 	border-bottom-left-radius: 12px;
 	border-bottom-right-radius: 12px;
-	background-color: #febf2f;
+	background-color: #ff9900;
 }
 
 .section-9 .card-body-red {
