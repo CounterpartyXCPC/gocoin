@@ -1,0 +1,9 @@
+<svg width="14" height="16" viewBox="0 0 14 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g data-name="Canvas" fill="none">
+<g data-name="terminal">
+<g data-name="Shape">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M 7 8L 11 8L 11 9L 7 9L 7 8ZM 4 9L 7 6L 4 3L 3.25 3.75L 5.5 6L 3.25 8.25L 4 9ZM 14 1L 14 11C 14 11.55 13.55 12 13 12L 1 12C 0.45 12 0 11.55 0 11L 0 1C 0 0.45 0.45 0 1 0L 13 0C 13.55 0 14 0.45 14 1ZM 13 1L 1 1L 1 11L 13 11L 13 1Z" transform="translate(0 2)" fill="white"/>
+</g>
+</g>
+</g>
+</svg>
