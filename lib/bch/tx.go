@@ -82,11 +82,11 @@ type TxIn struct {
 }
 
 type TxOut struct {
-	Value       uint64
-	Pk_script   []byte
-	BlockHeight uint32
-	VoutCount   uint32 // number of outputs in the transaction that it came from
-	WasCoinbase bool
+	Value          uint64
+	Pk_script      []byte
+	BchBlockHeight uint32
+	VoutCount      uint32 // number of outputs in the transaction that it came from
+	WasCoinbase    bool
 }
 
 type Tx struct {
@@ -123,7 +123,7 @@ func (po *TxPrevOut) UIdx() uint64 {
 
 func (to *TxOut) String(testnet bool) (s string) {
 	s = fmt.Sprintf("%.8f BTC", float64(to.Value)/1e8)
-	s += fmt.Sprint(" in block ", to.BlockHeight)
+	s += fmt.Sprint(" in block ", to.BchBlockHeight)
 	a := NewAddrFromPkScript(to.Pk_script, testnet)
 	if a != nil {
 		s += " to " + a.String()
@@ -400,13 +400,13 @@ func (tx *Tx) CheckTransaction() error {
 	return nil
 }
 
-func (tx *Tx) IsFinal(blockheight, timestamp uint32) bool {
+func (tx *Tx) IsFinal(bchblockheight, timestamp uint32) bool {
 	if tx.Lock_time == 0 {
 		return true
 	}
 
 	if tx.Lock_time < LOCKTIME_THRESHOLD {
-		if tx.Lock_time < blockheight {
+		if tx.Lock_time < bchblockheight {
 			return true
 		}
 	} else {

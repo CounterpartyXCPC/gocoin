@@ -81,7 +81,7 @@ type TheLastBlock struct {
 	time.Time
 }
 
-func (b *TheLastBlock) BlockHeight() (res uint32) {
+func (b *TheLastBlock) BchBlockHeight() (res uint32) {
 	b.Mutex.Lock()
 	res = b.Block.Height
 	b.Mutex.Unlock()
@@ -168,8 +168,8 @@ func RecalcAverageBlockSize() {
 	}
 }
 
-func GetRawTx(BlockHeight uint32, txid *btc.Uint256) (data []byte, er error) {
-	data, er = BlockChain.GetRawTx(BlockHeight, txid)
+func GetRawTx(BchBlockHeight uint32, txid *btc.Uint256) (data []byte, er error) {
+	data, er = BlockChain.GetRawTx(BchBlockHeight, txid)
 	if er != nil {
 		if Testnet {
 			data = utils.GetTestnetTxFromWeb(txid)

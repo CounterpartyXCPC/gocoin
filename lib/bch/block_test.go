@@ -102,7 +102,7 @@ func BenchmarkBuildTxList(b *testing.B) {
 		}
 	}
 	b.SetBytes(int64(len(raw)))
-	bl, e := NewBlock(raw)
+	bl, e := NewBchBlock(raw)
 	if e != nil {
 		b.Fatal(e.Error())
 	}
@@ -121,7 +121,7 @@ func BenchmarkCalcMerkle(b *testing.B) {
 			b.Fatal(e.Error())
 		}
 	}
-	bl, e := NewBlock(raw)
+	bl, e := NewBchBlock(raw)
 	if e != nil {
 		b.Fatal(e.Error())
 	}

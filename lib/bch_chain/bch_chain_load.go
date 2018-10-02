@@ -63,7 +63,7 @@ func nextBlock(ch *Chain, hash, header []byte, height, blen, txs uint32) {
 		println("nextBlock:", bh.String(), "- already in")
 		return
 	}
-	v := new(BlockTreeNode)
+	v := new(BchBlockTreeNode)
 	v.BchBlockHash = bh
 	v.Height = height
 	v.BchBlockSize = blen
@@ -75,7 +75,7 @@ func nextBlock(ch *Chain, hash, header []byte, height, blen, txs uint32) {
 // Loads block index from the disk
 func (ch *Chain) loadBlockIndex() {
 	ch.BchBlockIndex = make(map[[bch.Uint256IdxLen]byte]*BchBlockTreeNode, BlockMapInitLen)
-	ch.BchBlockTreeRoot = new(BlockTreeNode)
+	ch.BchBlockTreeRoot = new(BchBlockTreeNode)
 	ch.BchBlockTreeRoot.BchBlockHash = ch.Genesis
 	ch.RebuildGenesisHeader()
 	ch.BchBlockIndex[ch.Genesis.BIdx()] = ch.BchBlockTreeRoot
@@ -116,17 +116,17 @@ func (ch *Chain) loadBlockIndex() {
 	}
 }
 
-func (ch *Chain) GetRawTx(BlockHeight uint32, txid *bch.Uint256) (data []byte, er error) {
+func (ch *Chain) GetRawTx(BchBlockHeight uint32, txid *bch.Uint256) (data []byte, er error) {
 	// Find the block with the indicated Height in the main tree
 	ch.BchBlockIndexAccess.Lock()
 	n := ch.LastBlock()
-	if n.Height < BlockHeight {
-		println(n.Height, BlockHeight)
+	if n.Height < BchBlockHeight {
+		println(n.Height, BchBlockHeight)
 		ch.BchBlockIndexAccess.Unlock()
 		er = errors.New("GetRawTx: block height too big")
 		return
 	}
-	for n.Height > BlockHeight {
+	for n.Height > BchBlockHeight {
 		n = n.Parent
 	}
 	ch.BchBlockIndexAccess.Unlock()

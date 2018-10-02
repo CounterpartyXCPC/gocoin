@@ -193,7 +193,7 @@ func OneUtxoRec(key UtxoKeyType, dat []byte, vout uint32) *btc.TxOut {
 
 	u64, n = btc.VULe(dat[off:])
 	off += n
-	res.BlockHeight = uint32(u64)
+	res.BchBlockHeight = uint32(u64)
 
 	u64, n = btc.VULe(dat[off:])
 	off += n
