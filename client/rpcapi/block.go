@@ -58,7 +58,7 @@ func SubmitBlock(cmd *RpcCommand, resp *RpcResponse, b []byte) {
 
 	bs := new(BlockSubmited)
 
-	bs.Block, er = btc.NewBlock(bd)
+	bs.Block, er = btc.NewBchBlock(bd)
 	if er != nil {
 		resp.Error = RpcError{Code: -4, Message: er.Error()}
 		return

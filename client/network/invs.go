@@ -174,7 +174,7 @@ func NetRouteInvExt(typ uint32, h *btc.Uint256, fromConn *OneConnection, fee_spk
 }
 
 // Call this function only when BlockIndexAccess is locked
-func addInvBlockBranch(inv map[[32]byte]bool, bl *chain.BlockTreeNode, stop *btc.Uint256) {
+func addInvBlockBranch(inv map[[32]byte]bool, bl *bch_chain.BlockTreeNode, stop *btc.Uint256) {
 	if len(inv) >= 500 || bl.BlockHash.Equal(stop) {
 		return
 	}

@@ -21,11 +21,11 @@ const (
 )
 
 var (
-	bidx map[[32]byte]*chain.BlockTreeNode
+	bidx map[[32]byte]*bch_chain.BlockTreeNode
 	cnt  int
 )
 
-func walk(ch *chain.Chain, hash, hdr []byte, height, blen, txs uint32) {
+func walk(ch *bch_chain.Chain, hash, hdr []byte, height, blen, txs uint32) {
 	bh := btc.NewUint256(hash)
 	if _, ok := bidx[bh.Hash]; ok {
 		println("walk: ", bh.String(), "already in")
@@ -48,15 +48,15 @@ func main() {
 		return
 	}
 
-	blks := chain.NewBlockDB(os.Args[1])
+	blks := chain.NewBchBlockDB(os.Args[1])
 	if blks == nil {
 		return
 	}
 	fmt.Println("Loading block index...")
-	bidx = make(map[[32]byte]*chain.BlockTreeNode, 300e3)
+	bidx = make(map[[32]byte]*bch_chain.BlockTreeNode, 300e3)
 	blks.LoadBlockIndex(nil, walk)
 
-	var tail, nd *chain.BlockTreeNode
+	var tail, nd *bch_chain.BlockTreeNode
 	var genesis_block_hash *btc.Uint256
 	for _, v := range bidx {
 		if v == tail {
@@ -108,7 +108,7 @@ func main() {
 	var total_data, curr_data int64
 
 	for nd = tail; nd.Parent != nil; {
-		nd.Parent.Childs = []*chain.BlockTreeNode{nd}
+		nd.Parent.Childs = []*bch_chain.BlockTreeNode{nd}
 		total_data += int64(nd.BlockSize)
 		nd = nd.Parent
 	}

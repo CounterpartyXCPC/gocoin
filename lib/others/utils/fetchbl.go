@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 // https://blockchain.info/block/000000000000000000871f4f01a389bda59e568ead8d0fd45fc7cc1919d2666e?format=hex
@@ -15,7 +15,7 @@ import (
 // https://blockexplorer.com/api/rawblock/0000000000000000000cdc0d2a9b33c2d4b34b4d4fa8920f074338d0dc1164dc
 
 // Download (and re-assemble) raw block from blockexplorer.com
-func GetBlockFromExplorer(hash *btc.Uint256) (rawtx []byte) {
+func GetBlockFromExplorer(hash *bch.Uint256) (rawtx []byte) {
 	url := "http://blockexplorer.com/api/rawblock/" + hash.String()
 	r, er := http.Get(url)
 	if er == nil {
@@ -40,7 +40,7 @@ func GetBlockFromExplorer(hash *btc.Uint256) (rawtx []byte) {
 }
 
 // Download raw block from webbtc.com
-func GetBlockFromWebBTC(hash *btc.Uint256) (raw []byte) {
+func GetBlockFromWebBTC(hash *bch.Uint256) (raw []byte) {
 	url := "https://webbtc.com/block/" + hash.String() + ".bin"
 	r, er := http.Get(url)
 	if er == nil {
@@ -58,7 +58,7 @@ func GetBlockFromWebBTC(hash *btc.Uint256) (raw []byte) {
 }
 
 // Download raw block from blockexplorer.com
-func GetBlockFromBlockchainInfo(hash *btc.Uint256) (rawtx []byte) {
+func GetBlockFromBlockchainInfo(hash *bch.Uint256) (rawtx []byte) {
 	url := "https://blockchain.info/block/" + hash.String() + "?format=hex"
 	r, er := http.Get(url)
 	if er == nil {
@@ -76,9 +76,9 @@ func GetBlockFromBlockchainInfo(hash *btc.Uint256) (rawtx []byte) {
 	return
 }
 
-func IsBlockOK(raw []byte, hash *btc.Uint256) (bl *btc.Block) {
+func IsBlockOK(raw []byte, hash *bch.Uint256) (bl *bch.BchBlock) {
 	var er error
-	bl, er = btc.NewBlock(raw)
+	bl, er = bch.BchNewBlock(raw)
 	if er != nil {
 		return
 	}
@@ -96,7 +96,7 @@ func IsBlockOK(raw []byte, hash *btc.Uint256) (bl *btc.Block) {
 }
 
 // Download raw block from a web server (try one after another)
-func GetBlockFromWeb(hash *btc.Uint256) (bl *btc.Block) {
+func GetBlockFromWeb(hash *bch.Uint256) (bl *bch.BchBlock) {
 	var raw []byte
 
 	raw = GetBlockFromBlockchainInfo(hash)

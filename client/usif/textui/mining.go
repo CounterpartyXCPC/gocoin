@@ -39,13 +39,13 @@ func do_mining(s string) {
 			println(cnt, e.Error())
 			return
 		}
-		block, e := btc.NewBlock(bl)
+		block, e := btc.NewBchBlock(bl)
 		if e != nil {
-			println("btc.NewBlock failed", e.Error())
+			println("btc.NewBchBlock failed", e.Error())
 			return
 		}
 
-		bt, _ := btc.NewBlock(bl)
+		bt, _ := btc.NewBchBlock(bl)
 		cbasetx, _ := btc.NewTx(bl[bt.TxOffset:])
 
 		tot_blocks++

@@ -27,7 +27,7 @@ var (
 	LogBuffer             = new(bytes.Buffer)
 	Log       *log.Logger = log.New(LogBuffer, "", 0)
 
-	BlockChain   *chain.Chain
+	BlockChain   *bch_chain.Chain
 	GenesisBlock *btc.Uint256
 	Magic        [4]byte
 	Testnet      bool
@@ -77,7 +77,7 @@ var (
 
 type TheLastBlock struct {
 	sync.Mutex // use it for writing and reading from non-chain thread
-	Block      *chain.BlockTreeNode
+	Block      *bch_chain.BlockTreeNode
 	time.Time
 }
 

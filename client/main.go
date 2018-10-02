@@ -131,7 +131,7 @@ func retry_cached_blocks() bool {
 				if e != nil {
 					panic(e.Error())
 				}
-				if newbl.Block, e = btc.NewBlock(dat); e != nil {
+				if newbl.Block, e = btc.NewBchBlock(dat); e != nil {
 					panic(e.Error())
 				}
 				if e = newbl.Block.BuildTxList(); e != nil {
@@ -161,7 +161,7 @@ func retry_cached_blocks() bool {
 
 // Return true iof the block's parent is on the DiscardedBlocks list
 // Add it to DiscardedBlocks, if returning true
-func CheckParentDiscarded(n *chain.BlockTreeNode) bool {
+func CheckParentDiscarded(n *bch_chain.BlockTreeNode) bool {
 	network.MutexRcv.Lock()
 	defer network.MutexRcv.Unlock()
 	if network.DiscardedBlocks[n.Parent.BlockHash.BIdx()] {
@@ -204,7 +204,7 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 		if e != nil {
 			panic(e.Error())
 		}
-		if newbl.Block, e = btc.NewBlock(dat); e != nil {
+		if newbl.Block, e = btc.NewBchBlock(dat); e != nil {
 			panic(e.Error())
 		}
 		if e = newbl.Block.BuildTxList(); e != nil {

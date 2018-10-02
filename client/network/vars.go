@@ -25,7 +25,7 @@ type OneReceivedBlock struct {
 type BlockRcvd struct {
 	Conn *OneConnection
 	*btc.Block
-	*chain.BlockTreeNode
+	*bch_chain.BlockTreeNode
 	*OneReceivedBlock
 	*btc.BlockExtraInfo
 }
@@ -39,7 +39,7 @@ type TxRcvd struct {
 type OneBlockToGet struct {
 	Started time.Time
 	*btc.Block
-	*chain.BlockTreeNode
+	*bch_chain.BlockTreeNode
 	InProgress uint
 	TmPreproc  time.Time // how long it took to start downloading this block
 	SendInvs   bool
@@ -50,7 +50,7 @@ var (
 	BlocksToGet              map[BIDX]*OneBlockToGet    = make(map[BIDX]*OneBlockToGet)
 	IndexToBlocksToGet       map[uint32][]BIDX          = make(map[uint32][]BIDX)
 	LowestIndexToBlocksToGet uint32
-	LastCommitedHeader       *chain.BlockTreeNode
+	LastCommitedHeader       *bch_chain.BlockTreeNode
 	MutexRcv                 sync.Mutex
 
 	NetBlocks chan *BlockRcvd = make(chan *BlockRcvd, MAX_BLOCKS_FORWARD_CNT+10)

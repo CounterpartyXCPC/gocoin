@@ -58,7 +58,7 @@ import (
 	"sync"
 )
 
-type Block struct {
+type BchBlock struct {
 	Raw               []byte
 	Hash              *Uint256
 	Txs               []*Tx
@@ -66,70 +66,72 @@ type Block struct {
 	Trusted           bool // if the block is trusted, we do not check signatures and some other things...
 	LastKnownHeight   uint32
 
-	BlockExtraInfo // If we cache block on disk (between downloading and comitting), this data has to be preserved
+	// 100's / 1000's blocks [not sequenced] *******
+	// Meantime you receive randoms. Memory flooding. Disk cache structure for storing on disk. (So as to not completely exhaust RAM)
 
-	MedianPastTime uint32 // Set in PreCheckBlock() .. last used in PostCheckBlock()
+	BchBlockExtraInfo        // If we cache block on disk (between downloading and comitting), this data has to be preserved
+	MedianPastTime    uint32 // Set in PreCheckBlock() .. last used in PostCheckBlock()
 
 	// These flags are set in BuildTxList() used later (e.g. by script.VerifyTxScript):
-	NoWitnessSize int
-	BlockWeight   uint
-	TotalInputs   int
+	NoWitnessSize  int
+	BchBlockWeight uint
+	TotalInputs    int
 
 	NoWitnessData []byte // This is set by BuildNoWitnessData()
 }
 
-type BlockExtraInfo struct {
+type BchBlockExtraInfo struct {
 	VerifyFlags uint32
 	Height      uint32
 }
 
-func NewBlock(data []byte) (bl *Block, er error) {
+func BchNewBlock(data []byte) (bl *BchBlock, er error) {
 	if data == nil {
 		er = errors.New("nil pointer")
 		return
 	}
-	bl = new(Block)
+	bl = new(BchBlock)
 	bl.Hash = NewSha2Hash(data[:80])
 	er = bl.UpdateContent(data)
 	return
 }
 
-func (bl *Block) UpdateContent(data []byte) error {
+func (bl *BchBlock) UpdateContent(data []byte) error {
 	if len(data) < 81 {
-		return errors.New("Block too short")
+		return errors.New("BCH Block too short")
 	}
 	bl.Raw = data
 	bl.TxCount, bl.TxOffset = VLen(data[80:])
 	if bl.TxOffset == 0 {
-		return errors.New("Block's txn_count field corrupt - RPC_Result:bad-blk-length")
+		return errors.New("BCH Block's txn_count field corrupt - RPC_Result:bad-blk-length")
 	}
 	bl.TxOffset += 80
 	return nil
 }
 
-func (bl *Block) Version() uint32 {
+func (bl *BchBlock) Version() uint32 {
 	return binary.LittleEndian.Uint32(bl.Raw[0:4])
 }
 
-func (bl *Block) ParentHash() []byte {
+func (bl *BchBlock) ParentHash() []byte {
 	return bl.Raw[4:36]
 }
 
-func (bl *Block) MerkleRoot() []byte {
+func (bl *BchBlock) MerkleRoot() []byte {
 	return bl.Raw[36:68]
 }
 
-func (bl *Block) BlockTime() uint32 {
+func (bl *BchBlock) BchBlockTime() uint32 {
 	return binary.LittleEndian.Uint32(bl.Raw[68:72])
 }
 
-func (bl *Block) Bits() uint32 {
+func (bl *BchBlock) Bits() uint32 {
 	return binary.LittleEndian.Uint32(bl.Raw[72:76])
 }
 
 // Parses block's transactions and adds them to the structure, calculating hashes BTW.
 // It would be more elegant to use bytes.Reader here, but this solution is ~20% faster.
-func (bl *Block) BuildTxList() (e error) {
+func (bl *BchBlock) BuildTxList() (e error) {
 	if bl.TxCount == 0 {
 		bl.TxCount, bl.TxOffset = VLen(bl.Raw[80:])
 		if bl.TxCount == 0 || bl.TxOffset == 0 {
@@ -146,7 +148,7 @@ func (bl *Block) BuildTxList() (e error) {
 	var data2hash, witness2hash []byte
 
 	bl.NoWitnessSize = 80 + VLenSize(uint64(bl.TxCount))
-	bl.BlockWeight = 4 * uint(bl.NoWitnessSize)
+	bl.BchBlockWeight = 4 * uint(bl.NoWitnessSize)
 
 	for i := 0; i < bl.TxCount; i++ {
 		var n int
@@ -176,7 +178,7 @@ func (bl *Block) BuildTxList() (e error) {
 			bl.Txs[i].NoWitSize = bl.Txs[i].Size
 			witness2hash = nil
 		}
-		bl.BlockWeight += uint(3*bl.Txs[i].NoWitSize + bl.Txs[i].Size)
+		bl.BchBlockWeight += uint(3*bl.Txs[i].NoWitSize + bl.Txs[i].Size)
 		bl.NoWitnessSize += len(data2hash)
 		wg.Add(1)
 		go func(tx *Tx, b, w []byte) {
@@ -195,7 +197,7 @@ func (bl *Block) BuildTxList() (e error) {
 }
 
 // The block data in non-segwit format
-func (bl *Block) BuildNoWitnessData() (e error) {
+func (bl *BchBlock) BuildNoWitnessData() (e error) {
 	if bl.TxCount == 0 {
 		e = bl.BuildTxList()
 		if e != nil {
@@ -221,7 +223,7 @@ func GetBlockReward(height uint32) uint64 {
 	return 50e8 >> (height / 210000)
 }
 
-func (bl *Block) MerkleRootMatch() bool {
+func (bl *BchBlock) MerkleRootMatch() bool {
 	if bl.TxCount == 0 {
 		return false
 	}
@@ -229,7 +231,7 @@ func (bl *Block) MerkleRootMatch() bool {
 	return !mutated && bytes.Equal(merkle, bl.MerkleRoot())
 }
 
-func (bl *Block) GetMerkle() (res []byte, mutated bool) {
+func (bl *BchBlock) GetMerkle() (res []byte, mutated bool) {
 	mtr := make([][32]byte, len(bl.Txs), 3*len(bl.Txs)) // make the buffer 3 times longer as we use append() inside CalcMerkle
 	for i, tx := range bl.Txs {
 		mtr[i] = tx.Hash.Hash

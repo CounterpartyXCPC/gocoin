@@ -510,7 +510,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * "wallet -d" prints number of (yet) unsigned inputs
 * "versigmsg" renamed to "btcversig" and some new features were added
 * Expire external IPs after one hour from last seen
-* Added new fields "Nonce", "TxCount", and "TxOffset" to "btc.Block" (set in "btc.NewBlock")
+* Added new fields "Nonce", "TxCount", and "TxOffset" to "btc.Block" (set in "btc.NewBchBlock")
 
 0.8.5 - 2013-12-18
 * From now on every "payment.zip" contains also the unsigned raw transaction file ("tx2sign.txt")

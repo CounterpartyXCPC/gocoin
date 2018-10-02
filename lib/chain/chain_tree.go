@@ -68,7 +68,7 @@ func (ch *Chain) ParseTillBlock(end *BlockTreeNode) {
 		l, _ := ch.Blocks.BlockLength(nxt.BlockHash, false)
 		total_size_to_process -= uint64(l)
 
-		bl, er := btc.NewBlock(crec.Data)
+		bl, er := btc.NewBchBlock(crec.Data)
 		if er != nil {
 			ch.DeleteBranch(nxt, nil)
 			break
@@ -265,7 +265,7 @@ func (ch *Chain) UndoLastBlock() {
 		panic(er.Error())
 	}
 
-	bl, _ := btc.NewBlock(crec.Data)
+	bl, _ := btc.NewBchBlock(crec.Data)
 	bl.BuildTxList()
 
 	ch.Unspent.UndoBlockTxs(bl, last.Parent.BlockHash.Hash[:])

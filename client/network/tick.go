@@ -637,6 +637,8 @@ func (c *OneConnection) Run() {
 				c.SendAuth()
 			}
 
+			// Connnection header sending announcement to peer. Incl Ver statement.
+
 			if c.Node.Version >= 70012 {
 				c.SendRawMsg("sendheaders", nil)
 				if c.Node.Version >= 70013 {
@@ -665,6 +667,9 @@ func (c *OneConnection) Run() {
 			}
 			continue
 		}
+
+		// Fee miner will charge. Fee per Kbyte [[ .. ]]
+		// If fee is lower than miner will pass - then we won't cloud-mind this data - null route this byte.
 
 		switch cmd.cmd {
 		case "inv":

@@ -131,7 +131,7 @@ func json_miners(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		block, e := btc.NewBlock(bl)
+		block, e := btc.NewBchBlock(bl)
 		if e != nil {
 			break
 		}

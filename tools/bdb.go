@@ -180,7 +180,7 @@ func print_record(sl []byte) {
 }
 
 func verify_block(blk []byte, sl one_idx_rec, off int) {
-	bl, er := btc.NewBlock(blk)
+	bl, er := btc.NewBchBlock(blk)
 	if er != nil {
 		println("\nERROR verify_block", sl.Height(), btc.NewUint256(sl.Hash()).String(), er.Error())
 		return

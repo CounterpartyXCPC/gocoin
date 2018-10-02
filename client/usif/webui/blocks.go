@@ -67,7 +67,7 @@ func json_blocks(w http.ResponseWriter, r *http.Request) {
 		if e != nil {
 			break
 		}
-		block, e := btc.NewBlock(bl)
+		block, e := btc.NewBchBlock(bl)
 		if e != nil {
 			break
 		}

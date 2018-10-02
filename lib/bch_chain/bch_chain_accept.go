@@ -57,17 +57,17 @@ import (
 	"sync"
 	"sync/atomic"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
 // TrustedTxChecker is meant to speed up verifying transactions that had
 // been verified already by the client while being taken to its memory pool
-var TrustedTxChecker func(*btc.Tx) bool
+var TrustedTxChecker func(*bch.Tx) bool
 
-func (ch *Chain) ProcessBlockTransactions(bl *btc.Block, height, lknown uint32) (changes *utxo.BlockChanges, sigopscost uint32, e error) {
-	changes = new(utxo.BlockChanges)
+func (ch *Chain) ProcessBlockTransactions(bl *bch.BchBlock, height, lknown uint32) (changes *utxo.BchBlockChanges, sigopscost uint32, e error) {
+	changes = new(utxo.BchBlockChanges)
 	changes.Height = height
 	changes.LastKnownHeight = lknown
 	changes.DeledTxs = make(map[[32]byte][]bool, bl.TotalInputs)
@@ -80,66 +80,66 @@ func (ch *Chain) ProcessBlockTransactions(bl *btc.Block, height, lknown uint32) 
 // If the block does is not the heighest, it is added to the chain, but maked
 // as an orphan - its transaction will be verified only if the chain would swap
 // to its branch later on.
-func (ch *Chain) AcceptBlock(bl *btc.Block) (e error) {
-	ch.BlockIndexAccess.Lock()
+func (ch *Chain) AcceptBlock(bl *bch.BchBlock) (e error) {
+	ch.BchBlockIndexAccess.Lock()
 	cur := ch.AcceptHeader(bl)
-	ch.BlockIndexAccess.Unlock()
+	ch.BchBlockIndexAccess.Unlock()
 	return ch.CommitBlock(bl, cur)
 }
 
-// Make sure to call this function with ch.BlockIndexAccess locked
-func (ch *Chain) AcceptHeader(bl *btc.Block) (cur *BlockTreeNode) {
-	prevblk, ok := ch.BlockIndex[btc.NewUint256(bl.ParentHash()).BIdx()]
+// Make sure to call this function with ch.BchBlockIndexAccess locked
+func (ch *Chain) AcceptHeader(bl *bch.BchBlock) (cur *BchBlockTreeNode) {
+	prevblk, ok := ch.BchBlockIndex[bch.NewUint256(bl.ParentHash()).BIdx()]
 	if !ok {
 		panic("This should not happen")
 	}
 
-	// create new BlockTreeNode
-	cur = new(BlockTreeNode)
-	cur.BlockHash = bl.Hash
+	// create new BchBlockTreeNode
+	cur = new(BchBlockTreeNode)
+	cur.BchBlockHash = bl.Hash
 	cur.Parent = prevblk
 	cur.Height = prevblk.Height + 1
-	copy(cur.BlockHeader[:], bl.Raw[:80])
+	copy(cur.BchBlockHeader[:], bl.Raw[:80])
 
 	// Add this block to the block index
 	prevblk.addChild(cur)
-	ch.BlockIndex[cur.BlockHash.BIdx()] = cur
+	ch.BchBlockIndex[cur.BchBlockHash.BIdx()] = cur
 
 	return
 }
 
-func (ch *Chain) CommitBlock(bl *btc.Block, cur *BlockTreeNode) (e error) {
-	cur.BlockSize = uint32(len(bl.Raw))
+func (ch *Chain) CommitBlock(bl *bch.BchBlock, cur *BchBlockTreeNode) (e error) {
+	cur.BchBlockSize = uint32(len(bl.Raw))
 	cur.TxCount = uint32(bl.TxCount)
 	if ch.LastBlock() == cur.Parent {
 		// The head of out chain - apply the transactions
-		var changes *utxo.BlockChanges
+		var changes *utxo.BchBlockChanges
 		var sigopscost uint32
 		changes, sigopscost, e = ch.ProcessBlockTransactions(bl, cur.Height, bl.LastKnownHeight)
 		if e != nil {
 			// ProcessBlockTransactions failed, so trash the block.
-			//println("ProcessBlockTransactionsA", cur.BlockHash.String(), cur.Height, e.Error())
-			ch.BlockIndexAccess.Lock()
+			//println("ProcessBlockTransactionsA", cur.BchBlockHash.String(), cur.Height, e.Error())
+			ch.BchBlockIndexAccess.Lock()
 			cur.Parent.delChild(cur)
-			delete(ch.BlockIndex, cur.BlockHash.BIdx())
-			ch.BlockIndexAccess.Unlock()
+			delete(ch.BchBlockIndex, cur.BchBlockHash.BIdx())
+			ch.BchBlockIndexAccess.Unlock()
 		} else {
 			cur.SigopsCost = sigopscost
 			// ProcessBlockTransactions succeeded, so save the block as "trusted".
 			bl.Trusted = true
-			ch.Blocks.BlockAdd(cur.Height, bl)
+			ch.BchBlocks.BchBlockAdd(cur.Height, bl)
 			// Apply the block's trabnsactions to the unspent database:
 			ch.Unspent.CommitBlockTxs(changes, bl.Hash.Hash[:])
 			ch.SetLast(cur) // Advance the head
-			if ch.CB.BlockMinedCB != nil {
-				ch.CB.BlockMinedCB(bl)
+			if ch.CB.BchBlockMinedCB != nil {
+				ch.CB.BchBlockMinedCB(bl)
 			}
 		}
 	} else {
 		// The block's parent is not the current head of the chain...
 
 		// Save the block, though do not mark it as "trusted" just yet
-		ch.Blocks.BlockAdd(cur.Height, bl)
+		ch.BchBlocks.BchBlockAdd(cur.Height, bl)
 
 		// If it has more POW than the current head, move the head to it
 		if cur.MorePOW(ch.LastBlock()) {
@@ -156,15 +156,15 @@ func (ch *Chain) CommitBlock(bl *btc.Block, cur *BlockTreeNode) (e error) {
 }
 
 // This isusually the most time consuming process when applying a new block
-func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscost uint32, e error) {
-	sumblockin := btc.GetBlockReward(changes.Height)
+func (ch *Chain) commitTxs(bl *bch.BchBlock, changes *utxo.BchBlockChanges) (sigopscost uint32, e error) {
+	sumblockin := bch.GetBlockReward(changes.Height)
 	var txoutsum, txinsum, sumblockout uint64
 
 	if changes.Height+ch.Unspent.UnwindBufLen >= changes.LastKnownHeight {
 		changes.UndoData = make(map[[32]byte]*utxo.UtxoRec)
 	}
 
-	blUnsp := make(map[[32]byte][]*btc.TxOut, len(bl.Txs))
+	blUnsp := make(map[[32]byte][]*bch.TxOut, len(bl.Txs))
 
 	var wg sync.WaitGroup
 	var ver_err_cnt uint32
@@ -172,7 +172,7 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 	for i := range bl.Txs {
 		txoutsum, txinsum = 0, 0
 
-		sigopscost += uint32(btc.WITNESS_SCALE_FACTOR * bl.Txs[i].GetLegacySigOpCount())
+		sigopscost += uint32(bch.WITNESS_SCALE_FACTOR * bl.Txs[i].GetLegacySigOpCount())
 
 		// Check each tx for a valid input, except from the first one
 		if i > 0 {
@@ -201,7 +201,7 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 				if tout == nil {
 					t, ok := blUnsp[inp.Hash]
 					if !ok {
-						e = errors.New("Unknown input TxID: " + btc.NewUint256(inp.Hash[:]).String())
+						e = errors.New("Unknown input TxID: " + bch.NewUint256(inp.Hash[:]).String())
 						return
 					}
 
@@ -218,15 +218,15 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 					}
 
 					if t[inp.Vout].WasCoinbase {
-						e = errors.New("Cannot spend block's own coinbase in TxID: " + btc.NewUint256(inp.Hash[:]).String())
+						e = errors.New("Cannot spend block's own coinbase in TxID: " + bch.NewUint256(inp.Hash[:]).String())
 						return
 					}
 
 					tout = t[inp.Vout]
 					t[inp.Vout] = nil // and now mark it as spent:
 				} else {
-					if tout.WasCoinbase && changes.Height-tout.BlockHeight < COINBASE_MATURITY {
-						e = errors.New("Trying to spend prematured coinbase: " + btc.NewUint256(inp.Hash[:]).String())
+					if tout.WasCoinbase && changes.Height-tout.BchBlockHeight < COINBASE_MATURITY {
+						e = errors.New("Trying to spend prematured coinbase: " + bch.NewUint256(inp.Hash[:]).String())
 						return
 					}
 					// it is confirmed already so delete it later
@@ -243,7 +243,7 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 							urec = new(utxo.UtxoRec)
 							urec.TxID = inp.Hash
 							urec.Coinbase = tout.WasCoinbase
-							urec.InBlock = tout.BlockHeight
+							urec.InBlock = tout.BchBlockHeight
 							urec.Outs = make([]*utxo.UtxoTxOut, tout.VoutCount)
 							changes.UndoData[inp.Hash] = urec
 						}
@@ -257,7 +257,7 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 
 				if !tx_trusted { // run VerifyTxScript() in a parallel task
 					wg.Add(1)
-					go func(prv []byte, amount uint64, i int, tx *btc.Tx) {
+					go func(prv []byte, amount uint64, i int, tx *bch.Tx) {
 						if !script.VerifyTxScript(prv, amount, i, tx, bl.VerifyFlags) {
 							atomic.AddUint32(&ver_err_cnt, 1)
 						}
@@ -265,8 +265,8 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 					}(tout.Pk_script, tout.Value, j, bl.Txs[i])
 				}
 
-				if btc.IsP2SH(tout.Pk_script) {
-					sigopscost += uint32(btc.WITNESS_SCALE_FACTOR * btc.GetP2SHSigOpCount(bl.Txs[i].TxIn[j].ScriptSig))
+				if bch.IsP2SH(tout.Pk_script) {
+					sigopscost += uint32(bch.WITNESS_SCALE_FACTOR * bch.GetP2SHSigOpCount(bl.Txs[i].TxIn[j].ScriptSig))
 				}
 
 				sigopscost += uint32(bl.Txs[i].CountWitnessSigOps(j, tout.Pk_script))
@@ -310,7 +310,7 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 		}
 
 		// Add each tx outs from the currently executed TX to the temporary pool
-		outs := make([]*btc.TxOut, len(bl.Txs[i].TxOut))
+		outs := make([]*bch.TxOut, len(bl.Txs[i].TxOut))
 		copy(outs, bl.Txs[i].TxOut)
 		blUnsp[bl.Txs[i].Hash.Hash] = outs
 	}
@@ -350,7 +350,7 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 }
 
 // Check transactions for consistency and finality. Return nil if OK, otherwise a descripive error
-func CheckTransactions(txs []*btc.Tx, height, btime uint32) (res error) {
+func CheckTransactions(txs []*bch.Tx, height, btime uint32) (res error) {
 	var wg sync.WaitGroup
 
 	res_chan := make(chan error, 1)
@@ -358,7 +358,7 @@ func CheckTransactions(txs []*btc.Tx, height, btime uint32) (res error) {
 	for i := 0; len(res_chan) == 0 && i < len(txs); i++ {
 		wg.Add(1)
 
-		go func(tx *btc.Tx) {
+		go func(tx *bch.Tx) {
 			defer wg.Done() // call wg.Done() before returning from this goroutine
 
 			if len(res_chan) > 0 {

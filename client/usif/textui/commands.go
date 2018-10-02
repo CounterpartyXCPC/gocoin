@@ -286,7 +286,7 @@ func dump_block(s string) {
 	fmt.Println("Block saved")
 
 	if crec.Block == nil {
-		crec.Block, _ = btc.NewBlock(crec.Data)
+		crec.Block, _ = btc.NewBchBlock(crec.Data)
 	}
 	/*
 		if crec.Block.NoWitnessData == nil {

@@ -44,7 +44,7 @@ func (col *CmpctBlockCollector) Assemble() []byte {
 	return bdat.Bytes()
 }
 
-func GetchBlockForBIP152(hash *btc.Uint256) (crec *chain.BlckCachRec) {
+func GetchBlockForBIP152(hash *btc.Uint256) (crec *bch_chain.BlckCachRec) {
 	CompactBlocksMutex.Lock()
 	defer CompactBlocksMutex.Unlock()
 
@@ -55,9 +55,9 @@ func GetchBlockForBIP152(hash *btc.Uint256) (crec *chain.BlckCachRec) {
 	}
 
 	if crec.Block == nil {
-		crec.Block, _ = btc.NewBlock(crec.Data)
+		crec.Block, _ = btc.NewBchBlock(crec.Data)
 		if crec.Block == nil {
-			fmt.Println("GetchBlockForBIP152: btc.NewBlock() failed for", hash.String())
+			fmt.Println("GetchBlockForBIP152: btc.NewBchBlock() failed for", hash.String())
 			return
 		}
 	}

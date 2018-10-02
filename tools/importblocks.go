@@ -36,7 +36,7 @@ func stat(totnsec, pernsec int64, totbytes, perbytes uint64, height uint32) {
 }
 
 func import_blockchain(dir string) {
-	BlockDatabase := blockdb.NewBlockDB(dir, Magic)
+	BlockDatabase := blockdb.NewBchBlockDB(dir, Magic)
 	chain := chain.NewChainExt(GocoinCashHomeDir, GenesisBlock, false, nil, nil)
 
 	var bl *btc.Block
@@ -61,7 +61,7 @@ func import_blockchain(dir string) {
 			break
 		}
 
-		bl, er = btc.NewBlock(dat[:])
+		bl, er = btc.NewBchBlock(dat[:])
 		if er != nil {
 			println("Block inconsistent:", er.Error())
 			break

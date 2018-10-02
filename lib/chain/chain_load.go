@@ -86,7 +86,7 @@ func (ch *Chain) GetRawTx(BlockHeight uint32, txid *btc.Uint256) (data []byte, e
 		return
 	}
 
-	bl, e := btc.NewBlock(bd)
+	bl, e := btc.NewBchBlock(bd)
 	if e != nil {
 		er = errors.New("GetRawTx: NewBlock failed")
 		return
