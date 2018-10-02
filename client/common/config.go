@@ -372,10 +372,10 @@ func UnlockCfg() {
 }
 
 func CloseBlockChain() {
-	if BlockChain != nil {
+	if BchBlockChain != nil {
 		fmt.Println("Closing BlockChain")
-		BlockChain.Close()
-		BlockChain = nil
+		BchBlockChain.Close()
+		BchBlockChain = nil
 	}
 }
 

@@ -410,7 +410,7 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		if c.X.Authorized {
 			b2g.BchBlock.Trusted = true
 		}
-		NetBlocks <- &BlockRcvd{Conn: c, Block: b2g.BchBlock, BlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
+		NetBlocks <- &BlockRcvd{Conn: c, BchBlock: b2g.BchBlock, BchBlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
 	} else {
 		if b2g.TmPreproc.IsZero() { // do not overwrite TmPreproc if already set
 			b2g.TmPreproc = time.Now()
@@ -546,5 +546,5 @@ func (c *OneConnection) ProcessBlockTxn(pl []byte) {
 	if c.X.Authorized {
 		b2g.BchBlock.Trusted = true
 	}
-	NetBlocks <- &BlockRcvd{Conn: c, Block: b2g.BchBlock, BlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
+	NetBlocks <- &BlockRcvd{Conn: c, BchBlock: b2g.BchBlock, BchBlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
 }

@@ -27,10 +27,10 @@ var (
 	LogBuffer             = new(bytes.Buffer)
 	Log       *log.Logger = log.New(LogBuffer, "", 0)
 
-	BlockChain   *bch_chain.Chain
-	GenesisBlock *bch.Uint256
-	Magic        [4]byte
-	Testnet      bool
+	BchBlockChain *bch_chain.Chain
+	GenesisBlock  *bch.Uint256
+	Magic         [4]byte
+	Testnet       bool
 
 	Last TheLastBlock
 
@@ -154,7 +154,7 @@ func HashrateToString(hr float64) string {
 // Calculates average blocks size over the last "CFG.Stat.BSizeBlks" blocks
 // Only call from blockchain thread.
 func RecalcAverageBlockSize() {
-	n := BlockChain.LastBlock()
+	n := BchBlockChain.LastBlock()
 	var sum, cnt uint
 	for maxcnt := CFG.Stat.BSizeBlks; maxcnt > 0 && n != nil; maxcnt-- {
 		sum += uint(n.BchBlockSize)
@@ -169,7 +169,7 @@ func RecalcAverageBlockSize() {
 }
 
 func GetRawTx(BchBlockHeight uint32, txid *bch.Uint256) (data []byte, er error) {
-	data, er = BlockChain.GetRawTx(BchBlockHeight, txid)
+	data, er = BchBlockChain.GetRawTx(BchBlockHeight, txid)
 	if er != nil {
 		if Testnet {
 			data = utils.GetTestnetTxFromWeb(txid)
@@ -201,10 +201,10 @@ func ApplyLastTrustedBlock() {
 	lastTrustedBlock = hash
 	LastTrustedBlockHeight = 0
 
-	if BlockChain != nil {
-		BlockChain.BchBlockIndexAccess.Lock()
-		node := BlockChain.BchBlockIndex[hash.BIdx()]
-		BlockChain.BchBlockIndexAccess.Unlock()
+	if BchBlockChain != nil {
+		BchBlockChain.BchBlockIndexAccess.Lock()
+		node := BchBlockChain.BchBlockIndex[hash.BIdx()]
+		BchBlockChain.BchBlockIndexAccess.Unlock()
 		if node != nil {
 			LastTrustedBlockHeight = node.Height
 			for node != nil {

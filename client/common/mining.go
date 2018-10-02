@@ -158,7 +158,7 @@ func GetAverageFee() float64 {
 	AverageFeeTotal = 0
 
 	for blocks > 0 {
-		bl, _, e := BlockChain.BchBlocks.BchBlockGet(end.BchBlockHash)
+		bl, _, e := BchBlockChain.BchBlocks.BchBlockGet(end.BchBlockHash)
 		if e != nil {
 			return 0
 		}
