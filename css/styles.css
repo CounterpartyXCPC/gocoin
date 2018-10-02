@@ -1251,6 +1251,7 @@ select::-ms-expand {
 	padding-top: 6.5rem;
 	padding-bottom: 5.5rem;
 	background-color: #374450;
+	text-align: center;
 }
 
 .section-6 .text-area {
