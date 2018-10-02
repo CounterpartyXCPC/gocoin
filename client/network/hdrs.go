@@ -22,7 +22,7 @@ const (
 func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 	var ok bool
 	var b2g *OneBlockToGet
-	bl, _ := btc.NewBchBlock(hdr)
+	bl, _ := bch.NewBchBlock(hdr)
 
 	c.Mutex.Lock()
 	c.InvStore(MSG_BLOCK, bl.Hash.Hash[:])

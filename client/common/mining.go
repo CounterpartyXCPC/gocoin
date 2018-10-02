@@ -107,7 +107,7 @@ func GetAverageFee() float64 {
 		if e != nil {
 			return 0
 		}
-		block, e := btc.NewBchBlock(bl)
+		block, e := bch.NewBchBlock(bl)
 		if e != nil {
 			return 0
 		}

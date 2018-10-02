@@ -1,19 +1,70 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:		block.go
+// Description:	Bictoin Cash btc Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package btc
 
 import (
-	"sync"
 	"bytes"
-	"errors"
 	"encoding/binary"
+	"errors"
+	"sync"
 )
 
 type Block struct {
-	Raw []byte
-	Hash *Uint256
-	Txs []*Tx
+	Raw               []byte
+	Hash              *Uint256
+	Txs               []*Tx
 	TxCount, TxOffset int  // Number of transactions and byte offset to the first one
-	Trusted bool // if the block is trusted, we do not check signatures and some other things...
-	LastKnownHeight uint32
+	Trusted           bool // if the block is trusted, we do not check signatures and some other things...
+	LastKnownHeight   uint32
 
 	BlockExtraInfo // If we cache block on disk (between downloading and comitting), this data has to be preserved
 
@@ -21,21 +72,19 @@ type Block struct {
 
 	// These flags are set in BuildTxList() used later (e.g. by script.VerifyTxScript):
 	NoWitnessSize int
-	BlockWeight uint
-	TotalInputs int
+	BlockWeight   uint
+	TotalInputs   int
 
 	NoWitnessData []byte // This is set by BuildNoWitnessData()
 }
 
-
 type BlockExtraInfo struct {
 	VerifyFlags uint32
-	Height uint32
+	Height      uint32
 }
 
-
-func NewBlock(data []byte) (bl *Block, er error) {
-	if data==nil {
+func NewBchBlock(data []byte) (bl *Block, er error) {
+	if data == nil {
 		er = errors.New("nil pointer")
 		return
 	}
@@ -45,9 +94,8 @@ func NewBlock(data []byte) (bl *Block, er error) {
 	return
 }
 
-
 func (bl *Block) UpdateContent(data []byte) error {
-	if len(data)<81 {
+	if len(data) < 81 {
 		return errors.New("Block too short")
 	}
 	bl.Raw = data
@@ -59,33 +107,32 @@ func (bl *Block) UpdateContent(data []byte) error {
 	return nil
 }
 
-func (bl *Block)Version() uint32 {
+func (bl *Block) Version() uint32 {
 	return binary.LittleEndian.Uint32(bl.Raw[0:4])
 }
 
-func (bl *Block)ParentHash() []byte {
+func (bl *Block) ParentHash() []byte {
 	return bl.Raw[4:36]
 }
 
-func (bl *Block)MerkleRoot() []byte {
+func (bl *Block) MerkleRoot() []byte {
 	return bl.Raw[36:68]
 }
 
-func (bl *Block)BlockTime() uint32 {
+func (bl *Block) BlockTime() uint32 {
 	return binary.LittleEndian.Uint32(bl.Raw[68:72])
 }
 
-func (bl *Block)Bits() uint32 {
+func (bl *Block) Bits() uint32 {
 	return binary.LittleEndian.Uint32(bl.Raw[72:76])
 }
-
 
 // Parses block's transactions and adds them to the structure, calculating hashes BTW.
 // It would be more elegant to use bytes.Reader here, but this solution is ~20% faster.
 func (bl *Block) BuildTxList() (e error) {
-	if bl.TxCount==0 {
+	if bl.TxCount == 0 {
 		bl.TxCount, bl.TxOffset = VLen(bl.Raw[80:])
-		if bl.TxCount==0 || bl.TxOffset==0 {
+		if bl.TxCount == 0 || bl.TxOffset == 0 {
 			e = errors.New("Block's txn_count field corrupt - RPC_Result:bad-blk-length")
 			return
 		}
@@ -104,11 +151,11 @@ func (bl *Block) BuildTxList() (e error) {
 	for i := 0; i < bl.TxCount; i++ {
 		var n int
 		bl.Txs[i], n = NewTx(bl.Raw[offs:])
-		if bl.Txs[i] == nil || n==0 {
+		if bl.Txs[i] == nil || n == 0 {
 			e = errors.New("NewTx failed")
 			break
 		}
-		bl.Txs[i].Raw = bl.Raw[offs:offs+n]
+		bl.Txs[i].Raw = bl.Raw[offs : offs+n]
 		bl.Txs[i].Size = uint32(n)
 		if i == 0 {
 			for _, ou := range bl.Txs[0].TxOut {
@@ -121,7 +168,7 @@ func (bl *Block) BuildTxList() (e error) {
 		if bl.Txs[i].SegWit != nil {
 			data2hash = bl.Txs[i].Serialize()
 			bl.Txs[i].NoWitSize = uint32(len(data2hash))
-			if i>0 {
+			if i > 0 {
 				witness2hash = bl.Txs[i].Raw
 			}
 		} else {
@@ -129,7 +176,7 @@ func (bl *Block) BuildTxList() (e error) {
 			bl.Txs[i].NoWitSize = bl.Txs[i].Size
 			witness2hash = nil
 		}
-		bl.BlockWeight += uint(3 * bl.Txs[i].NoWitSize + bl.Txs[i].Size)
+		bl.BlockWeight += uint(3*bl.Txs[i].NoWitSize + bl.Txs[i].Size)
 		bl.NoWitnessSize += len(data2hash)
 		wg.Add(1)
 		go func(tx *Tx, b, w []byte) {
@@ -147,10 +194,9 @@ func (bl *Block) BuildTxList() (e error) {
 	return
 }
 
-
 // The block data in non-segwit format
 func (bl *Block) BuildNoWitnessData() (e error) {
-	if bl.TxCount==0 {
+	if bl.TxCount == 0 {
 		e = bl.BuildTxList()
 		if e != nil {
 			return
@@ -171,14 +217,12 @@ func (bl *Block) BuildNoWitnessData() (e error) {
 	return
 }
 
-
-func GetBlockReward(height uint32) (uint64) {
-	return 50e8 >> (height/210000)
+func GetBlockReward(height uint32) uint64 {
+	return 50e8 >> (height / 210000)
 }
 
-
 func (bl *Block) MerkleRootMatch() bool {
-	if bl.TxCount==0 {
+	if bl.TxCount == 0 {
 		return false
 	}
 	merkle, mutated := bl.GetMerkle()

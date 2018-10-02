@@ -55,9 +55,9 @@ func GetchBlockForBIP152(hash *btc.Uint256) (crec *bch_chain.BlckCachRec) {
 	}
 
 	if crec.Block == nil {
-		crec.Block, _ = btc.NewBchBlock(crec.Data)
+		crec.Block, _ = bch.NewBchBlock(crec.Data)
 		if crec.Block == nil {
-			fmt.Println("GetchBlockForBIP152: btc.NewBchBlock() failed for", hash.String())
+			fmt.Println("GetchBlockForBIP152: bch.NewBchBlock() failed for", hash.String())
 			return
 		}
 	}

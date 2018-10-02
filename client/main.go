@@ -131,7 +131,7 @@ func retry_cached_blocks() bool {
 				if e != nil {
 					panic(e.Error())
 				}
-				if newbl.Block, e = btc.NewBchBlock(dat); e != nil {
+				if newbl.Block, e = bch.NewBchBlock(dat); e != nil {
 					panic(e.Error())
 				}
 				if e = newbl.Block.BuildTxList(); e != nil {
@@ -204,7 +204,7 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 		if e != nil {
 			panic(e.Error())
 		}
-		if newbl.Block, e = btc.NewBchBlock(dat); e != nil {
+		if newbl.Block, e = bch.NewBchBlock(dat); e != nil {
 			panic(e.Error())
 		}
 		if e = newbl.Block.BuildTxList(); e != nil {

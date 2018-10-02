@@ -46,7 +46,7 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 				if typ == MSG_BLOCK {
 					// remove witness data from the block
 					if crec.Block == nil {
-						crec.Block, _ = btc.NewBchBlock(bl)
+						crec.Block, _ = bch.NewBchBlock(bl)
 					}
 					if crec.Block.NoWitnessData == nil {
 						crec.Block.BuildNoWitnessData()

@@ -61,7 +61,7 @@ func import_blockchain(dir string) {
 			break
 		}
 
-		bl, er = btc.NewBchBlock(dat[:])
+		bl, er = bch.NewBchBlock(dat[:])
 		if er != nil {
 			println("Block inconsistent:", er.Error())
 			break
