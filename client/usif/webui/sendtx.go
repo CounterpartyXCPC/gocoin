@@ -11,7 +11,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
@@ -39,9 +39,9 @@ func dl_payment(w http.ResponseWriter, r *http.Request) {
 		var thisbal utxo.AllUnspentTx
 		var pay_cmd string
 		var totalinput, spentsofar uint64
-		var change_addr *btc.BtcAddr
+		var change_addr *bch.BtcAddr
 
-		tx := new(btc.Tx)
+		tx := new(bch.Tx)
 		tx.Version = 1
 		tx.Lock_time = 0
 
@@ -63,21 +63,21 @@ func dl_payment(w http.ResponseWriter, r *http.Request) {
 		for i := 1; i <= int(outcnt); i++ {
 			is := fmt.Sprint(i)
 			if len(r.Form["txout"+is]) == 1 && r.Form["txout"+is][0] == "on" {
-				hash := btc.NewUint256FromString(r.Form["txid"+is][0])
+				hash := bch.NewUint256FromString(r.Form["txid"+is][0])
 				if hash != nil {
 					vout, er := strconv.ParseUint(r.Form["txvout"+is][0], 10, 32)
 					if er == nil {
-						var po = btc.TxPrevOut{Hash: hash.Hash, Vout: uint32(vout)}
-						if res := common.BlockChain.Unspent.UnspentGet(&po); res != nil {
-							addr := btc.NewAddrFromPkScript(res.Pk_script, common.Testnet)
+						var po = bch.TxPrevOut{Hash: hash.Hash, Vout: uint32(vout)}
+						if res := common.BchBlockChain.Unspent.UnspentGet(&po); res != nil {
+							addr := bch.NewAddrFromPkScript(res.Pk_script, common.Testnet)
 
 							unsp := &utxo.OneUnspentTx{TxPrevOut: po, Value: res.Value,
-								MinedAt: res.BlockHeight, Coinbase: res.WasCoinbase, BtcAddr: addr}
+								MinedAt: res.BchBlockHeight, Coinbase: res.WasCoinbase, BtcAddr: addr}
 
 							thisbal = append(thisbal, unsp)
 
 							// Add the input to our tx
-							tin := new(btc.TxIn)
+							tin := new(bch.TxIn)
 							tin.Input = po
 							tin.Sequence = uint32(seq)
 							tx.TxIn = append(tx.TxIn, tin)
@@ -109,18 +109,18 @@ func dl_payment(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if len(r.Form[adridx][0]) > 1 {
-				addr, er := btc.NewAddrFromString(r.Form[adridx][0])
+				addr, er := bch.NewAddrFromString(r.Form[adridx][0])
 				if er == nil {
-					am, er := btc.StringToSatoshis(r.Form[btcidx][0])
+					am, er := bch.StringToSatoshis(r.Form[btcidx][0])
 					if er == nil && am > 0 {
 						if pay_cmd == "" {
 							pay_cmd = "wallet -a=false -useallinputs -send "
 						} else {
 							pay_cmd += ","
 						}
-						pay_cmd += addr.String() + "=" + btc.UintToBtc(am)
+						pay_cmd += addr.String() + "=" + bch.UintToBtc(am)
 
-						outs, er := btc.NewSpendOutputs(addr, am, common.CFG.Testnet)
+						outs, er := bch.NewSpendOutputs(addr, am, common.CFG.Testnet)
 						if er != nil {
 							err = er.Error()
 							goto error
@@ -146,7 +146,7 @@ func dl_payment(w http.ResponseWriter, r *http.Request) {
 
 		pay_cmd += fmt.Sprint(" -seq ", seq)
 
-		am, er := btc.StringToSatoshis(r.Form["txfee"][0])
+		am, er := bch.StringToSatoshis(r.Form["txfee"][0])
 		if er != nil {
 			err = "Incorrect fee value: " + r.Form["txfee"][0]
 			goto error
@@ -156,7 +156,7 @@ func dl_payment(w http.ResponseWriter, r *http.Request) {
 		spentsofar += am
 
 		if len(r.Form["change"][0]) > 1 {
-			addr, er := btc.NewAddrFromString(r.Form["change"][0])
+			addr, er := bch.NewAddrFromString(r.Form["change"][0])
 			if er != nil {
 				err = "Incorrect change address: " + r.Form["change"][0]
 				goto error
@@ -167,7 +167,7 @@ func dl_payment(w http.ResponseWriter, r *http.Request) {
 
 		if totalinput > spentsofar {
 			// Add change output
-			outs, er := btc.NewSpendOutputs(change_addr, totalinput-spentsofar, common.CFG.Testnet)
+			outs, er := bch.NewSpendOutputs(change_addr, totalinput-spentsofar, common.CFG.Testnet)
 			if er != nil {
 				err = er.Error()
 				goto error
@@ -184,7 +184,7 @@ func dl_payment(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			was_tx[thisbal[i].TxPrevOut.Hash] = true
-			txid := btc.NewUint256(thisbal[i].TxPrevOut.Hash[:])
+			txid := bch.NewUint256(thisbal[i].TxPrevOut.Hash[:])
 			fz, _ := zi.Create("balance/" + txid.String() + ".tx")
 			if dat, er := common.GetRawTx(thisbal[i].MinedAt, txid); er == nil {
 				fz.Write(dat)

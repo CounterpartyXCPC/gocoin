@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 	"math/rand"
@@ -37,15 +37,15 @@ var (
 	Exit_now sys.SyncBool
 )
 
-func DecodeTxSops(tx *btc.Tx) (s string, missinginp bool, totinp, totout uint64, sigops uint, e error) {
+func DecodeTxSops(tx *bch.Tx) (s string, missinginp bool, totinp, totout uint64, sigops uint, e error) {
 	s += fmt.Sprintln("Transaction details (for your information):")
 	s += fmt.Sprintln(len(tx.TxIn), "Input(s):")
-	sigops = btc.WITNESS_SCALE_FACTOR * tx.GetLegacySigOpCount()
+	sigops = bch.WITNESS_SCALE_FACTOR * tx.GetLegacySigOpCount()
 	for i := range tx.TxIn {
 		s += fmt.Sprintf(" %3d %s", i, tx.TxIn[i].Input.String())
-		var po *btc.TxOut
+		var po *bch.TxOut
 
-		inpid := btc.NewUint256(tx.TxIn[i].Input.Hash[:])
+		inpid := bch.NewUint256(tx.TxIn[i].Input.Hash[:])
 		if txinmem, ok := network.TransactionsToSend[inpid.BIdx()]; ok {
 			s += fmt.Sprint(" mempool")
 			if int(tx.TxIn[i].Input.Vout) >= len(txinmem.TxOut) {
@@ -54,9 +54,9 @@ func DecodeTxSops(tx *btc.Tx) (s string, missinginp bool, totinp, totout uint64,
 				po = txinmem.TxOut[tx.TxIn[i].Input.Vout]
 			}
 		} else {
-			po = common.BlockChain.Unspent.UnspentGet(&tx.TxIn[i].Input)
+			po = common.BchBlockChain.Unspent.UnspentGet(&tx.TxIn[i].Input)
 			if po != nil {
-				s += fmt.Sprintf("%8d", po.BlockHeight)
+				s += fmt.Sprintf("%8d", po.BchBlockHeight)
 			}
 		}
 		if po != nil {
@@ -68,13 +68,13 @@ func DecodeTxSops(tx *btc.Tx) (s string, missinginp bool, totinp, totout uint64,
 			totinp += po.Value
 
 			ads := "???"
-			if ad := btc.NewAddrFromPkScript(po.Pk_script, common.Testnet); ad != nil {
+			if ad := bch.NewAddrFromPkScript(po.Pk_script, common.Testnet); ad != nil {
 				ads = ad.String()
 			}
 			s += fmt.Sprintf(" %15.8f BTC @ %s", float64(po.Value)/1e8, ads)
 
-			if btc.IsP2SH(po.Pk_script) {
-				so := btc.WITNESS_SCALE_FACTOR * btc.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig)
+			if bch.IsP2SH(po.Pk_script) {
+				so := bch.WITNESS_SCALE_FACTOR * bch.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig)
 				s += fmt.Sprintf("  + %d sigops", so)
 				sigops += so
 			}
@@ -94,7 +94,7 @@ func DecodeTxSops(tx *btc.Tx) (s string, missinginp bool, totinp, totout uint64,
 	s += fmt.Sprintln(len(tx.TxOut), "Output(s):")
 	for i := range tx.TxOut {
 		totout += tx.TxOut[i].Value
-		adr := btc.NewAddrFromPkScript(tx.TxOut[i].Pk_script, common.Testnet)
+		adr := bch.NewAddrFromPkScript(tx.TxOut[i].Pk_script, common.Testnet)
 		if adr != nil {
 			s += fmt.Sprintf(" %15.8f BTC to adr %s\n", float64(tx.TxOut[i].Value)/1e8, adr.String())
 		} else {
@@ -114,7 +114,7 @@ func DecodeTxSops(tx *btc.Tx) (s string, missinginp bool, totinp, totout uint64,
 	return
 }
 
-func DecodeTx(tx *btc.Tx) (s string, missinginp bool, totinp, totout uint64, e error) {
+func DecodeTx(tx *bch.Tx) (s string, missinginp bool, totinp, totout uint64, e error) {
 	s, missinginp, totinp, totout, _, e = DecodeTxSops(tx)
 	return
 }
@@ -126,7 +126,7 @@ func LoadRawTx(buf []byte) (s string) {
 	}
 
 	// At this place we should have raw transaction in txd
-	tx, le := btc.NewTx(txd)
+	tx, le := bch.NewTx(txd)
 	if tx == nil || le != len(txd) {
 		s += fmt.Sprintln("Could not decode transaction file or it has some extra data")
 		return
@@ -171,7 +171,7 @@ func LoadRawTx(buf []byte) (s string) {
 	return
 }
 
-func SendInvToRandomPeer(typ uint32, h *btc.Uint256) {
+func SendInvToRandomPeer(typ uint32, h *bch.Uint256) {
 	common.CountSafe(fmt.Sprint("NetSendOneInv", typ))
 
 	// Prepare the inv
@@ -199,7 +199,7 @@ func SendInvToRandomPeer(typ uint32, h *btc.Uint256) {
 func GetNetworkHashRateNum() float64 {
 	hours := common.CFG.Stat.HashrateHrs
 	common.Last.Mutex.Lock()
-	end := common.Last.Block
+	end := common.Last.BchBlock
 	common.Last.Mutex.Unlock()
 	now := time.Now().Unix()
 	cnt := 0
@@ -208,7 +208,7 @@ func GetNetworkHashRateNum() float64 {
 		if now-int64(end.Timestamp()) > int64(hours)*3600 {
 			break
 		}
-		diff += btc.GetDifficulty(end.Bits())
+		diff += bch.GetDifficulty(end.Bits())
 		end = end.Parent
 	}
 	if cnt == 0 {

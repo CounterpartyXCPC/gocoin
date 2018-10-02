@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 /*
@@ -51,7 +51,7 @@ func main() {
 		if er != nil {
 			println("pubkey", i, er.Error())
 		}
-		_, er = btc.NewPublicKey(d)
+		_, er = bch.NewPublicKey(d)
 		if er != nil {
 			println("pubkey", i, er.Error())
 			return
@@ -62,13 +62,13 @@ func main() {
 		if ads != "" {
 			ads += ", "
 		}
-		ads += "\"" + btc.NewAddrFromPubkey(d, btc.AddrVerPubkey(testnet)).String() + "\""
+		ads += "\"" + bch.NewAddrFromPubkey(d, bch.AddrVerPubkey(testnet)).String() + "\""
 	}
 	buf.WriteByte(0x50 + pkeys)
 	buf.WriteByte(0xae)
 
 	p2sh := buf.Bytes()
-	addr := btc.NewAddrFromPubkey(p2sh, btc.AddrVerScript(testnet))
+	addr := bch.NewAddrFromPubkey(p2sh, bch.AddrVerScript(testnet))
 
 	rec := "{\n"
 	rec += fmt.Sprintf("\t\"multiAddress\" : \"%s\",\n", addr.String())

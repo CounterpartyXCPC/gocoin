@@ -146,7 +146,7 @@ func (bl *Block) BuildTxList() (e error) {
 	var data2hash, witness2hash []byte
 
 	bl.NoWitnessSize = 80 + VLenSize(uint64(bl.TxCount))
-	bl.BlockWeight = 4 * uint(bl.NoWitnessSize)
+	bl.BchBlockWeight = 4 * uint(bl.NoWitnessSize)
 
 	for i := 0; i < bl.TxCount; i++ {
 		var n int
@@ -176,7 +176,7 @@ func (bl *Block) BuildTxList() (e error) {
 			bl.Txs[i].NoWitSize = bl.Txs[i].Size
 			witness2hash = nil
 		}
-		bl.BlockWeight += uint(3*bl.Txs[i].NoWitSize + bl.Txs[i].Size)
+		bl.BchBlockWeight += uint(3*bl.Txs[i].NoWitSize + bl.Txs[i].Size)
 		bl.NoWitnessSize += len(data2hash)
 		wg.Add(1)
 		go func(tx *Tx, b, w []byte) {

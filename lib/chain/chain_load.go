@@ -3,49 +3,49 @@ package chain
 import (
 	"errors"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func nextBlock(ch *Chain, hash, header []byte, height, blen, txs uint32) {
-	bh := btc.NewUint256(hash[:])
-	if _, ok := ch.BlockIndex[bh.BIdx()]; ok {
+	bh := bch.NewUint256(hash[:])
+	if _, ok := ch.BchBlockIndex[bh.BIdx()]; ok {
 		println("nextBlock:", bh.String(), "- already in")
 		return
 	}
 	v := new(BlockTreeNode)
-	v.BlockHash = bh
+	v.BchBlockHash = bh
 	v.Height = height
-	v.BlockSize = blen
+	v.BchBlockSize = blen
 	v.TxCount = txs
-	copy(v.BlockHeader[:], header)
-	ch.BlockIndex[v.BlockHash.BIdx()] = v
+	copy(v.BchBlockHeader[:], header)
+	ch.BchBlockIndex[v.BchBlockHash.BIdx()] = v
 }
 
 // Loads block index from the disk
 func (ch *Chain) loadBlockIndex() {
-	ch.BlockIndex = make(map[[btc.Uint256IdxLen]byte]*BlockTreeNode, BlockMapInitLen)
-	ch.BlockTreeRoot = new(BlockTreeNode)
-	ch.BlockTreeRoot.BlockHash = ch.Genesis
+	ch.BchBlockIndex = make(map[[bch.Uint256IdxLen]byte]*BlockTreeNode, BlockMapInitLen)
+	ch.BchBlockTreeRoot = new(BlockTreeNode)
+	ch.BchBlockTreeRoot.BchBlockHash = ch.Genesis
 	ch.RebuildGenesisHeader()
-	ch.BlockIndex[ch.Genesis.BIdx()] = ch.BlockTreeRoot
+	ch.BchBlockIndex[ch.Genesis.BIdx()] = ch.BchBlockTreeRoot
 
-	ch.Blocks.LoadBlockIndex(ch, nextBlock)
+	ch.BchBlocks.LoadBlockIndex(ch, nextBlock)
 	tlb := ch.Unspent.LastBlockHash
-	//println("Building tree from", len(ch.BlockIndex), "nodes")
-	for k, v := range ch.BlockIndex {
+	//println("Building tree from", len(ch.BchBlockIndex), "nodes")
+	for k, v := range ch.BchBlockIndex {
 		if AbortNow {
 			return
 		}
-		if v == ch.BlockTreeRoot {
+		if v == ch.BchBlockTreeRoot {
 			// skip root block (should be only one)
 			continue
 		}
 
-		par, ok := ch.BlockIndex[btc.NewUint256(v.BlockHeader[4:36]).BIdx()]
+		par, ok := ch.BchBlockIndex[bch.NewUint256(v.BchBlockHeader[4:36]).BIdx()]
 		if !ok {
-			println("ERROR: Block", v.Height, v.BlockHash.String(), "has no Parent")
-			println("...", btc.NewUint256(v.BlockHeader[4:36]).String(), "- removing it from blocksDB")
-			delete(ch.BlockIndex, k)
+			println("ERROR: Block", v.Height, v.BchBlockHash.String(), "has no Parent")
+			println("...", bch.NewUint256(v.BchBlockHeader[4:36]).String(), "- removing it from blocksDB")
+			delete(ch.BchBlockIndex, k)
 			continue
 		}
 		v.Parent = par
@@ -53,11 +53,11 @@ func (ch *Chain) loadBlockIndex() {
 	}
 	if tlb == nil {
 		//println("No last block - full rescan will be needed")
-		ch.SetLast(ch.BlockTreeRoot)
+		ch.SetLast(ch.BchBlockTreeRoot)
 		return
 	} else {
-		//println("Last Block Hash:", btc.NewUint256(tlb).String())
-		last, ok := ch.BlockIndex[btc.NewUint256(tlb).BIdx()]
+		//println("Last Block Hash:", bch.NewUint256(tlb).String())
+		last, ok := ch.BchBlockIndex[bch.NewUint256(tlb).BIdx()]
 		if !ok {
 			panic("Last Block Hash not found")
 		}
@@ -65,22 +65,22 @@ func (ch *Chain) loadBlockIndex() {
 	}
 }
 
-func (ch *Chain) GetRawTx(BlockHeight uint32, txid *btc.Uint256) (data []byte, er error) {
+func (ch *Chain) GetRawTx(BlockHeight uint32, txid *bch.Uint256) (data []byte, er error) {
 	// Find the block with the indicated Height in the main tree
-	ch.BlockIndexAccess.Lock()
+	ch.BchBlockIndexAccess.Lock()
 	n := ch.LastBlock()
 	if n.Height < BlockHeight {
 		println(n.Height, BlockHeight)
-		ch.BlockIndexAccess.Unlock()
+		ch.BchBlockIndexAccess.Unlock()
 		er = errors.New("GetRawTx: block height too big")
 		return
 	}
 	for n.Height > BlockHeight {
 		n = n.Parent
 	}
-	ch.BlockIndexAccess.Unlock()
+	ch.BchBlockIndexAccess.Unlock()
 
-	bd, _, e := ch.Blocks.BlockGet(n.BlockHash)
+	bd, _, e := ch.BchBlocks.BchBlockGet(n.BchBlockHash)
 	if e != nil {
 		er = errors.New("GetRawTx: block not in the database")
 		return

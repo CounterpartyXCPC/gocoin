@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
@@ -33,11 +33,11 @@ func (c *OneConnection) SendVersion() {
 	b.Write(nonce[:])
 
 	common.LockCfg()
-	btc.WriteVlen(b, uint64(len(common.UserAgent)))
+	bch.WriteVlen(b, uint64(len(common.UserAgent)))
 	b.Write([]byte(common.UserAgent))
 	common.UnlockCfg()
 
-	binary.Write(b, binary.LittleEndian, uint32(common.Last.BlockHeight()))
+	binary.Write(b, binary.LittleEndian, uint32(common.Last.BchBlockHeight()))
 	if !common.GetBool(&common.CFG.TXPool.Enabled) {
 		b.WriteByte(0) // don't notify me about txs
 	}
@@ -91,7 +91,7 @@ func (c *OneConnection) HandleVersion(pl []byte) error {
 		use_this_ip := sys.ValidIp4(pl[40:44])
 
 		if len(pl) >= 86 {
-			le, of := btc.VLen(pl[80:])
+			le, of := bch.VLen(pl[80:])
 			of += 80
 			c.Node.Agent = string(pl[of : of+le])
 			of += le

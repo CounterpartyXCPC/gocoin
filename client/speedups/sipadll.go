@@ -15,7 +15,7 @@ import (
 	"unsafe"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 var (
@@ -41,7 +41,7 @@ func verify() bool {
 func init() {
 	if verify() {
 		common.Log.Println("Using secp256k1.dll by sipa for EC_Verify")
-		btc.EC_Verify = EC_Verify
+		bch.EC_Verify = EC_Verify
 	} else {
 		common.Log.Println("ERROR: Could not initiate secp256k1.dll")
 		os.Exit(1)

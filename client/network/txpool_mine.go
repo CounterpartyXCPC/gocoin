@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func (rec *OneTxToSend) IIdx(key uint64) int {
@@ -21,7 +21,7 @@ func (rec *OneTxToSend) IIdx(key uint64) int {
 // Clear MemInput flag of all the children (used when a tx is mined)
 func (tx *OneTxToSend) UnMarkChildrenForMem() {
 	// Go through all the tx's outputs and unmark MemInputs in txs that have been spending it
-	var po btc.TxPrevOut
+	var po bch.TxPrevOut
 	po.Hash = tx.Hash.Hash
 	for po.Vout = 0; po.Vout < uint32(len(tx.TxOut)); po.Vout++ {
 		uidx := po.UIdx()
@@ -54,7 +54,7 @@ func (tx *OneTxToSend) UnMarkChildrenForMem() {
 }
 
 // This function is called for each tx mined in a new block
-func tx_mined(tx *btc.Tx) (wtg *OneWaitingList) {
+func tx_mined(tx *bch.Tx) (wtg *OneWaitingList) {
 	h := tx.Hash
 	if rec, ok := TransactionsToSend[h.BIdx()]; ok {
 		common.CountSafe("TxMinedToSend")
@@ -100,7 +100,7 @@ func tx_mined(tx *btc.Tx) (wtg *OneWaitingList) {
 }
 
 // Removes all the block's tx from the mempool
-func BlockMined(bl *btc.Block) {
+func BlockMined(bl *bch.BchBlock) {
 	wtgs := make([]*OneWaitingList, len(bl.Txs)-1)
 	var wtg_cnt int
 	TxMutex.Lock()
@@ -133,7 +133,7 @@ func (c *OneConnection) SendGetMP() error {
 		return errors.New("Too many transactions in the current pool")
 	}
 	b := new(bytes.Buffer)
-	btc.WriteVlen(b, uint64(tcnt))
+	bch.WriteVlen(b, uint64(tcnt))
 	for k := range TransactionsToSend {
 		b.Write(k[:])
 	}
@@ -147,7 +147,7 @@ func (c *OneConnection) SendGetMP() error {
 func (c *OneConnection) ProcessGetMP(pl []byte) {
 	br := bytes.NewBuffer(pl)
 
-	cnt, er := btc.ReadVLen(br)
+	cnt, er := bch.ReadVLen(br)
 	if er != nil {
 		println("getmp message does not have the length field")
 		c.DoS("GetMPError1")

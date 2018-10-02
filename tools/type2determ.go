@@ -10,7 +10,7 @@ import (
 	"os"
 	"strconv"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func main() {
@@ -64,11 +64,11 @@ func main() {
 	fmt.Println("#", hex.EncodeToString(secret))
 
 	for i := 1; i <= int(n); i++ {
-		fmt.Println(btc.NewAddrFromPubkey(public_key, btc.AddrVerPubkey(testnet)).String(), "TypB", i)
+		fmt.Println(bch.NewAddrFromPubkey(public_key, bch.AddrVerPubkey(testnet)).String(), "TypB", i)
 		if i >= int(n) {
 			break
 		}
 
-		public_key = btc.DeriveNextPublic(public_key, secret)
+		public_key = bch.DeriveNextPublic(public_key, secret)
 	}
 }

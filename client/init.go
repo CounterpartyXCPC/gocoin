@@ -43,7 +43,7 @@ func host_init() {
 		rand.Read(common.SecretKey)
 		ioutil.WriteFile(common.GocoinCashHomeDir+"authkey", common.SecretKey, 0600)
 	}
-	common.PublicKey = bch.Encodeb58(btc.PublicFromPrivate(common.SecretKey, true))
+	common.PublicKey = bch.Encodeb58(bch.PublicFromPrivate(common.SecretKey, true))
 	fmt.Println("Public auth key:", common.PublicKey)
 
 	__exit := make(chan bool)
@@ -61,7 +61,7 @@ func host_init() {
 		}
 	}()
 
-	if chain.AbortNow {
+	if bch_chain.AbortNow {
 		sys.UnlockDatabaseDir()
 		os.Exit(1)
 	}
@@ -75,7 +75,7 @@ func host_init() {
 	fmt.Print(string(common.LogBuffer.Bytes()))
 	common.LogBuffer = nil
 
-	if btc.EC_Verify == nil {
+	if bch.EC_Verify == nil {
 		fmt.Println("Using native secp256k1 lib for EC_Verify (consider installing a speedup)")
 	}
 
@@ -85,20 +85,20 @@ func host_init() {
 		BchBlockMinedCB:  blockMined}
 
 	sta := time.Now()
-	common.BlockChain = chain.NewChainExt(common.GocoinCashHomeDir, common.GenesisBlock, common.FLAG.Rescan, ext,
-		&chain.BlockDBOpts{
+	common.BchBlockChain = bch_chain.NewChainExt(common.GocoinCashHomeDir, common.GenesisBlock, common.FLAG.Rescan, ext,
+		&chain.BchBlockDBOpts{
 			MaxCachedBlocks: int(common.CFG.Memory.MaxCachedBlks),
 			MaxDataFileSize: uint64(common.CFG.Memory.MaxDataFileMB) << 20,
 			DataFilesKeep:   common.CFG.Memory.DataFilesKeep})
-	if chain.AbortNow {
+	if bch_chain.AbortNow {
 		fmt.Printf("Blockchain opening aborted after %s seconds\n", time.Now().Sub(sta).String())
-		common.BlockChain.Close()
+		common.BchBlockChain.Close()
 		sys.UnlockDatabaseDir()
 		os.Exit(1)
 	}
 
-	common.Last.Block = common.BlockChain.LastBlock()
-	common.Last.Time = time.Unix(int64(common.Last.Block.Timestamp()), 0)
+	common.Last.BchBlock = common.BchBlockChain.LastBlock()
+	common.Last.Time = time.Unix(int64(common.Last.BchBlock.Timestamp()), 0)
 	if common.Last.Time.After(time.Now()) {
 		common.Last.Time = time.Now()
 	}

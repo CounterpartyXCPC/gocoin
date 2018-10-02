@@ -12,7 +12,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
 	"github.com/counterpartyxcpc/gocoin-cash/client/wallet"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
@@ -145,7 +145,7 @@ func p_cfg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(r.Form["trusthash"]) > 0 {
-		if btc.NewUint256FromString(r.Form["trusthash"][0]) != nil {
+		if bch.NewUint256FromString(r.Form["trusthash"][0]) != nil {
 			common.CFG.LastTrustedBlock = r.Form["trusthash"][0]
 			common.ApplyLastTrustedBlock()
 		}

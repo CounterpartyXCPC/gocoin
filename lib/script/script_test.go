@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type one_test_vector struct {
@@ -77,14 +77,14 @@ func TestScritps(t *testing.T) {
 				case string:
 					s := mm[ii].(string)
 					if bfield == 0 {
-						vec.sigscr, e = btc.DecodeScript(s)
+						vec.sigscr, e = bch.DecodeScript(s)
 						if e != nil {
 							t.Error("error parsing script", s)
 							skip = true
 							break
 						}
 					} else if bfield == 1 {
-						vec.pkscr, e = btc.DecodeScript(s)
+						vec.pkscr, e = bch.DecodeScript(s)
 						if e != nil {
 							skip = true
 							break
@@ -211,24 +211,24 @@ func decode_flags(s string) (fl uint32, e error) {
 	return
 }
 
-func mk_credit_tx(pk_scr []byte, value uint64) (input_tx *btc.Tx) {
+func mk_credit_tx(pk_scr []byte, value uint64) (input_tx *bch.Tx) {
 	// We build input_tx only to calculate it's hash for output_tx
-	input_tx = new(btc.Tx)
+	input_tx = new(bch.Tx)
 	input_tx.Version = 1
-	input_tx.TxIn = []*btc.TxIn{&btc.TxIn{Input: btc.TxPrevOut{Vout: 0xffffffff},
+	input_tx.TxIn = []*bch.TxIn{{Input: bch.TxPrevOut{Vout: 0xffffffff},
 		ScriptSig: []byte{0, 0}, Sequence: 0xffffffff}}
-	input_tx.TxOut = []*btc.TxOut{&btc.TxOut{Pk_script: pk_scr, Value: value}}
+	input_tx.TxOut = []*bch.TxOut{{Pk_script: pk_scr, Value: value}}
 	// Lock_time = 0
 	input_tx.SetHash(input_tx.Serialize())
 	return
 }
 
-func mk_spend_tx(input_tx *btc.Tx, sig_scr []byte, witness [][]byte) (output_tx *btc.Tx) {
-	output_tx = new(btc.Tx)
+func mk_spend_tx(input_tx *bch.Tx, sig_scr []byte, witness [][]byte) (output_tx *bch.Tx) {
+	output_tx = new(bch.Tx)
 	output_tx.Version = 1
-	output_tx.TxIn = []*btc.TxIn{&btc.TxIn{Input: btc.TxPrevOut{Hash: btc.Sha2Sum(input_tx.Serialize()), Vout: 0},
+	output_tx.TxIn = []*bch.TxIn{{Input: bch.TxPrevOut{Hash: bch.Sha2Sum(input_tx.Serialize()), Vout: 0},
 		ScriptSig: sig_scr, Sequence: 0xffffffff}}
-	output_tx.TxOut = []*btc.TxOut{&btc.TxOut{Value: input_tx.TxOut[0].Value}}
+	output_tx.TxOut = []*bch.TxOut{{Value: input_tx.TxOut[0].Value}}
 	// Lock_time = 0
 
 	if len(witness) > 0 {

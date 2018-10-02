@@ -9,7 +9,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/wallet"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type OneWalletAddrs struct {
@@ -87,7 +87,7 @@ func all_addrs(par string) {
 				best = append(best, OneWalletAddrs{Typ: 0, Key: new_slice(k[:]), rec: rec})
 			}
 		}
-		fmt.Println(btc.UintToBtc(ptkh_vals), "BTC in", ptkh_outs, "unspent recs from", len(wallet.AllBalancesP2KH), "P2KH addresses")
+		fmt.Println(bch.UintToBtc(ptkh_vals), "BTC in", ptkh_outs, "unspent recs from", len(wallet.AllBalancesP2KH), "P2KH addresses")
 	}
 
 	if mode == 0 || mode == 2 {
@@ -98,7 +98,7 @@ func all_addrs(par string) {
 				best = append(best, OneWalletAddrs{Typ: 1, Key: new_slice(k[:]), rec: rec})
 			}
 		}
-		fmt.Println(btc.UintToBtc(ptsh_vals), "BTC in", ptsh_outs, "unspent recs from", len(wallet.AllBalancesP2SH), "P2SH addresses")
+		fmt.Println(bch.UintToBtc(ptsh_vals), "BTC in", ptsh_outs, "unspent recs from", len(wallet.AllBalancesP2SH), "P2SH addresses")
 	}
 
 	if mode == 0 || mode == 3 {
@@ -109,7 +109,7 @@ func all_addrs(par string) {
 				best = append(best, OneWalletAddrs{Typ: 2, Key: new_slice(k[:]), rec: rec})
 			}
 		}
-		fmt.Println(btc.UintToBtc(ptwkh_vals), "BTC in", ptwkh_outs, "unspent recs from", len(wallet.AllBalancesP2WKH), "P2WKH addresses")
+		fmt.Println(bch.UintToBtc(ptwkh_vals), "BTC in", ptwkh_outs, "unspent recs from", len(wallet.AllBalancesP2WKH), "P2WKH addresses")
 	}
 
 	if mode == 0 || mode == 4 {
@@ -120,20 +120,20 @@ func all_addrs(par string) {
 				best = append(best, OneWalletAddrs{Typ: 2, Key: new_slice(k[:]), rec: rec})
 			}
 		}
-		fmt.Println(btc.UintToBtc(ptwsh_vals), "BTC in", ptwsh_outs, "unspent recs from", len(wallet.AllBalancesP2WSH), "P2WSH addresses")
+		fmt.Println(bch.UintToBtc(ptwsh_vals), "BTC in", ptwsh_outs, "unspent recs from", len(wallet.AllBalancesP2WSH), "P2WSH addresses")
 	}
 
 	if sort_by_cnt {
 		fmt.Println("Top addresses with at least", MIN_OUTS, "unspent outputs:", len(best))
 	} else {
-		fmt.Println("Top addresses with at least", btc.UintToBtc(MIN_BTC), "BTC:", len(best))
+		fmt.Println("Top addresses with at least", bch.UintToBtc(MIN_BTC), "BTC:", len(best))
 	}
 
 	sort.Sort(best)
 
 	var pkscr_p2sk [23]byte
 	var pkscr_p2kh [25]byte
-	var ad *btc.BtcAddr
+	var ad *bch.BtcAddr
 
 	pkscr_p2sk[0] = 0xa9
 	pkscr_p2sk[1] = 20
@@ -149,24 +149,24 @@ func all_addrs(par string) {
 		switch best[i].Typ {
 		case 0:
 			copy(pkscr_p2kh[3:23], best[i].Key)
-			ad = btc.NewAddrFromPkScript(pkscr_p2kh[:], common.CFG.Testnet)
+			ad = bch.NewAddrFromPkScript(pkscr_p2kh[:], common.CFG.Testnet)
 		case 1:
 			copy(pkscr_p2sk[2:22], best[i].Key)
-			ad = btc.NewAddrFromPkScript(pkscr_p2sk[:], common.CFG.Testnet)
+			ad = bch.NewAddrFromPkScript(pkscr_p2sk[:], common.CFG.Testnet)
 		case 2:
-			ad = new(btc.BtcAddr)
-			ad.SegwitProg = new(btc.SegwitProg)
-			ad.SegwitProg.HRP = btc.GetSegwitHRP(common.CFG.Testnet)
+			ad = new(bch.BtcAddr)
+			ad.SegwitProg = new(bch.SegwitProg)
+			ad.SegwitProg.HRP = bch.GetSegwitHRP(common.CFG.Testnet)
 			ad.SegwitProg.Program = best[i].Key
 		}
-		fmt.Println(i+1, ad.String(), btc.UintToBtc(best[i].rec.Value), "BTC in", best[i].rec.Count(), "inputs")
+		fmt.Println(i+1, ad.String(), bch.UintToBtc(best[i].rec.Value), "BTC in", best[i].rec.Count(), "inputs")
 	}
 }
 
 func list_unspent(addr string) {
 	fmt.Println("Checking unspent coins for addr", addr)
 
-	ad, e := btc.NewAddrFromString(addr)
+	ad, e := bch.NewAddrFromString(addr)
 	if e != nil {
 		println(e.Error())
 		return
@@ -184,7 +184,7 @@ func list_unspent(addr string) {
 			unsp[i].BtcAddr = nil // no need to print the address here
 			tot += unsp[i].Value
 		}
-		fmt.Println(ad.String(), "has", btc.UintToBtc(tot), "BTC in", len(unsp), "records:")
+		fmt.Println(ad.String(), "has", bch.UintToBtc(tot), "BTC in", len(unsp), "records:")
 		for i := range unsp {
 			fmt.Println(unsp[i].String())
 			network.TxMutex.Lock()
@@ -205,7 +205,7 @@ func list_unspent(addr string) {
 		for vo, to := range t2s.TxOut {
 			if bytes.Equal(to.Pk_script, outscr) {
 				fmt.Println(fmt.Sprintf("Mempool Tx: %15s BTC comming with %s-%03d",
-					btc.UintToBtc(to.Value), t2s.Hash.String(), vo))
+					bch.UintToBtc(to.Value), t2s.Hash.String(), vo))
 			}
 		}
 	}

@@ -8,13 +8,13 @@ import (
 	"strconv"
 	"strings"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type unspRec struct {
-	btc.TxPrevOut
+	bch.TxPrevOut
 	label string
-	key   *btc.PrivateAddr
+	key   *bch.PrivateAddr
 	spent bool
 }
 
@@ -32,7 +32,7 @@ func NewUnspRec(l []byte) (uns *unspRec) {
 		return nil
 	}
 
-	txid := btc.NewUint256FromString(string(l[:64]))
+	txid := bch.NewUint256FromString(string(l[:64]))
 	if txid == nil {
 		return nil
 	}
@@ -89,7 +89,7 @@ func show_balance() {
 			continue
 		}
 
-		if btc.IsP2SH(uo.Pk_script) {
+		if bch.IsP2SH(uo.Pk_script) {
 			msBtc += uo.Value
 			multisigInputs++
 			continue
@@ -110,7 +110,7 @@ func show_balance() {
 }
 
 // apply the chnages to the balance folder
-func apply_to_balance(tx *btc.Tx) {
+func apply_to_balance(tx *bch.Tx) {
 	f, _ := os.Create("balance/unspent.txt")
 	if f != nil {
 		// append new outputs at the end of unspentOuts
@@ -123,7 +123,7 @@ func apply_to_balance(tx *btc.Tx) {
 				uns.key = k
 				uns.TxPrevOut.Hash = tx.Hash.Hash
 				uns.TxPrevOut.Vout = uint32(out)
-				uns.label = fmt.Sprint("# ", btc.UintToBtc(tx.TxOut[out].Value), " BTC @ ", k.BtcAddr.String())
+				uns.label = fmt.Sprint("# ", bch.UintToBtc(tx.TxOut[out].Value), " BTC @ ", k.BtcAddr.String())
 				unspentOuts = append(unspentOuts, uns)
 			}
 		}

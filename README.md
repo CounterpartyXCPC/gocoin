@@ -12,7 +12,7 @@ It keeps the entire UTXO set in RAM, providing the best block processing perform
 
 In it's original form, With a decent machine and a fast connection (e.g. 4 vCPUs from Google Cloud or 
 Amazon AWS), the node would sync the entire bitcoin block chain in less than 4 hours (as of chain 
-height ~512000) for the Bitcoin core chain.
+height ~512000) for the Bitcoin core bch_chain.
 
 Benchmarks for the Bitcoin BCH chain to follow.
 

@@ -283,7 +283,7 @@ function fetch_wallet_balance(name) {
 				td.appendChild(inp)
 			}
 
-			total_btc.innerText = val2str(totbtc)
+			total_bch.innerText = val2str(totbtc)
 			outs_cnt.innerText = totouts
 		} catch (e) {
 			console.log(e)
@@ -376,15 +376,15 @@ function recalc_to_pay() {
 	if (isNaN(fee)) {
 		txfee.classList.add('err')
 		butdisabled = true
-		txfee_mbtc.value = ''
+		txfee_mbch.value = ''
 	} else {
 		txfee.classList.remove('err')
-		txfee_mbtc.value = val2str(1000*fee)
+		txfee_mbch.value = val2str(1000*fee)
 	}
 
 	var chval = selected_value-totsend-fee
 	changeval.value = val2str(chval)
-	changeval_mbtc.value = val2str(1000*chval)
+	changeval_mbch.value = val2str(1000*chval)
 	if (chval<0) {
 		changeval.style.color = 'red'
 		butdisabled = true
@@ -766,7 +766,7 @@ blno.addEventListener("lastblock", function(e) {
 	if (!warning_set) {
 		warning_set = true
 		if (e.block.MinValue>0) {
-			min_val_btc.innerText = val2str(e.block.MinValue)
+			min_val_bch.innerText = val2str(e.block.MinValue)
 			wallet_min_warning.style.display = 'block'
 		}
 	}

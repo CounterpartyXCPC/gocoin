@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"time"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
-// Make sure to call this function with ch.BlockIndexAccess locked
-func (ch *Chain) BCHPreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bool) {
+// Make sure to call this function with ch.BchBlockIndexAccess locked
+func (ch *Chain) BCHPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater bool) {
 	// Size limits
 	if len(bl.Raw) < 81 {
 		er = errors.New("CheckBlock() : size limits failed - RPC_Result:bad-blk-length")
@@ -28,20 +28,20 @@ func (ch *Chain) BCHPreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater
 	}
 
 	// Check proof-of-work
-	if !btc.CheckProofOfWork(bl.Hash, bl.Bits()) {
+	if !bch.CheckProofOfWork(bl.Hash, bl.Bits()) {
 		er = errors.New("CheckBlock() : proof of work failed - RPC_Result:high-hash")
 		dos = true
 		return
 	}
 
 	// Check timestamp (must not be higher than now +2 hours)
-	if int64(bl.BlockTime()) > time.Now().Unix()+2*60*60 {
+	if int64(bl.BchBlockTime()) > time.Now().Unix()+2*60*60 {
 		er = errors.New("CheckBlock() : block timestamp too far in the future - RPC_Result:time-too-new")
 		dos = true
 		return
 	}
 
-	if prv, pres := ch.BlockIndex[bl.Hash.BIdx()]; pres {
+	if prv, pres := ch.BchBlockIndex[bl.Hash.BIdx()]; pres {
 		if prv.Parent == nil {
 			// This is genesis block
 			er = errors.New("Genesis")
@@ -52,7 +52,7 @@ func (ch *Chain) BCHPreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater
 		}
 	}
 
-	prevblk, ok := ch.BlockIndex[btc.NewUint256(bl.ParentHash()).BIdx()]
+	prevblk, ok := ch.BchBlockIndex[bch.NewUint256(bl.ParentHash()).BIdx()]
 	if !ok {
 		er = errors.New("CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
 		maybelater = true
@@ -64,14 +64,14 @@ func (ch *Chain) BCHPreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater
 	// Reject the block if it reaches into the chain deeper than our unwind buffer
 	lst_now := ch.LastBlock()
 	if prevblk != lst_now && int(lst_now.Height)-int(bl.Height) >= MovingCheckopintDepth {
-		er = errors.New(fmt.Sprint("CheckBlock: btc.Block ", bl.Hash.String(),
+		er = errors.New(fmt.Sprint("CheckBlock: bch.BchBlock ", bl.Hash.String(),
 			" hooks too deep into the chain: ", bl.Height, "/", lst_now.Height, " ",
-			btc.NewUint256(bl.ParentHash()).String(), " - RPC_Result:bad-prevblk"))
+			bch.NewUint256(bl.ParentHash()).String(), " - RPC_Result:bad-prevblk"))
 		return
 	}
 
 	// Check proof of work
-	gnwr := ch.GetNextWorkRequired(prevblk, bl.BlockTime())
+	gnwr := ch.GetNextWorkRequired(prevblk, bl.BchBlockTime())
 	if bl.Bits() != gnwr {
 		er = errors.New("CheckBlock: incorrect proof of work - RPC_Result:bad-diffbits")
 		dos = true
@@ -80,7 +80,7 @@ func (ch *Chain) BCHPreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater
 
 	// Check timestamp against prev
 	bl.MedianPastTime = prevblk.GetMedianTimePast()
-	if bl.BlockTime() <= bl.MedianPastTime {
+	if bl.BchBlockTime() <= bl.MedianPastTime {
 		er = errors.New("CheckBlock: block's timestamp is too early - RPC_Result:time-too-old")
 		dos = true
 		return
@@ -107,8 +107,8 @@ func (ch *Chain) BCHPreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater
 	return
 }
 
-// Make sure to call this function with ch.BlockIndexAccess locked
-func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bool) {
+// Make sure to call this function with ch.BchBlockIndexAccess locked
+func (ch *Chain) PreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater bool) {
 	// Size limits
 	if len(bl.Raw) < 81 {
 		er = errors.New("CheckBlock() : size limits failed - RPC_Result:bad-blk-length")
@@ -124,20 +124,20 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 	}
 
 	// Check proof-of-work
-	if !btc.CheckProofOfWork(bl.Hash, bl.Bits()) {
+	if !bch.CheckProofOfWork(bl.Hash, bl.Bits()) {
 		er = errors.New("CheckBlock() : proof of work failed - RPC_Result:high-hash")
 		dos = true
 		return
 	}
 
 	// Check timestamp (must not be higher than now +2 hours)
-	if int64(bl.BlockTime()) > time.Now().Unix()+2*60*60 {
+	if int64(bl.BchBlockTime()) > time.Now().Unix()+2*60*60 {
 		er = errors.New("CheckBlock() : block timestamp too far in the future - RPC_Result:time-too-new")
 		dos = true
 		return
 	}
 
-	if prv, pres := ch.BlockIndex[bl.Hash.BIdx()]; pres {
+	if prv, pres := ch.BchBlockIndex[bl.Hash.BIdx()]; pres {
 		if prv.Parent == nil {
 			// This is genesis block
 			er = errors.New("Genesis")
@@ -148,7 +148,7 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 		}
 	}
 
-	prevblk, ok := ch.BlockIndex[btc.NewUint256(bl.ParentHash()).BIdx()]
+	prevblk, ok := ch.BchBlockIndex[bch.NewUint256(bl.ParentHash()).BIdx()]
 	if !ok {
 		er = errors.New("CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
 		maybelater = true
@@ -160,14 +160,14 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 	// Reject the block if it reaches into the chain deeper than our unwind buffer
 	lst_now := ch.LastBlock()
 	if prevblk != lst_now && int(lst_now.Height)-int(bl.Height) >= MovingCheckopintDepth {
-		er = errors.New(fmt.Sprint("CheckBlock: btc.Block ", bl.Hash.String(),
+		er = errors.New(fmt.Sprint("CheckBlock: bch.BchBlock ", bl.Hash.String(),
 			" hooks too deep into the chain: ", bl.Height, "/", lst_now.Height, " ",
-			btc.NewUint256(bl.ParentHash()).String(), " - RPC_Result:bad-prevblk"))
+			bch.NewUint256(bl.ParentHash()).String(), " - RPC_Result:bad-prevblk"))
 		return
 	}
 
 	// Check proof of work
-	gnwr := ch.GetNextWorkRequired(prevblk, bl.BlockTime())
+	gnwr := ch.GetNextWorkRequired(prevblk, bl.BchBlockTime())
 	if bl.Bits() != gnwr {
 		er = errors.New("CheckBlock: incorrect proof of work - RPC_Result:bad-diffbits")
 		dos = true
@@ -176,7 +176,7 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 
 	// Check timestamp against prev
 	bl.MedianPastTime = prevblk.GetMedianTimePast()
-	if bl.BlockTime() <= bl.MedianPastTime {
+	if bl.BchBlockTime() <= bl.MedianPastTime {
 		er = errors.New("CheckBlock: block's timestamp is too early - RPC_Result:time-too-old")
 		dos = true
 		return
@@ -203,8 +203,8 @@ func (ch *Chain) PreCheckBlock(bl *btc.Block) (er error, dos bool, maybelater bo
 	return
 }
 
-func (ch *Chain) ApplyBlockFlags(bl *btc.Block) {
-	if bl.BlockTime() >= BIP16SwitchTime {
+func (ch *Chain) ApplyBlockFlags(bl *bch.BchBlock) {
+	if bl.BchBlockTime() >= BIP16SwitchTime {
 		bl.VerifyFlags = script.VER_P2SH
 	} else {
 		bl.VerifyFlags = 0
@@ -228,7 +228,7 @@ func (ch *Chain) ApplyBlockFlags(bl *btc.Block) {
 
 }
 
-func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
+func (ch *Chain) PostCheckBlock(bl *bch.BchBlock) (er error) {
 	// Size limits
 	if len(bl.Raw) < 81 {
 		er = errors.New("CheckBlock() : size limits failed low - RPC_Result:bad-blk-length")
@@ -240,11 +240,11 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 		if er != nil {
 			return
 		}
-		if bl.BlockWeight > ch.MaxBlockWeight(bl.Height) {
+		if bl.BchBlockWeight > ch.MaxBlockWeight(bl.Height) {
 			er = errors.New("CheckBlock() : weight limits failed - RPC_Result:bad-blk-weight")
 			return
 		}
-		//fmt.Println("New block", bl.Height, " Weight:", bl.BlockWeight, " Raw:", len(bl.Raw))
+		//fmt.Println("New block", bl.Height, " Weight:", bl.BchBlockWeight, " Raw:", len(bl.Raw))
 	}
 
 	if !bl.Trusted {
@@ -303,7 +303,7 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 		if (bl.VerifyFlags & script.VER_CSV) != 0 {
 			blockTime = bl.MedianPastTime
 		} else {
-			blockTime = bl.BlockTime()
+			blockTime = bl.BchBlockTime()
 		}
 
 		// Verify merkle root of witness data
@@ -322,8 +322,8 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 					// The malleation check is ignored; as the transaction tree itself
 					// already does not permit it, it is impossible to trigger in the
 					// witness tree.
-					merkle, _ := btc.GetWitnessMerkle(bl.Txs)
-					with_nonce := btc.Sha2Sum(append(merkle, bl.Txs[0].SegWit[0][0]...))
+					merkle, _ := bch.GetWitnessMerkle(bl.Txs)
+					with_nonce := bch.Sha2Sum(append(merkle, bl.Txs[0].SegWit[0][0]...))
 
 					if !bytes.Equal(with_nonce[:], o.Pk_script[6:38]) {
 						er = errors.New("CheckBlock(): Witness Merkle mismatch - RPC_Result:bad-witness-merkle-match")
@@ -351,7 +351,7 @@ func (ch *Chain) PostCheckBlock(bl *btc.Block) (er error) {
 	return
 }
 
-func (ch *Chain) CheckBlock(bl *btc.Block) (er error, dos bool, maybelater bool) {
+func (ch *Chain) CheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater bool) {
 	er, dos, maybelater = ch.PreCheckBlock(bl)
 	if er == nil {
 		er = ch.PostCheckBlock(bl)

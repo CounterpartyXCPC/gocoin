@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func new_block(par string) {
@@ -29,7 +29,7 @@ func new_block(par string) {
 			break
 		}
 	}
-	println("Fees from OLD sorting:", btc.UintToBtc(totfees), totwgh)
+	println("Fees from OLD sorting:", bch.UintToBtc(totfees), totwgh)
 
 	totwgh = 0
 	for _, tx := range rbf {
@@ -40,7 +40,7 @@ func new_block(par string) {
 			break
 		}
 	}
-	fmt.Printf("Fees from NEW sorting: %s %d\n", btc.UintToBtc(totfees2), totwgh)
+	fmt.Printf("Fees from NEW sorting: %s %d\n", bch.UintToBtc(totfees2), totwgh)
 	if totfees2 > totfees {
 		fmt.Printf("New method profit: %.3f%%\n", 100.0*float64(totfees2-totfees)/float64(totfees))
 	} else {
@@ -49,7 +49,7 @@ func new_block(par string) {
 }
 
 func gettxchildren(par string) {
-	txid := btc.NewUint256FromString(par)
+	txid := bch.NewUint256FromString(par)
 	if txid == nil {
 		println("Specify valid txid")
 		return

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func do_mining(s string) {
@@ -21,7 +21,7 @@ func do_mining(s string) {
 	fmt.Println("Looking back", hrs, "hours...")
 	lim := uint32(time.Now().Add(-time.Hour * time.Duration(hrs)).Unix())
 	common.Last.Mutex.Lock()
-	bte := common.Last.Block
+	bte := common.Last.BchBlock
 	end := bte
 	common.Last.Mutex.Unlock()
 	cnt, diff := 0, float64(0)
@@ -34,7 +34,7 @@ func do_mining(s string) {
 	eb_ad_x := regexp.MustCompile("/EB[0-9]+/AD[0-9]+/")
 
 	for end.Timestamp() >= lim {
-		bl, _, e := common.BlockChain.Blocks.BlockGet(end.BlockHash)
+		bl, _, e := common.BchBlockChain.BchBlocks.BchBlockGet(end.BchBlockHash)
 		if e != nil {
 			println(cnt, e.Error())
 			return
@@ -46,11 +46,11 @@ func do_mining(s string) {
 		}
 
 		bt, _ := bch.NewBchBlock(bl)
-		cbasetx, _ := btc.NewTx(bl[bt.TxOffset:])
+		cbasetx, _ := bch.NewTx(bl[bt.TxOffset:])
 
 		tot_blocks++
 		tot_blocks_len += len(bl)
-		diff += btc.GetDifficulty(block.Bits())
+		diff += bch.GetDifficulty(block.Bits())
 
 		if (block.Version() & 0x20000002) == 0x20000002 {
 			segwit_cnt++

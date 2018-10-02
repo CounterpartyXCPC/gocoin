@@ -3,7 +3,7 @@ package ltc
 import (
 	"bytes"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 )
@@ -15,18 +15,18 @@ const LTC_ADDR_VERSION_SCRIPT = 50
 func HashFromMessage(msg []byte, out []byte) {
 	const MessageMagic = "Litecoin Signed Message:\n"
 	b := new(bytes.Buffer)
-	btc.WriteVlen(b, uint64(len(MessageMagic)))
+	bch.WriteVlen(b, uint64(len(MessageMagic)))
 	b.Write([]byte(MessageMagic))
-	btc.WriteVlen(b, uint64(len(msg)))
+	bch.WriteVlen(b, uint64(len(msg)))
 	b.Write(msg)
-	btc.ShaHash(b.Bytes(), out)
+	bch.ShaHash(b.Bytes(), out)
 }
 
 func AddrVerPubkey(testnet bool) byte {
 	if !testnet {
 		return LTC_ADDR_VERSION
 	}
-	return btc.AddrVerPubkey(testnet)
+	return bch.AddrVerPubkey(testnet)
 }
 
 // At some point Litecoin started using addresses with M in front (version 50) - see github issue #41
@@ -34,18 +34,18 @@ func AddrVerScript(testnet bool) byte {
 	if !testnet {
 		return LTC_ADDR_VERSION_SCRIPT
 	}
-	return btc.AddrVerScript(testnet)
+	return bch.AddrVerScript(testnet)
 }
 
-func NewAddrFromPkScript(scr []byte, testnet bool) (ad *btc.BtcAddr) {
-	ad = btc.NewAddrFromPkScript(scr, testnet)
-	if ad != nil && ad.Version == btc.AddrVerPubkey(false) {
+func NewAddrFromPkScript(scr []byte, testnet bool) (ad *bch.BtcAddr) {
+	ad = bch.NewAddrFromPkScript(scr, testnet)
+	if ad != nil && ad.Version == bch.AddrVerPubkey(false) {
 		ad.Version = LTC_ADDR_VERSION
 	}
 	return
 }
 
-func GetUnspent(addr *btc.BtcAddr) (res utxo.AllUnspentTx) {
+func GetUnspent(addr *bch.BtcAddr) (res utxo.AllUnspentTx) {
 	var er error
 
 	res, er = utils.GetUnspentFromBlockcypher(addr, "ltc")
@@ -58,9 +58,9 @@ func GetUnspent(addr *btc.BtcAddr) (res utxo.AllUnspentTx) {
 }
 
 // Download testnet's raw transaction from a web server
-func GetTxFromWeb(txid *btc.Uint256) (raw []byte) {
+func GetTxFromWeb(txid *bch.Uint256) (raw []byte) {
 	raw = utils.GetTxFromBlockcypher(txid, "ltc")
-	if raw != nil && txid.Equal(btc.NewSha2Hash(raw)) {
+	if raw != nil && txid.Equal(bch.NewSha2Hash(raw)) {
 		//println("GetTxFromBlockcypher - OK")
 		return
 	}

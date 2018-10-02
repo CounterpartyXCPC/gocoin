@@ -4,11 +4,11 @@ import (
 	"encoding/binary"
 	"hash/crc64"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type OnePeer struct {
-	btc.NetAddr
+	bch.NetAddr
 	Time   uint32 // When seen last time
 	Banned uint32 // time when this address baned or zero if never
 }

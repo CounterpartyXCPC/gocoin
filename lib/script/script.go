@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"golang.org/x/crypto/ripemd160"
 )
 
-type VerifyConsensusFunction func(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags uint32, result bool)
+type VerifyConsensusFunction func(pkScr []byte, amount uint64, i int, tx *bch.Tx, ver_flags uint32, result bool)
 
 var (
 	DBG_SCR = false
@@ -56,7 +56,7 @@ const (
 	SIGVERSION_WITNESS_V0 = 1
 )
 
-func VerifyTxScript(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags uint32) (result bool) {
+func VerifyTxScript(pkScr []byte, amount uint64, i int, tx *bch.Tx, ver_flags uint32) (result bool) {
 	if VerifyConsensus != nil {
 		defer func() {
 			// We call CompareToConsensus inside another function to wait for final "result"
@@ -66,7 +66,7 @@ func VerifyTxScript(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags ui
 
 	sigScr := tx.TxIn[i].ScriptSig
 
-	if (ver_flags&VER_SIGPUSHONLY) != 0 && !btc.IsPushOnly(sigScr) {
+	if (ver_flags&VER_SIGPUSHONLY) != 0 && !bch.IsPushOnly(sigScr) {
 		if DBG_ERR {
 			fmt.Println("Not push only")
 		}
@@ -138,7 +138,7 @@ func VerifyTxScript(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags ui
 			}
 		}
 
-		witnessversion, witnessprogram = btc.IsWitnessProgram(pkScr)
+		witnessversion, witnessprogram = bch.IsWitnessProgram(pkScr)
 		if DBG_SCR {
 			fmt.Println("------------witnessversion:", witnessversion, "   witnessprogram:", hex.EncodeToString(witnessprogram))
 		}
@@ -171,7 +171,7 @@ func VerifyTxScript(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags ui
 	}
 
 	// Additional validation for spend-to-script-hash transactions:
-	if (ver_flags&VER_P2SH) != 0 && btc.IsPayToScript(pkScr) {
+	if (ver_flags&VER_P2SH) != 0 && bch.IsPayToScript(pkScr) {
 		if DBG_SCR {
 			fmt.Println()
 			fmt.Println()
@@ -182,7 +182,7 @@ func VerifyTxScript(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags ui
 		if DBG_SCR {
 			fmt.Println("sigScr len", len(sigScr), hex.EncodeToString(sigScr))
 		}
-		if !btc.IsPushOnly(sigScr) {
+		if !bch.IsPushOnly(sigScr) {
 			if DBG_ERR {
 				fmt.Println("P2SH is not push only")
 			}
@@ -219,14 +219,14 @@ func VerifyTxScript(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags ui
 		}
 
 		if (ver_flags & VER_WITNESS) != 0 {
-			witnessversion, witnessprogram = btc.IsWitnessProgram(pubKey2)
+			witnessversion, witnessprogram = bch.IsWitnessProgram(pubKey2)
 			if DBG_SCR {
 				fmt.Println("============witnessversion:", witnessversion, "   witnessprogram:", hex.EncodeToString(witnessprogram))
 			}
 			if witnessprogram != nil {
 				hadWitness = true
 				bt := new(bytes.Buffer)
-				btc.WritePutLen(bt, uint32(len(pubKey2)))
+				bch.WritePutLen(bt, uint32(len(pubKey2)))
 				bt.Write(pubKey2)
 				if !bytes.Equal(sigScr, bt.Bytes()) {
 					if DBG_ERR {
@@ -291,7 +291,7 @@ func b2i(b bool) int64 {
 	}
 }
 
-func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, ver_flags uint32, sigversion int) bool {
+func evalScript(p []byte, amount uint64, stack *scrStack, tx *bch.Tx, inp int, ver_flags uint32, sigversion int) bool {
 	if DBG_SCR {
 		fmt.Println("evalScript len", len(p), "amount", amount, "inp", inp, "flagz", ver_flags, "sigver", sigversion)
 		stack.print()
@@ -325,7 +325,7 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, v
 		inexec := exestack.nofalse()
 
 		// Read instruction
-		opcode, pushval, n, e := btc.GetOpcode(p[idx:])
+		opcode, pushval, n, e := bch.GetOpcode(p[idx:])
 		if e != nil {
 			//fmt.Println(e.Error())
 			//fmt.Println("A", idx, hex.EncodeToString(p))
@@ -339,7 +339,7 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, v
 			stack.print()
 		}
 
-		if pushval != nil && len(pushval) > btc.MAX_SCRIPT_ELEMENT_SIZE {
+		if pushval != nil && len(pushval) > bch.MAX_SCRIPT_ELEMENT_SIZE {
 			if DBG_ERR {
 				fmt.Println("pushval too long", len(pushval))
 			}
@@ -377,7 +377,7 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, v
 			return false
 		}
 
-		if inexec && 0 <= opcode && opcode <= btc.OP_PUSHDATA4 {
+		if inexec && 0 <= opcode && opcode <= bch.OP_PUSHDATA4 {
 			if checkMinVals && !checkMinimalPush(pushval, opcode) {
 				if DBG_ERR {
 					fmt.Println("Push value not in a minimal format", hex.EncodeToString(pushval))
@@ -911,7 +911,7 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, v
 					}
 					return false
 				}
-				rim160 := btc.Rimp160AfterSha256(stack.pop())
+				rim160 := bch.Rimp160AfterSha256(stack.pop())
 				stack.push(rim160[:])
 
 			case opcode == 0xaa: //OP_HASH256
@@ -921,7 +921,7 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, v
 					}
 					return false
 				}
-				h := btc.Sha2Sum(stack.pop())
+				h := bch.Sha2Sum(stack.pop())
 				stack.push(h[:])
 
 			case opcode == 0xab: // OP_CODESEPARATOR
@@ -962,7 +962,7 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, v
 						fmt.Println(" key:", hex.EncodeToString(vchPubKey))
 						fmt.Println(" sig:", hex.EncodeToString(vchSig))
 					}
-					fSuccess = btc.EcdsaVerify(vchPubKey, vchSig, sh)
+					fSuccess = bch.EcdsaVerify(vchPubKey, vchSig, sh)
 					if DBG_SCR {
 						fmt.Println(" ->", fSuccess)
 					}
@@ -1073,7 +1073,7 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, v
 						} else {
 							sh = tx.SignatureHash(xxx, inp, int32(vchSig[len(vchSig)-1]))
 						}
-						if btc.EcdsaVerify(vchPubKey, vchSig, sh) {
+						if bch.EcdsaVerify(vchPubKey, vchSig, sh) {
 							isig++
 							sigscnt--
 						}
@@ -1294,23 +1294,23 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *btc.Tx, inp int, v
 func delSig(where, sig []byte) (res []byte) {
 	// recover the standard length
 	bb := new(bytes.Buffer)
-	if len(sig) < btc.OP_PUSHDATA1 {
+	if len(sig) < bch.OP_PUSHDATA1 {
 		bb.Write([]byte{byte(len(sig))})
 	} else if len(sig) <= 0xff {
-		bb.Write([]byte{btc.OP_PUSHDATA1})
+		bb.Write([]byte{bch.OP_PUSHDATA1})
 		bb.Write([]byte{byte(len(sig))})
 	} else if len(sig) <= 0xffff {
-		bb.Write([]byte{btc.OP_PUSHDATA2})
+		bb.Write([]byte{bch.OP_PUSHDATA2})
 		binary.Write(bb, binary.LittleEndian, uint16(len(sig)))
 	} else {
-		bb.Write([]byte{btc.OP_PUSHDATA4})
+		bb.Write([]byte{bch.OP_PUSHDATA4})
 		binary.Write(bb, binary.LittleEndian, uint32(len(sig)))
 	}
 	bb.Write(sig)
 	sig = bb.Bytes()
 	var idx int
 	for idx < len(where) {
-		_, _, n, e := btc.GetOpcode(where[idx:])
+		_, _, n, e := bch.GetOpcode(where[idx:])
 		if e != nil {
 			fmt.Println(e.Error())
 			fmt.Println("B", idx, hex.EncodeToString(where))
@@ -1409,8 +1409,8 @@ func IsDefinedHashtypeSignature(sig []byte) bool {
 	if len(sig) == 0 {
 		return false
 	}
-	htype := sig[len(sig)-1] & (btc.SIGHASH_ANYONECANPAY ^ 0xff)
-	if htype < btc.SIGHASH_ALL || htype > btc.SIGHASH_SINGLE {
+	htype := sig[len(sig)-1] & (bch.SIGHASH_ANYONECANPAY ^ 0xff)
+	if htype < bch.SIGHASH_ALL || htype > bch.SIGHASH_SINGLE {
 		return false
 	}
 	return true
@@ -1421,7 +1421,7 @@ func IsLowS(sig []byte) bool {
 		return false
 	}
 
-	ss, e := btc.NewSignature(sig)
+	ss, e := bch.NewSignature(sig)
 	if e != nil {
 		return false
 	}
@@ -1528,7 +1528,7 @@ func checkMinimalPush(d []byte, opcode int) bool {
 	return true
 }
 
-func CheckSequence(tx *btc.Tx, inp int, seq int64) bool {
+func CheckSequence(tx *bch.Tx, inp int, seq int64) bool {
 	if tx.Version < 2 {
 		return false
 	}

@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
@@ -26,9 +26,9 @@ type OneAllAddrBal struct {
 func (ur *OneAllAddrInp) GetRec() (rec *utxo.UtxoRec, vout uint32) {
 	var ind utxo.UtxoKeyType
 	copy(ind[:], ur[:])
-	common.BlockChain.Unspent.RWMutex.RLock()
-	v := common.BlockChain.Unspent.HashMap[ind]
-	common.BlockChain.Unspent.RWMutex.RUnlock()
+	common.BchBlockChain.Unspent.RWMutex.RLock()
+	v := common.BchBlockChain.Unspent.HashMap[ind]
+	common.BchBlockChain.Unspent.RWMutex.RUnlock()
 	if v != nil {
 		vout = binary.LittleEndian.Uint32(ur[utxo.UtxoIdxLen:])
 		rec = utxo.NewUtxoRec(ind, v)
@@ -147,8 +147,8 @@ func all_del_utxos(tx *utxo.UtxoRec, outs []bool) {
 		}
 
 		if rec == nil {
-			println("balance rec not found for", btc.NewAddrFromPkScript(out.PKScr, common.CFG.Testnet).String(),
-				btc.NewUint256(tx.TxID[:]).String(), vout, btc.UintToBtc(out.Value))
+			println("balance rec not found for", bch.NewAddrFromPkScript(out.PKScr, common.CFG.Testnet).String(),
+				bch.NewUint256(tx.TxID[:]).String(), vout, bch.UintToBtc(out.Value))
 			continue
 		}
 
@@ -156,7 +156,7 @@ func all_del_utxos(tx *utxo.UtxoRec, outs []bool) {
 
 		if rec.unspMap != nil {
 			if _, ok := rec.unspMap[nr]; !ok {
-				println("unspent rec not in map for", btc.NewAddrFromPkScript(out.PKScr, common.CFG.Testnet).String())
+				println("unspent rec not in map for", bch.NewAddrFromPkScript(out.PKScr, common.CFG.Testnet).String())
 				continue
 			}
 			delete(rec.unspMap, nr)
@@ -183,7 +183,7 @@ func all_del_utxos(tx *utxo.UtxoRec, outs []bool) {
 			}
 		}
 		if i == len(rec.unsp) {
-			println("unspent rec not in list for", btc.NewAddrFromPkScript(out.PKScr, common.CFG.Testnet).String())
+			println("unspent rec not in list for", bch.NewAddrFromPkScript(out.PKScr, common.CFG.Testnet).String())
 			continue
 		}
 		if len(rec.unsp) == 1 {
@@ -235,7 +235,7 @@ func (r *OneAllAddrBal) Count() int {
 	}
 }
 
-func GetAllUnspent(aa *btc.BtcAddr) (thisbal utxo.AllUnspentTx) {
+func GetAllUnspent(aa *bch.BtcAddr) (thisbal utxo.AllUnspentTx) {
 	var rec *OneAllAddrBal
 	if aa.SegwitProg != nil {
 		var uidx [32]byte
@@ -252,9 +252,9 @@ func GetAllUnspent(aa *btc.BtcAddr) (thisbal utxo.AllUnspentTx) {
 		default:
 			return
 		}
-	} else if aa.Version == btc.AddrVerPubkey(common.Testnet) {
+	} else if aa.Version == bch.AddrVerPubkey(common.Testnet) {
 		rec = AllBalancesP2KH[aa.Hash160]
-	} else if aa.Version == btc.AddrVerScript(common.Testnet) {
+	} else if aa.Version == bch.AddrVerScript(common.Testnet) {
 		rec = AllBalancesP2SH[aa.Hash160]
 	} else {
 		return
@@ -263,7 +263,7 @@ func GetAllUnspent(aa *btc.BtcAddr) (thisbal utxo.AllUnspentTx) {
 		rec.Browse(func(v *OneAllAddrInp) {
 			if qr, vout := v.GetRec(); qr != nil {
 				if oo := qr.Outs[vout]; oo != nil {
-					unsp := &utxo.OneUnspentTx{TxPrevOut: btc.TxPrevOut{Hash: qr.TxID, Vout: vout},
+					unsp := &utxo.OneUnspentTx{TxPrevOut: bch.TxPrevOut{Hash: qr.TxID, Vout: vout},
 						Value: oo.Value, MinedAt: qr.InBlock, Coinbase: qr.Coinbase, BtcAddr: aa}
 
 					if int(vout+1) < len(qr.Outs) {
@@ -275,7 +275,7 @@ func GetAllUnspent(aa *btc.BtcAddr) (thisbal utxo.AllUnspentTx) {
 							msg = qr.Outs[len(qr.Outs)-1].PKScr[1:]
 						}
 						if msg != nil {
-							_, unsp.Message, _, _ = btc.GetOpcode(msg)
+							_, unsp.Message, _, _ = bch.GetOpcode(msg)
 						}
 					}
 					thisbal = append(thisbal, unsp)
@@ -336,9 +336,9 @@ func PrintStat() {
 					if qr, vout := v.GetRec(); qr != nil {
 						if oo := qr.Outs[vout]; oo != nil {
 							if oo.Value > 100e8 {
-								ad := btc.NewAddrFromPkScript(oo.PKScr, common.Testnet)
+								ad := bch.NewAddrFromPkScript(oo.PKScr, common.Testnet)
 								if ad != nil {
-									println(btc.UintToBtc(oo.Value), "@", ad.String(), "from tx", btc.NewUint256(qr.TxID[:]).String(), vout)
+									println(bch.UintToBtc(oo.Value), "@", ad.String(), "from tx", bch.NewUint256(qr.TxID[:]).String(), vout)
 								}
 							}
 						}
@@ -354,17 +354,17 @@ func PrintStat() {
 		}
 	}
 
-	fmt.Println("AllBalMinVal:", btc.UintToBtc(common.AllBalMinVal()), "  UseMapCnt:", common.CFG.AllBalances.UseMapCnt)
+	fmt.Println("AllBalMinVal:", bch.UintToBtc(common.AllBalMinVal()), "  UseMapCnt:", common.CFG.AllBalances.UseMapCnt)
 
 	fmt.Println("AllBalancesP2KH: ", len(AllBalancesP2KH), "records,",
-		p2kh_outs, "outputs,", btc.UintToBtc(p2kh_vals), "BTC,", p2kh_maps, "maps")
+		p2kh_outs, "outputs,", bch.UintToBtc(p2kh_vals), "BTC,", p2kh_maps, "maps")
 
 	fmt.Println("AllBalancesP2SH: ", len(AllBalancesP2SH), "records,",
-		p2sh_outs, "outputs,", btc.UintToBtc(p2sh_vals), "BTC,", p2sh_maps, "maps")
+		p2sh_outs, "outputs,", bch.UintToBtc(p2sh_vals), "BTC,", p2sh_maps, "maps")
 
 	fmt.Println("AllBalancesP2WKH: ", len(AllBalancesP2WKH), "records,",
-		p2wkh_outs, "outputs,", btc.UintToBtc(p2wkh_vals), "BTC,", p2wkh_maps, "maps")
+		p2wkh_outs, "outputs,", bch.UintToBtc(p2wkh_vals), "BTC,", p2wkh_maps, "maps")
 
 	fmt.Println("AllBalancesP2WSH: ", len(AllBalancesP2WSH), "records,",
-		p2wsh_outs, "outputs,", btc.UintToBtc(p2wsh_vals), "BTC,", p2wsh_maps, "maps")
+		p2wsh_outs, "outputs,", bch.UintToBtc(p2wsh_vals), "BTC,", p2wsh_maps, "maps")
 }

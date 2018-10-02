@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"sync"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
@@ -19,10 +19,10 @@ type Chain struct {
 	BlockTreeRoot   *BlockTreeNode
 	blockTreeEnd    *BlockTreeNode
 	blockTreeAccess sync.Mutex
-	Genesis         *btc.Uint256
+	Genesis         *bch.Uint256
 
 	BlockIndexAccess sync.Mutex
-	BlockIndex       map[[btc.Uint256IdxLen]byte]*BlockTreeNode
+	BlockIndex       map[[bch.Uint256IdxLen]byte]*BlockTreeNode
 
 	CB NewChanOpts // callbacks used by Unspent database
 
@@ -46,11 +46,11 @@ type NewChanOpts struct {
 	UTXOVolatileMode bool
 	UndoBlocks       uint // undo this many blocks when opening the chain
 	UTXOCallbacks    utxo.CallbackFunctions
-	BlockMinedCB     func(*btc.Block) // used to remove mined txs from memory pool
+	BlockMinedCB     func(*bch.BchBlock) // used to remove mined txs from memory pool
 }
 
 // This is the very first function one should call in order to use this package
-func NewChainExt(dbrootdir string, genesis *btc.Uint256, rescan bool, opts *NewChanOpts, bdbopts *BlockDBOpts) (ch *Chain) {
+func NewChainExt(dbrootdir string, genesis *bch.Uint256, rescan bool, opts *NewChanOpts, bdbopts *BlockDBOpts) (ch *Chain) {
 	ch = new(Chain)
 	ch.Genesis = genesis
 
@@ -80,7 +80,7 @@ func NewChainExt(dbrootdir string, genesis *btc.Uint256, rescan bool, opts *NewC
 		ch.Consensus.BIP9_Treshold = 1916
 	}
 
-	ch.Blocks = NewBlockDBExt(dbrootdir, bdbopts)
+	ch.BchBlocks = NewBlockDBExt(dbrootdir, bdbopts)
 
 	ch.Unspent = utxo.NewUnspentDb(&utxo.NewUnspentOpts{
 		Dir: dbrootdir, Rescan: rescan, VolatimeMode: opts.UTXOVolatileMode,
@@ -96,7 +96,7 @@ func NewChainExt(dbrootdir string, genesis *btc.Uint256, rescan bool, opts *NewC
 	}
 
 	if rescan {
-		ch.SetLast(ch.BlockTreeRoot)
+		ch.SetLast(ch.BchBlockTreeRoot)
 	}
 
 	if AbortNow {
@@ -113,7 +113,7 @@ func NewChainExt(dbrootdir string, genesis *btc.Uint256, rescan bool, opts *NewC
 	}
 
 	// And now re-apply the blocks which you have just reverted :)
-	end, _ := ch.BlockTreeRoot.FindFarthestNode()
+	end, _ := ch.BchBlockTreeRoot.FindFarthestNode()
 	if end.Height > ch.LastBlock().Height {
 		ch.ParseTillBlock(end)
 	} else {
@@ -125,36 +125,36 @@ func NewChainExt(dbrootdir string, genesis *btc.Uint256, rescan bool, opts *NewC
 
 // Calculate an imaginary header of the genesis block (for Timestamp() and Bits() functions from chain_tree.go)
 func (ch *Chain) RebuildGenesisHeader() {
-	binary.LittleEndian.PutUint32(ch.BlockTreeRoot.BlockHeader[0:4], 1) // Version
+	binary.LittleEndian.PutUint32(ch.BchBlockTreeRoot.BchBlockHeader[0:4], 1) // Version
 	// [4:36] - prev_block
 	// [36:68] - merkle_root
-	binary.LittleEndian.PutUint32(ch.BlockTreeRoot.BlockHeader[68:72], ch.Consensus.GensisTimestamp) // Timestamp
-	binary.LittleEndian.PutUint32(ch.BlockTreeRoot.BlockHeader[72:76], ch.Consensus.MaxPOWBits)      // Bits
+	binary.LittleEndian.PutUint32(ch.BchBlockTreeRoot.BchBlockHeader[68:72], ch.Consensus.GensisTimestamp) // Timestamp
+	binary.LittleEndian.PutUint32(ch.BchBlockTreeRoot.BchBlockHeader[72:76], ch.Consensus.MaxPOWBits)      // Bits
 	// [76:80] - nonce
 }
 
 // Call this function periodically (i.e. each second)
 // when your client is idle, to defragment databases.
 func (ch *Chain) Idle() bool {
-	ch.Blocks.Idle()
+	ch.BchBlocks.Idle()
 	return ch.Unspent.Idle()
 }
 
 // Return blockchain stats in one string.
 func (ch *Chain) Stats() (s string) {
 	last := ch.LastBlock()
-	ch.BlockIndexAccess.Lock()
+	ch.BchBlockIndexAccess.Lock()
 	s = fmt.Sprintf("CHAIN: blocks:%d  Height:%d  MedianTime:%d\n",
-		len(ch.BlockIndex), last.Height, last.GetMedianTimePast())
-	ch.BlockIndexAccess.Unlock()
-	s += ch.Blocks.GetStats()
+		len(ch.BchBlockIndex), last.Height, last.GetMedianTimePast())
+	ch.BchBlockIndexAccess.Unlock()
+	s += ch.BchBlocks.GetStats()
 	s += ch.Unspent.GetStats()
 	return
 }
 
 // Close the databases.
 func (ch *Chain) Close() {
-	ch.Blocks.Close()
+	ch.BchBlocks.Close()
 	ch.Unspent.Close()
 }
 
@@ -166,18 +166,18 @@ func (ch *Chain) testnet() bool {
 // For SegWit2X
 func (ch *Chain) MaxBlockWeight(height uint32) uint {
 	if ch.Consensus.S2XHeight != 0 && height >= ch.Consensus.S2XHeight {
-		return 2 * btc.MAX_BLOCK_WEIGHT
+		return 2 * bch.MAX_BLOCK_WEIGHT
 	} else {
-		return btc.MAX_BLOCK_WEIGHT
+		return bch.MAX_BLOCK_WEIGHT
 	}
 }
 
 // For SegWit2X
 func (ch *Chain) MaxBlockSigopsCost(height uint32) uint32 {
 	if ch.Consensus.S2XHeight != 0 && height >= ch.Consensus.S2XHeight {
-		return 2 * btc.MAX_BLOCK_SIGOPS_COST
+		return 2 * bch.MAX_BLOCK_SIGOPS_COST
 	} else {
-		return btc.MAX_BLOCK_SIGOPS_COST
+		return bch.MAX_BLOCK_SIGOPS_COST
 	}
 }
 

@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/counterpartyxcpc/gocoin-cash"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
@@ -116,7 +116,7 @@ func curr_unit() string {
 	}
 }
 
-func load_wallet(fn string) (addrs []*btc.BtcAddr) {
+func load_wallet(fn string) (addrs []*bch.BtcAddr) {
 	f, e := os.Open(fn)
 	if e != nil {
 		println(e.Error())
@@ -136,7 +136,7 @@ func load_wallet(fn string) (addrs []*btc.BtcAddr) {
 			} else if l[0] != '#' {
 				ls := strings.SplitN(l, " ", 2)
 				if len(ls) > 0 {
-					a, e := btc.NewAddrFromString(ls[0])
+					a, e := bch.NewAddrFromString(ls[0])
 					if e != nil {
 						println(fmt.Sprint(fn, ":", linenr), e.Error())
 					} else {
@@ -168,7 +168,7 @@ func main() {
 		fmt.Println("WARNING: not using Tor (setup TOR variable, if you want)")
 	}
 
-	var addrs []*btc.BtcAddr
+	var addrs []*bch.BtcAddr
 
 	var argz []string
 	for i := 1; i < len(os.Args); i++ {
@@ -193,7 +193,7 @@ func main() {
 
 	if len(addrs) == 0 {
 		for i := range argz {
-			a, e := btc.NewAddrFromString(argz[i])
+			a, e := bch.NewAddrFromString(argz[i])
 			if e != nil {
 				println(argz[i], ": ", e.Error())
 				return
@@ -243,7 +243,7 @@ func main() {
 		}
 		for _, r := range res {
 			var txraw []byte
-			id := btc.NewUint256(r.TxPrevOut.Hash[:])
+			id := bch.NewUint256(r.TxPrevOut.Hash[:])
 			if ltc_mode {
 				txraw = ltc.GetTxFromWeb(id)
 			} else if tbtc {

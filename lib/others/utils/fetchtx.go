@@ -7,11 +7,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 // Download (and re-assemble) raw transaction from blockexplorer.com
-func GetTxFromExplorer(txid *btc.Uint256, testnet bool) (rawtx []byte) {
+func GetTxFromExplorer(txid *bch.Uint256, testnet bool) (rawtx []byte) {
 	var url string
 	if testnet {
 		url = "http://testnet.blockexplorer.com/api/rawtx/" + txid.String()
@@ -40,26 +40,26 @@ func GetTxFromExplorer(txid *btc.Uint256, testnet bool) (rawtx []byte) {
 	return
 }
 
-// Download raw transaction from webbtc.com
-func GetTxFromWebBTC(txid *btc.Uint256) (raw []byte) {
-	url := "https://webbtc.com/tx/" + txid.String() + ".bin"
+// Download raw transaction from webbch.com
+func GetTxFromWebBTC(txid *bch.Uint256) (raw []byte) {
+	url := "https://webbch.com/tx/" + txid.String() + ".bin"
 	r, er := http.Get(url)
 	if er == nil {
 		if r.StatusCode == 200 {
 			raw, _ = ioutil.ReadAll(r.Body)
 			r.Body.Close()
 		} else {
-			fmt.Println("webbtc.com StatusCode=", r.StatusCode)
+			fmt.Println("webbch.com StatusCode=", r.StatusCode)
 		}
 	}
 	if er != nil {
-		fmt.Println("webbtc.com:", er.Error())
+		fmt.Println("webbch.com:", er.Error())
 	}
 	return
 }
 
 // Download (and re-assemble) raw transaction from blockexplorer.com
-func GetTxFromBlockchainInfo(txid *btc.Uint256) (rawtx []byte) {
+func GetTxFromBlockchainInfo(txid *bch.Uint256) (rawtx []byte) {
 	url := "https://blockchain.info/tx/" + txid.String() + "?format=hex"
 	r, er := http.Get(url)
 	if er == nil {
@@ -78,7 +78,7 @@ func GetTxFromBlockchainInfo(txid *btc.Uint256) (rawtx []byte) {
 }
 
 // Download (and re-assemble) raw transaction from blockcypher.com
-func GetTxFromBlockcypher(txid *btc.Uint256, currency string) (rawtx []byte) {
+func GetTxFromBlockcypher(txid *bch.Uint256, currency string) (rawtx []byte) {
 	var url string
 	url = "https://api.blockcypher.com/v1/" + currency + "/main/txs/" + txid.String() + "?limit=1000&instart=1000&outstart=1000&includeHex=true"
 	r, er := http.Get(url)
@@ -103,8 +103,8 @@ func GetTxFromBlockcypher(txid *btc.Uint256, currency string) (rawtx []byte) {
 	return
 }
 
-func verify_txid(txid *btc.Uint256, rawtx []byte) bool {
-	tx, _ := btc.NewTx(rawtx)
+func verify_txid(txid *bch.Uint256, rawtx []byte) bool {
+	tx, _ := bch.NewTx(rawtx)
 	if tx == nil {
 		return false
 	}
@@ -113,7 +113,7 @@ func verify_txid(txid *btc.Uint256, rawtx []byte) bool {
 }
 
 // Download raw transaction from a web server (try one after another)
-func GetTxFromWeb(txid *btc.Uint256) (raw []byte) {
+func GetTxFromWeb(txid *bch.Uint256) (raw []byte) {
 	raw = GetTxFromExplorer(txid, false)
 	if raw != nil && verify_txid(txid, raw) {
 		//println("GetTxFromExplorer - OK")
@@ -142,7 +142,7 @@ func GetTxFromWeb(txid *btc.Uint256) (raw []byte) {
 }
 
 // Download testnet's raw transaction from a web server
-func GetTestnetTxFromWeb(txid *btc.Uint256) (raw []byte) {
+func GetTestnetTxFromWeb(txid *bch.Uint256) (raw []byte) {
 	raw = GetTxFromExplorer(txid, true)
 	if raw != nil && verify_txid(txid, raw) {
 		//println("GetTxFromExplorer - OK")

@@ -18,7 +18,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
@@ -132,35 +132,35 @@ func show_info(par string) {
 	network.MutexRcv.Lock()
 	discarded := len(network.DiscardedBlocks)
 	cached := network.CachedBlocksLen.Get()
-	b2g_len := len(network.BlocksToGet)
+	b2g_len := len(network.BchBlocksToGet)
 	b2g_idx_len := len(network.IndexToBlocksToGet)
 	network.MutexRcv.Unlock()
 
 	fmt.Printf("Gocoin: %s,  Synced: %t (%d),  Uptime %s,  Peers: %d,  ECDSAs: %d\n",
-		gocoin.Version, common.GetBool(&common.BlockChainSynchronized), network.HeadersReceived.Get(),
-		time.Now().Sub(common.StartTime).String(), btc.EcdsaVerifyCnt(), peersdb.PeerDB.Count())
+		gocoin.Version, common.GetBool(&common.BchBlockChainSynchronized), network.HeadersReceived.Get(),
+		time.Now().Sub(common.StartTime).String(), bch.EcdsaVerifyCnt(), peersdb.PeerDB.Count())
 
 	// Memory used
 	al, sy := sys.MemUsed()
 	fmt.Printf("Heap_used: %d MB,  System_used: %d MB,  UTXO-X-mem: %d MB in %d recs,  Saving: %t\n", al>>20, sy>>20,
-		utxo.ExtraMemoryConsumed()>>20, utxo.ExtraMemoryAllocCnt(), common.BlockChain.Unspent.WritingInProgress.Get())
+		utxo.ExtraMemoryConsumed()>>20, utxo.ExtraMemoryAllocCnt(), common.BchBlockChain.Unspent.WritingInProgress.Get())
 
 	network.MutexRcv.Lock()
-	fmt.Println("Last Header:", network.LastCommitedHeader.BlockHash.String(), "@", network.LastCommitedHeader.Height)
+	fmt.Println("Last Header:", network.LastCommitedHeader.BchBlockHash.String(), "@", network.LastCommitedHeader.Height)
 	network.MutexRcv.Unlock()
 
 	common.Last.Mutex.Lock()
-	fmt.Println("Last Block :", common.Last.Block.BlockHash.String(), "@", common.Last.Block.Height)
+	fmt.Println("Last Block :", common.Last.BchBlock.BchBlockHash.String(), "@", common.Last.BchBlock.Height)
 	fmt.Printf(" Time: %s (~%s),  Diff: %.0f,  Rcvd: %s ago\n",
-		time.Unix(int64(common.Last.Block.Timestamp()), 0).Format("2006/01/02 15:04:05"),
-		time.Unix(int64(common.Last.Block.GetMedianTimePast()), 0).Format("15:04:05"),
-		btc.GetDifficulty(common.Last.Block.Bits()), time.Now().Sub(common.Last.Time).String())
+		time.Unix(int64(common.Last.BchBlock.Timestamp()), 0).Format("2006/01/02 15:04:05"),
+		time.Unix(int64(common.Last.BchBlock.GetMedianTimePast()), 0).Format("15:04:05"),
+		bch.GetDifficulty(common.Last.BchBlock.Bits()), time.Now().Sub(common.Last.Time).String())
 	common.Last.Mutex.Unlock()
 
 	network.Mutex_net.Lock()
 	fmt.Printf("Blocks Queued: %d,  Cached: %d,  Discarded: %d,  To Get: %d/%d,  UTXO.db on disk: %d\n",
 		len(network.NetBlocks), cached, discarded, b2g_len, b2g_idx_len,
-		atomic.LoadUint32(&common.BlockChain.Unspent.CurrentHeightOnDisk))
+		atomic.LoadUint32(&common.BchBlockChain.Unspent.CurrentHeightOnDisk))
 	network.Mutex_net.Unlock()
 
 	network.TxMutex.Lock()
@@ -181,11 +181,11 @@ func show_info(par string) {
 
 	var gs debug.GCStats
 	debug.ReadGCStats(&gs)
-	usif.BlockFeesMutex.Lock()
+	usif.BchBlockFeesMutex.Lock()
 	fmt.Println("Go version:", runtime.Version(), "  LastGC:", time.Now().Sub(gs.LastGC).String(),
 		"  NumGC:", gs.NumGC,
 		"  PauseTotal:", gs.PauseTotal.String())
-	usif.BlockFeesMutex.Unlock()
+	usif.BchBlockFeesMutex.Unlock()
 }
 
 func show_counters(par string) {
@@ -219,8 +219,8 @@ func show_counters(par string) {
 
 func show_pending(par string) {
 	network.MutexRcv.Lock()
-	for _, v := range network.BlocksToGet {
-		fmt.Printf(" * %d / %s / %d in progress\n", v.Block.Height, v.Block.Hash.String(), v.InProgress)
+	for _, v := range network.BchBlocksToGet {
+		fmt.Printf(" * %d / %s / %d in progress\n", v.BchBlock.Height, v.BchBlock.Hash.String(), v.InProgress)
 	}
 	network.MutexRcv.Unlock()
 }
@@ -271,12 +271,12 @@ func show_mem(p string) {
 }
 
 func dump_block(s string) {
-	h := btc.NewUint256FromString(s)
+	h := bch.NewUint256FromString(s)
 	if h == nil {
 		println("Specify block's hash")
 		return
 	}
-	crec, _, er := common.BlockChain.Blocks.BlockGetExt(btc.NewUint256(h.Hash[:]))
+	crec, _, er := common.BchBlockChain.BchBlocks.BchBlockGetExt(bch.NewUint256(h.Hash[:]))
 	if er != nil {
 		println("BlockGetExt:", er.Error())
 		return
@@ -285,15 +285,15 @@ func dump_block(s string) {
 	ioutil.WriteFile(h.String()+".bin", crec.Data, 0700)
 	fmt.Println("Block saved")
 
-	if crec.Block == nil {
-		crec.Block, _ = bch.NewBchBlock(crec.Data)
+	if crec.BchBlock == nil {
+		crec.BchBlock, _ = bch.NewBchBlock(crec.Data)
 	}
 	/*
-		if crec.Block.NoWitnessData == nil {
-			crec.Block.BuildNoWitnessData()
+		if crec.BchBlock.NoWitnessData == nil {
+			crec.BchBlock.BuildNoWitnessData()
 		}
-		if !bytes.Equal(crec.Data, crec.Block.NoWitnessData) {
-			ioutil.WriteFile(h.String()+".old", crec.Block.NoWitnessData, 0700)
+		if !bytes.Equal(crec.Data, crec.BchBlock.NoWitnessData) {
+			ioutil.WriteFile(h.String()+".old", crec.BchBlock.NoWitnessData, 0700)
 			fmt.Println("Old block saved")
 		}
 	*/
@@ -305,11 +305,11 @@ func ui_quit(par string) {
 }
 
 func blchain_stats(par string) {
-	fmt.Println(common.BlockChain.Stats())
+	fmt.Println(common.BchBlockChain.Stats())
 }
 
 func blchain_utxodb(par string) {
-	fmt.Println(common.BlockChain.Unspent.UTXOStats())
+	fmt.Println(common.BchBlockChain.Unspent.UTXOStats())
 }
 
 func set_ulmax(par string) {
@@ -466,14 +466,14 @@ func unban_peer(par string) {
 func show_cached(par string) {
 	var hi, lo uint32
 	for _, v := range network.CachedBlocks {
-		//fmt.Printf(" * %s -> %s\n", v.Hash.String(), btc.NewUint256(v.ParentHash()).String())
+		//fmt.Printf(" * %s -> %s\n", v.Hash.String(), bch.NewUint256(v.ParentHash()).String())
 		if hi == 0 {
-			hi = v.Block.Height
-			lo = v.Block.Height
-		} else if v.Block.Height > hi {
-			hi = v.Block.Height
-		} else if v.Block.Height < lo {
-			lo = v.Block.Height
+			hi = v.BchBlock.Height
+			lo = v.BchBlock.Height
+		} else if v.BchBlock.Height > hi {
+			hi = v.BchBlock.Height
+		} else if v.BchBlock.Height < lo {
+			lo = v.BchBlock.Height
 		}
 	}
 	fmt.Println(len(network.CachedBlocks), "block cached with heights", lo, "to", hi, hi-lo)
@@ -485,7 +485,7 @@ func send_inv(par string) {
 		println("Specify hash and type")
 		return
 	}
-	ha := btc.NewUint256FromString(cs[1])
+	ha := bch.NewUint256FromString(cs[1])
 	if ha == nil {
 		println("Incorrect hash")
 		return
@@ -501,14 +501,14 @@ func send_inv(par string) {
 
 func analyze_bip9(par string) {
 	all := par == "all"
-	n := common.BlockChain.BlockTreeRoot
+	n := common.BchBlockChain.BchBlockTreeRoot
 	for n != nil {
 		var i uint
 		start_block := uint(n.Height)
 		start_time := n.Timestamp()
 		bits := make(map[byte]uint32)
 		for i = 0; i < 2016 && n != nil; i++ {
-			ver := n.BlockVersion()
+			ver := n.BchBlockVersion()
 			if (ver & 0x20000000) != 0 {
 				for bit := byte(0); bit <= 28; bit++ {
 					if (ver & (1 << bit)) != 0 {
@@ -516,12 +516,12 @@ func analyze_bip9(par string) {
 					}
 				}
 			}
-			n = n.FindPathTo(common.BlockChain.LastBlock())
+			n = n.FindPathTo(common.BchBlockChain.LastBlock())
 		}
 		if len(bits) > 0 {
 			var s string
 			for k, v := range bits {
-				if all || v >= common.BlockChain.Consensus.BIP9_Treshold {
+				if all || v >= common.BchBlockChain.Consensus.BIP9_Treshold {
 					if s != "" {
 						s += " | "
 					}
@@ -546,12 +546,12 @@ func switch_trust(par string) {
 }
 
 func save_utxo(par string) {
-	common.BlockChain.Unspent.HurryUp()
-	common.BlockChain.Unspent.Save()
+	common.BchBlockChain.Unspent.HurryUp()
+	common.BchBlockChain.Unspent.Save()
 }
 
 func purge_utxo(par string) {
-	common.BlockChain.Unspent.PurgeUnspendable(par == "all")
+	common.BchBlockChain.Unspent.PurgeUnspendable(par == "all")
 }
 
 func init() {

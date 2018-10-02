@@ -51,14 +51,14 @@ func LoadBalance() {
 
 	InitMaps(false)
 
-	common.BlockChain.Unspent.RWMutex.RLock()
-	defer common.BlockChain.Unspent.RWMutex.RUnlock()
+	common.BchBlockChain.Unspent.RWMutex.RLock()
+	defer common.BchBlockChain.Unspent.RWMutex.RUnlock()
 
-	cnt_dwn_from := (len(common.BlockChain.Unspent.HashMap) + 999) / 1000
+	cnt_dwn_from := (len(common.BchBlockChain.Unspent.HashMap) + 999) / 1000
 	cnt_dwn := cnt_dwn_from
 	perc := uint32(1)
 
-	for k, v := range common.BlockChain.Unspent.HashMap {
+	for k, v := range common.BchBlockChain.Unspent.HashMap {
 		NewUTXO(utxo.NewUtxoRecStatic(k, v))
 		if cnt_dwn == 0 {
 			perc++
@@ -75,8 +75,8 @@ func LoadBalance() {
 	if aborted {
 		InitMaps(true)
 	} else {
-		common.BlockChain.Unspent.CB.NotifyTxAdd = TxNotifyAdd
-		common.BlockChain.Unspent.CB.NotifyTxDel = TxNotifyDel
+		common.BchBlockChain.Unspent.CB.NotifyTxAdd = TxNotifyAdd
+		common.BchBlockChain.Unspent.CB.NotifyTxDel = TxNotifyDel
 		common.SetBool(&common.WalletON, true)
 	}
 	common.SetUint32(&common.WalletProgress, 0)
@@ -88,8 +88,8 @@ func Disable() {
 		return
 	}
 	UpdateMapSizes()
-	common.BlockChain.Unspent.CB.NotifyTxAdd = nil
-	common.BlockChain.Unspent.CB.NotifyTxDel = nil
+	common.BchBlockChain.Unspent.CB.NotifyTxAdd = nil
+	common.BchBlockChain.Unspent.CB.NotifyTxDel = nil
 	common.SetBool(&common.WalletON, false)
 	InitMaps(true)
 }

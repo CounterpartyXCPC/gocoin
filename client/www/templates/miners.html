@@ -60,7 +60,7 @@ function refresh_mining_info() {
 			var cs = JSON.parse(aj.responseText)
 			el_min_hrs.innerText = cs.MiningStatHours
 			el_first_block_time.innerText = tim2str(cs.FirstBlockTime, false)
-			el_block_cnt.innerText = cs.BlockCount
+			el_block_cnt.innerText = cs.BchBlockCount
 			el_blocks_per_hour.innerText = parseFloat(cs.AvgBlocksPerHour).toFixed(2)
 			el_avg_hashrate.innerText = bignum(cs.AvgHashrate)+'H/s'
 			el_avg_diff.innerText = bignum(cs.AvgDifficulty)
@@ -79,21 +79,21 @@ function refresh_mining_info() {
 
 				td = row.insertCell(-1)
 				td.className = 'mi_netshare'
-				var frac = parseFloat(m.Blocks/cs.BlockCount)
+				var frac = parseFloat(m.BchBlocks/cs.BchBlockCount)
 				td.innerText = parseFloat(100.0*frac).toFixed(1) + '%'
 
 				td = row.insertCell(-1)
 				td.className = 'mi_tot'
-				td.innerText = m.Blocks
+				td.innerText = m.BchBlocks
 
 				td = row.insertCell(-1)
 				td.className = 'mi_hashrate'
-				var frac = parseFloat(m.Blocks/cs.BlockCount)
+				var frac = parseFloat(m.BchBlocks/cs.BchBlockCount)
 				td.innerText = bignum(frac*cs.AvgHashrate)+'H/s'
 
 				td = row.insertCell(-1)
 				td.className = 'mi_bsize'
-				td.innerText = parseFloat(m.TotalBytes/m.Blocks).toFixed(0)
+				td.innerText = parseFloat(m.TotalBytes/m.BchBlocks).toFixed(0)
 
 				td = row.insertCell(-1)
 				td.className = 'blreward'
@@ -107,10 +107,10 @@ function refresh_mining_info() {
 				totbts += m.TotalBytes
 			}
 
-			el_avg_block_size.innerText = parseFloat(totbts/cs.BlockCount).toFixed(0)
+			el_avg_block_size.innerText = parseFloat(totbts/cs.BchBlockCount).toFixed(0)
 			el_total_fees.innerText = (totfees/1e8).toFixed(2)
 			el_avg_fpbyte.innerText = parseFloat(totfees/totbts).toFixed(0)
-			el_avg_fpblock.innerText = (totfees/cs.BlockCount/1e8).toFixed(3)
+			el_avg_fpblock.innerText = (totfees/cs.BchBlockCount/1e8).toFixed(3)
 
 			loading_icon.style.display = 'none'
 			mining_info_div.style.display = 'block'

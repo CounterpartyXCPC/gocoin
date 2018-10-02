@@ -67,7 +67,7 @@ import (
 	"sync"
 	"time"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/golang/snappy"
 )
 
@@ -148,7 +148,7 @@ type oneBl struct {
 // BlockCachRec is for the cache 'mempool'
 type blockdataBlockCachRec struct {
 	Data []byte
-	*btc.Block
+	*bch.BchBlock
 
 	// This is for BIP152
 	BIP152 []byte // 8 bytes of nonce || 8 bytes of K0 LSB || 8 bytes of K1 LSB
@@ -159,7 +159,7 @@ type blockdataBlockCachRec struct {
 // BlckCachRec is the cached 'mempool'
 type BlckCachRec struct {
 	Data []byte
-	*btc.Block
+	*bch.BchBlock
 
 	// This is for BIP152
 	BIP152 []byte // 8 bytes of nonce || 8 bytes of K0 LSB || 8 bytes of K1 LSB
@@ -174,7 +174,7 @@ type BlockDBOpts struct {
 }
 
 type oneB2W struct {
-	idx     [btc.Uint256IdxLen]byte
+	idx     [bch.Uint256IdxLen]byte
 	h       [32]byte
 	data    []byte
 	height  uint32
@@ -183,12 +183,12 @@ type oneB2W struct {
 
 type BlockDB struct {
 	dirname            string
-	blockIndex         map[[btc.Uint256IdxLen]byte]*oneBl
+	blockIndex         map[[bch.Uint256IdxLen]byte]*oneBl
 	blockdata          *os.File
 	blockindx          *os.File
 	mutex, disk_access sync.Mutex
 	max_cached_blocks  int
-	cache              map[[btc.Uint256IdxLen]byte]*BlckCachRec
+	cache              map[[bch.Uint256IdxLen]byte]*BlckCachRec
 
 	maxidxfilepos, maxdatfilepos int64
 	maxdatfileidx                uint32
@@ -206,7 +206,7 @@ func NewBlockDBExt(dir string, opts *BlockDBOpts) (db *BlockDB) {
 	if db.dirname != "" && db.dirname[len(db.dirname)-1] != '/' && db.dirname[len(db.dirname)-1] != '\\' {
 		db.dirname += "/"
 	}
-	db.blockIndex = make(map[[btc.Uint256IdxLen]byte]*oneBl)
+	db.blockIndex = make(map[[bch.Uint256IdxLen]byte]*oneBl)
 	os.MkdirAll(db.dirname, 0770)
 
 	db.blockindx, _ = os.OpenFile(db.dirname+"blockchain.new", os.O_RDWR|os.O_CREATE, 0660)
@@ -215,7 +215,7 @@ func NewBlockDBExt(dir string, opts *BlockDBOpts) (db *BlockDB) {
 	}
 	if opts.MaxCachedBlocks > 0 {
 		db.max_cached_blocks = opts.MaxCachedBlocks
-		db.cache = make(map[[btc.Uint256IdxLen]byte]*BlckCachRec, db.max_cached_blocks)
+		db.cache = make(map[[bch.Uint256IdxLen]byte]*BlckCachRec, db.max_cached_blocks)
 	}
 	db.max_data_file_size = opts.MaxDataFileSize
 	db.data_files_keep = opts.DataFilesKeep
@@ -229,7 +229,7 @@ func NewBlockDB(dir string) (db *BlockDB) {
 }
 
 // Make sure to call with the mutex locked
-func (db *BlockDB) addToCache(h *btc.Uint256, bl []byte, str *btc.Block) (crec *BlckCachRec) {
+func (db *BlockDB) addToCache(h *bch.Uint256, bl []byte, str *bch.BchBlock) (crec *BlckCachRec) {
 	if db.cache == nil {
 		return
 	}
@@ -237,14 +237,14 @@ func (db *BlockDB) addToCache(h *btc.Uint256, bl []byte, str *btc.Block) (crec *
 	if crec != nil {
 		crec.Data = bl
 		if str != nil {
-			crec.Block = str
+			crec.BchBlock = str
 		}
 		crec.LastUsed = time.Now()
 		return
 	}
 	for len(db.cache) >= db.max_cached_blocks {
 		var oldest_t time.Time
-		var oldest_k [btc.Uint256IdxLen]byte
+		var oldest_k [bch.Uint256IdxLen]byte
 		for k, v := range db.cache {
 			if oldest_t.IsZero() || v.LastUsed.Before(oldest_t) {
 				if rec := db.blockIndex[k]; rec.ipos != -1 {
@@ -273,14 +273,14 @@ func (db *BlockDB) GetStats() (s string) {
 	return
 }
 
-func hash2idx(h []byte) (idx [btc.Uint256IdxLen]byte) {
-	copy(idx[:], h[:btc.Uint256IdxLen])
+func hash2idx(h []byte) (idx [bch.Uint256IdxLen]byte) {
+	copy(idx[:], h[:bch.Uint256IdxLen])
 	return
 }
 
 // @todo >> Insert BCH chain data here.
 
-func (db *BlockDB) BlockAdd(height uint32, bl *btc.Block) (e error) {
+func (db *BlockDB) BlockAdd(height uint32, bl *bch.BchBlock) (e error) {
 	var trust_it bool
 	var flush bool
 
@@ -308,7 +308,7 @@ func (db *BlockDB) BlockAdd(height uint32, bl *btc.Block) (e error) {
 
 	if trust_it {
 		//println(" ... in the slow mode")
-		db.BlockTrusted(bl.Hash.Hash[:])
+		db.BchBlockTrusted(bl.Hash.Hash[:])
 	}
 
 	if flush {
@@ -417,12 +417,12 @@ func (db *BlockDB) writeOne() (written bool) {
 }
 
 func (db *BlockDB) BlockInvalid(hash []byte) {
-	idx := btc.NewUint256(hash).BIdx()
+	idx := bch.NewUint256(hash).BIdx()
 	db.mutex.Lock()
 	cur, ok := db.blockIndex[idx]
 	if !ok {
 		db.mutex.Unlock()
-		println("BlockInvalid: no such block", btc.NewUint256(hash).String())
+		println("BlockInvalid: no such block", bch.NewUint256(hash).String())
 		return
 	}
 	if cur.trusted {
@@ -430,7 +430,7 @@ func (db *BlockDB) BlockInvalid(hash []byte) {
 		println("To rebuild it, remove folder: " + db.dirname + "unspent4")
 		panic("Trusted block cannot be invalid")
 	}
-	//println("mark", btc.NewUint256(hash).String(), "as invalid")
+	//println("mark", bch.NewUint256(hash).String(), "as invalid")
 	if cur.ipos == -1 {
 		// if not written yet, then never write it
 		delete(db.cache, idx)
@@ -443,7 +443,7 @@ func (db *BlockDB) BlockInvalid(hash []byte) {
 }
 
 func (db *BlockDB) BlockTrusted(hash []byte) {
-	idx := btc.NewUint256(hash).BIdx()
+	idx := bch.NewUint256(hash).BIdx()
 	db.mutex.Lock()
 	cur, ok := db.blockIndex[idx]
 	if !ok {
@@ -452,7 +452,7 @@ func (db *BlockDB) BlockTrusted(hash []byte) {
 		return
 	}
 	if !cur.trusted {
-		//fmt.Println("mark", btc.NewUint256(hash).String(), "as trusted")
+		//fmt.Println("mark", bch.NewUint256(hash).String(), "as trusted")
 		db.setBlockFlag(cur, BlockTRUSTED)
 	}
 	db.mutex.Unlock()
@@ -484,7 +484,7 @@ func (db *BlockDB) Close() {
 	db.blockindx.Close()
 }
 
-func (db *BlockDB) BlockGetInternal(hash *btc.Uint256, do_not_cache bool) (cacherec *BlckCachRec, trusted bool, e error) {
+func (db *BlockDB) BlockGetInternal(hash *bch.Uint256, do_not_cache bool) (cacherec *BlckCachRec, trusted bool, e error) {
 	db.mutex.Lock()
 	rec, ok := db.blockIndex[hash.BIdx()]
 	if !ok {
@@ -536,7 +536,7 @@ func (db *BlockDB) BlockGetInternal(hash *btc.Uint256, do_not_cache bool) (cache
 		return
 	}
 
-	e = btc.ReadAll(f, bl)
+	e = bch.ReadAll(f, bl)
 	f.Close()
 	db.disk_access.Unlock()
 
@@ -572,20 +572,20 @@ func (db *BlockDB) BlockGetInternal(hash *btc.Uint256, do_not_cache bool) (cache
 	return
 }
 
-func (db *BlockDB) BlockGetExt(hash *btc.Uint256) (cacherec *BlckCachRec, trusted bool, e error) {
-	return db.BlockGetInternal(hash, false)
+func (db *BlockDB) BlockGetExt(hash *bch.Uint256) (cacherec *BlckCachRec, trusted bool, e error) {
+	return db.BchBlockGetInternal(hash, false)
 }
 
-func (db *BlockDB) BlockGet(hash *btc.Uint256) (bl []byte, trusted bool, e error) {
+func (db *BlockDB) BlockGet(hash *bch.Uint256) (bl []byte, trusted bool, e error) {
 	var rec *BlckCachRec
-	rec, trusted, e = db.BlockGetInternal(hash, false)
+	rec, trusted, e = db.BchBlockGetInternal(hash, false)
 	if rec != nil {
 		bl = rec.Data
 	}
 	return
 }
 
-func (db *BlockDB) BlockLength(hash *btc.Uint256, decode_if_needed bool) (length uint32, e error) {
+func (db *BlockDB) BlockLength(hash *bch.Uint256, decode_if_needed bool) (length uint32, e error) {
 	db.mutex.Lock()
 	rec, ok := db.blockIndex[hash.BIdx()]
 
@@ -606,7 +606,7 @@ func (db *BlockDB) BlockLength(hash *btc.Uint256, decode_if_needed bool) (length
 		return
 	}
 
-	_, _, e = db.BlockGet(hash)
+	_, _, e = db.BchBlockGet(hash)
 	if e == nil {
 		length = rec.olen
 	}
@@ -632,12 +632,12 @@ func (db *BlockDB) LoadBlockIndex(ch *Chain, walk func(ch *Chain, hash, hdr []by
 	db.maxidxfilepos = 0
 	rd := bufio.NewReader(db.blockindx)
 	for !AbortNow {
-		if e := btc.ReadAll(rd, b[:]); e != nil {
+		if e := bch.ReadAll(rd, b[:]); e != nil {
 			break
 		}
 
 		bh = binary.LittleEndian.Uint32(b[36:40])
-		BlockHash := btc.NewSha2Hash(b[56:136])
+		BlockHash := bch.NewSha2Hash(b[56:136])
 
 		if (b[0] & BlockINVALID) != 0 {
 			// just ignore it

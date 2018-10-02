@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
@@ -28,7 +28,7 @@ var (
 	Log       *log.Logger = log.New(LogBuffer, "", 0)
 
 	BlockChain   *bch_chain.Chain
-	GenesisBlock *btc.Uint256
+	GenesisBlock *bch.Uint256
 	Magic        [4]byte
 	Testnet      bool
 
@@ -71,19 +71,19 @@ var (
 
 	BlockChainSynchronized bool
 
-	lastTrustedBlock       *btc.Uint256
+	lastTrustedBlock       *bch.Uint256
 	LastTrustedBlockHeight uint32
 )
 
 type TheLastBlock struct {
 	sync.Mutex // use it for writing and reading from non-chain thread
-	Block      *bch_chain.BlockTreeNode
+	BchBlock   *bch_chain.BchBlockTreeNode
 	time.Time
 }
 
 func (b *TheLastBlock) BchBlockHeight() (res uint32) {
 	b.Mutex.Lock()
-	res = b.Block.Height
+	res = b.BchBlock.Height
 	b.Mutex.Unlock()
 	return
 }
@@ -157,7 +157,7 @@ func RecalcAverageBlockSize() {
 	n := BlockChain.LastBlock()
 	var sum, cnt uint
 	for maxcnt := CFG.Stat.BSizeBlks; maxcnt > 0 && n != nil; maxcnt-- {
-		sum += uint(n.BlockSize)
+		sum += uint(n.BchBlockSize)
 		cnt++
 		n = n.Parent
 	}
@@ -168,7 +168,7 @@ func RecalcAverageBlockSize() {
 	}
 }
 
-func GetRawTx(BchBlockHeight uint32, txid *btc.Uint256) (data []byte, er error) {
+func GetRawTx(BchBlockHeight uint32, txid *bch.Uint256) (data []byte, er error) {
 	data, er = BlockChain.GetRawTx(BchBlockHeight, txid)
 	if er != nil {
 		if Testnet {
@@ -197,14 +197,14 @@ func WalletPendingTick() (res bool) {
 
 // Make sure to call it with mutex_cfg locked
 func ApplyLastTrustedBlock() {
-	hash := btc.NewUint256FromString(CFG.LastTrustedBlock)
+	hash := bch.NewUint256FromString(CFG.LastTrustedBlock)
 	lastTrustedBlock = hash
 	LastTrustedBlockHeight = 0
 
 	if BlockChain != nil {
-		BlockChain.BlockIndexAccess.Lock()
-		node := BlockChain.BlockIndex[hash.BIdx()]
-		BlockChain.BlockIndexAccess.Unlock()
+		BlockChain.BchBlockIndexAccess.Lock()
+		node := BlockChain.BchBlockIndex[hash.BIdx()]
+		BlockChain.BchBlockIndexAccess.Unlock()
 		if node != nil {
 			LastTrustedBlockHeight = node.Height
 			for node != nil {
@@ -215,7 +215,7 @@ func ApplyLastTrustedBlock() {
 	}
 }
 
-func LastTrustedBlockMatch(h *btc.Uint256) (res bool) {
+func LastTrustedBlockMatch(h *bch.Uint256) (res bool) {
 	mutex_cfg.Lock()
 	res = lastTrustedBlock != nil && lastTrustedBlock.Equal(h)
 	mutex_cfg.Unlock()

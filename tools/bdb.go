@@ -11,7 +11,7 @@ import (
 	"os/signal"
 	"sync"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/golang/snappy"
 )
@@ -87,7 +87,7 @@ type one_idx_rec struct {
 
 func new_sl(sl []byte) (r one_idx_rec) {
 	r.sl = sl[:136]
-	btc.ShaHash(sl[56:136], r.hash[:])
+	bch.ShaHash(sl[56:136], r.hash[:])
 	return
 }
 
@@ -162,7 +162,7 @@ func print_record(sl []byte) {
 	if (sl[0] & 0x20) != 0 {
 		dat_idx = binary.LittleEndian.Uint32(sl[28:32])
 	}
-	bh := btc.NewSha2Hash(sl[56:136])
+	bh := bch.NewSha2Hash(sl[56:136])
 	fmt.Println("Block", bh.String())
 	fmt.Println(" ... Height", binary.LittleEndian.Uint32(sl[36:40]),
 		" Flags", fmt.Sprintf("0x%02x", sl[0]),
@@ -176,36 +176,36 @@ func print_record(sl []byte) {
 		fmt.Println("     Data file index:", dat_idx)
 	}
 	hdr := sl[56:136]
-	fmt.Println("   ->", btc.NewUint256(hdr[4:36]).String())
+	fmt.Println("   ->", bch.NewUint256(hdr[4:36]).String())
 }
 
 func verify_block(blk []byte, sl one_idx_rec, off int) {
 	bl, er := bch.NewBchBlock(blk)
 	if er != nil {
-		println("\nERROR verify_block", sl.Height(), btc.NewUint256(sl.Hash()).String(), er.Error())
+		println("\nERROR verify_block", sl.Height(), bch.NewUint256(sl.Hash()).String(), er.Error())
 		return
 	}
 	if !bytes.Equal(bl.Hash.Hash[:], sl.Hash()) {
-		println("\nERROR verify_block", sl.Height(), btc.NewUint256(sl.Hash()).String(), "Header invalid")
+		println("\nERROR verify_block", sl.Height(), bch.NewUint256(sl.Hash()).String(), "Header invalid")
 		return
 	}
 
 	er = bl.BuildTxList()
 	if er != nil {
-		println("\nERROR verify_block", sl.Height(), btc.NewUint256(sl.Hash()).String(), er.Error())
+		println("\nERROR verify_block", sl.Height(), bch.NewUint256(sl.Hash()).String(), er.Error())
 		return
 	}
 
 	merk, _ := bl.GetMerkle()
 	if !bytes.Equal(bl.MerkleRoot(), merk) {
-		println("\nERROR verify_block", sl.Height(), btc.NewUint256(sl.Hash()).String(), "Payload invalid / Merkle mismatch")
+		println("\nERROR verify_block", sl.Height(), bch.NewUint256(sl.Hash()).String(), "Payload invalid / Merkle mismatch")
 		return
 	}
 }
 
 func decomp_block(fl uint32, buf []byte) (blk []byte) {
-	if (fl & chain.BlockCOMPRSD) != 0 {
-		if (fl & chain.BlockSNAPPED) != 0 {
+	if (fl & bch_chain.BchBlockCOMPRSD) != 0 {
+		if (fl & bch_chain.BchBlockSNAPPED) != 0 {
 			blk, _ = snappy.Decode(nil, buf)
 		} else {
 			gz, _ := gzip.NewReader(bytes.NewReader(buf))
@@ -696,7 +696,7 @@ func main() {
 			} else {
 				blen := int(sl.DLen())
 				f.Seek(int64(sl.DPos()), os.SEEK_SET)
-				er = btc.ReadAll(f, buf[:blen])
+				er = bch.ReadAll(f, buf[:blen])
 				if er != nil {
 					println(er.Error())
 					return
@@ -985,7 +985,7 @@ func main() {
 	}
 
 	if fl_split != "" {
-		th := btc.NewUint256FromString(fl_split)
+		th := bch.NewUint256FromString(fl_split)
 		if th == nil {
 			println("incorrect block hash")
 			return
@@ -993,7 +993,7 @@ func main() {
 		for off := 0; off < len(dat); off += 136 {
 			sl := dat[off : off+136]
 			height := binary.LittleEndian.Uint32(sl[36:40])
-			bh := btc.NewSha2Hash(sl[56:136])
+			bh := bch.NewSha2Hash(sl[56:136])
 			if bh.Hash == th.Hash {
 				trunc_idx_offs := int64(off)
 				trunc_dat_offs := int64(binary.LittleEndian.Uint64(sl[40:48]))
@@ -1070,7 +1070,7 @@ func main() {
 	}
 
 	if fl_savebl != "" {
-		bh := btc.NewUint256FromString(fl_savebl)
+		bh := bch.NewUint256FromString(fl_savebl)
 		if bh == nil {
 			println("Incortrect block hash:", fl_savebl)
 			return

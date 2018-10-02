@@ -122,8 +122,8 @@ function refreshblock() {
 			if (blocks_left != last_blocks_left) {
 				chainsync_icon.title = blocks_left + " blocks left"
 			}
-			if (chain_in_sync != stat.BlockChainSynchronized) {
-				chain_in_sync = stat.BlockChainSynchronized
+			if (chain_in_sync != stat.BchBlockChainSynchronized) {
+				chain_in_sync = stat.BchBlockChainSynchronized
 				set_chain_in_sync()
 			}
 

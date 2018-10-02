@@ -8,13 +8,13 @@ import (
 	"net/http"
 	"strconv"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
 // https://api.blockchair.com/bitcoin/outputs?q=is_spent(0),recipient(bc1qdvpxmyvyu9urhadl6sk69gcjsfqsvrjsqfk5aq)
 
-func GetUnspentFromExplorer(addr *btc.BtcAddr, testnet bool) (res utxo.AllUnspentTx, er error) {
+func GetUnspentFromExplorer(addr *bch.BtcAddr, testnet bool) (res utxo.AllUnspentTx, er error) {
 	var r *http.Response
 	if testnet {
 		r, er = http.Get("https://testnet.blockexplorer.com/api/addr/" + addr.String() + "/utxo")
@@ -47,7 +47,7 @@ func GetUnspentFromExplorer(addr *btc.BtcAddr, testnet bool) (res utxo.AllUnspen
 
 	for _, r := range result {
 		ur := new(utxo.OneUnspentTx)
-		id := btc.NewUint256FromString(r.TxID)
+		id := bch.NewUint256FromString(r.TxID)
 		if id == nil {
 			er = errors.New(fmt.Sprint("Bad TXID:", r.TxID))
 			return
@@ -63,7 +63,7 @@ func GetUnspentFromExplorer(addr *btc.BtcAddr, testnet bool) (res utxo.AllUnspen
 	return
 }
 
-func GetUnspentFromBlockchainInfo(addr *btc.BtcAddr) (res utxo.AllUnspentTx, er error) {
+func GetUnspentFromBlockchainInfo(addr *bch.BtcAddr) (res utxo.AllUnspentTx, er error) {
 	var r *http.Response
 	r, er = http.Get("https://blockchain.info/unspent?active=" + addr.String())
 	if er != nil {
@@ -92,7 +92,7 @@ func GetUnspentFromBlockchainInfo(addr *btc.BtcAddr) (res utxo.AllUnspentTx, er 
 
 	for _, r := range result.U {
 		ur := new(utxo.OneUnspentTx)
-		id := btc.NewUint256FromString(r.TxID)
+		id := bch.NewUint256FromString(r.TxID)
 		if id == nil {
 			er = errors.New(fmt.Sprint("Bad TXID:", r.TxID))
 			return
@@ -108,7 +108,7 @@ func GetUnspentFromBlockchainInfo(addr *btc.BtcAddr) (res utxo.AllUnspentTx, er 
 	return
 }
 
-func GetUnspentFromBlockcypher(addr *btc.BtcAddr, currency string) (res utxo.AllUnspentTx, er error) {
+func GetUnspentFromBlockcypher(addr *bch.BtcAddr, currency string) (res utxo.AllUnspentTx, er error) {
 	var r *http.Response
 
 	r, er = http.Get("https://api.blockcypher.com/v1/" + currency + "/main/addrs/" + addr.String() + "?unspentOnly=true")
@@ -141,7 +141,7 @@ func GetUnspentFromBlockcypher(addr *btc.BtcAddr, currency string) (res utxo.All
 
 	for _, r := range result.Outs {
 		ur := new(utxo.OneUnspentTx)
-		id := btc.NewUint256FromString(r.TxID)
+		id := bch.NewUint256FromString(r.TxID)
 		if id == nil {
 			er = errors.New(fmt.Sprint("Bad TXID:", r.TxID))
 			return
@@ -158,7 +158,7 @@ func GetUnspentFromBlockcypher(addr *btc.BtcAddr, currency string) (res utxo.All
 }
 
 // currency is either "bitcoin" or "bitcoin-cash"
-func GetUnspentFromBlockchair(addr *btc.BtcAddr, currency string) (res utxo.AllUnspentTx, er error) {
+func GetUnspentFromBlockchair(addr *bch.BtcAddr, currency string) (res utxo.AllUnspentTx, er error) {
 	var r *http.Response
 
 	r, er = http.Get("https://api.blockchair.com/" + currency + "/outputs?q=is_spent(0),recipient(" + addr.String() + ")")
@@ -190,7 +190,7 @@ func GetUnspentFromBlockchair(addr *btc.BtcAddr, currency string) (res utxo.AllU
 
 	for _, r := range result.Outs {
 		ur := new(utxo.OneUnspentTx)
-		id := btc.NewUint256FromString(r.TxID)
+		id := bch.NewUint256FromString(r.TxID)
 		if id == nil {
 			er = errors.New(fmt.Sprint("Bad TXID:", r.TxID))
 			return
@@ -209,7 +209,7 @@ func GetUnspentFromBlockchair(addr *btc.BtcAddr, currency string) (res utxo.AllU
 	return
 }
 
-func GetUnspent(addr *btc.BtcAddr) (res utxo.AllUnspentTx) {
+func GetUnspent(addr *bch.BtcAddr) (res utxo.AllUnspentTx) {
 	var er error
 
 	res, er = GetUnspentFromBlockchair(addr, "bitcoin")
@@ -233,7 +233,7 @@ func GetUnspent(addr *btc.BtcAddr) (res utxo.AllUnspentTx) {
 	return
 }
 
-func GetUnspentTestnet(addr *btc.BtcAddr) (res utxo.AllUnspentTx) {
+func GetUnspentTestnet(addr *bch.BtcAddr) (res utxo.AllUnspentTx) {
 	var er error
 
 	res, er = GetUnspentFromExplorer(addr, true)

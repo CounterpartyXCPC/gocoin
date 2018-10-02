@@ -9,7 +9,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	//"github.com/counterpartyxcpc/gocoin-cash/lib/others/blockdb"
 	//"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
@@ -21,22 +21,22 @@ const (
 )
 
 var (
-	bidx map[[32]byte]*bch_chain.BlockTreeNode
+	bidx map[[32]byte]*bch_chain.BchBlockTreeNode
 	cnt  int
 )
 
 func walk(ch *bch_chain.Chain, hash, hdr []byte, height, blen, txs uint32) {
-	bh := btc.NewUint256(hash)
+	bh := bch.NewUint256(hash)
 	if _, ok := bidx[bh.Hash]; ok {
 		println("walk: ", bh.String(), "already in")
 		return
 	}
-	v := new(chain.BlockTreeNode)
-	v.BlockHash = bh
+	v := new(chain.BchBlockTreeNode)
+	v.BchBlockHash = bh
 	v.Height = height
-	v.BlockSize = blen
+	v.BchBlockSize = blen
 	v.TxCount = txs
-	copy(v.BlockHeader[:], hdr)
+	copy(v.BchBlockHeader[:], hdr)
 	bidx[bh.Hash] = v
 	cnt++
 }
@@ -48,23 +48,23 @@ func main() {
 		return
 	}
 
-	blks := chain.NewBchBlockDB(os.Args[1])
+	blks := bch_chain.NewBchBlockDB(os.Args[1])
 	if blks == nil {
 		return
 	}
 	fmt.Println("Loading block index...")
-	bidx = make(map[[32]byte]*bch_chain.BlockTreeNode, 300e3)
+	bidx = make(map[[32]byte]*bch_chain.BchBlockTreeNode, 300e3)
 	blks.LoadBlockIndex(nil, walk)
 
-	var tail, nd *bch_chain.BlockTreeNode
-	var genesis_block_hash *btc.Uint256
+	var tail, nd *bch_chain.BchBlockTreeNode
+	var genesis_block_hash *bch.Uint256
 	for _, v := range bidx {
 		if v == tail {
 			// skip root block (should be only one)
 			continue
 		}
 
-		par_hash := btc.NewUint256(v.BlockHeader[4:36])
+		par_hash := bch.NewUint256(v.BchBlockHeader[4:36])
 		par, ok := bidx[par_hash.Hash]
 		if !ok {
 			genesis_block_hash = par_hash
@@ -84,7 +84,7 @@ func main() {
 	var magic []byte
 
 	gen_bin, _ := hex.DecodeString(GenesisBitcoin)
-	tmp := btc.NewSha2Hash(gen_bin[:80])
+	tmp := bch.NewSha2Hash(gen_bin[:80])
 	if genesis_block_hash.Equal(tmp) {
 		println("Bitcoin genesis block")
 		magic = []byte{0xF9, 0xBE, 0xB4, 0xD9}
@@ -92,7 +92,7 @@ func main() {
 
 	if magic == nil {
 		gen_bin, _ := hex.DecodeString(GenesisTestnet)
-		tmp = btc.NewSha2Hash(gen_bin[:80])
+		tmp = bch.NewSha2Hash(gen_bin[:80])
 		if genesis_block_hash.Equal(tmp) {
 			println("Testnet3 genesis block")
 			magic = []byte{0x0B, 0x11, 0x09, 0x07}
@@ -108,8 +108,8 @@ func main() {
 	var total_data, curr_data int64
 
 	for nd = tail; nd.Parent != nil; {
-		nd.Parent.Childs = []*bch_chain.BlockTreeNode{nd}
-		total_data += int64(nd.BlockSize)
+		nd.Parent.Childs = []*bch_chain.BchBlockTreeNode{nd}
+		total_data += int64(nd.BchBlockSize)
 		nd = nd.Parent
 	}
 	fmt.Println("Writting bootstrap.dat, height", tail.Height, "  magic", hex.EncodeToString(magic))
@@ -118,11 +118,11 @@ func main() {
 	binary.Write(f, binary.LittleEndian, uint32(len(gen_bin)))
 	f.Write(gen_bin)
 	for {
-		bl, _, _ := blks.BlockGet(nd.BlockHash)
+		bl, _, _ := blks.BchBlockGet(nd.BchBlockHash)
 		f.Write(magic)
 		binary.Write(f, binary.LittleEndian, uint32(len(bl)))
 		f.Write(bl)
-		curr_data += int64(nd.BlockSize)
+		curr_data += int64(nd.BchBlockSize)
 		if (nd.Height & 0xfff) == 0 {
 			fmt.Printf("\r%.1f%%...", 100*float64(curr_data)/float64(total_data))
 		}

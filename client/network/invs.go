@@ -7,7 +7,7 @@ import (
 	"encoding/binary"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 )
 
@@ -21,7 +21,7 @@ const (
 	MSG_WITNESS_BLOCK = MSG_BLOCK | MSG_WITNESS_FLAG
 )
 
-func blockReceived(bh *btc.Uint256) (ok bool) {
+func blockReceived(bh *bch.Uint256) (ok bool) {
 	MutexRcv.Lock()
 	_, ok = ReceivedBlocks[bh.BIdx()]
 	MutexRcv.Unlock()
@@ -60,7 +60,7 @@ func (c *OneConnection) ProcessInv(pl []byte) {
 	c.X.InvsRecieved++
 	c.Mutex.Unlock()
 
-	cnt, of := btc.VLen(pl)
+	cnt, of := bch.VLen(pl)
 	if len(pl) != of+36*cnt {
 		println("inv payload length mismatch", len(pl), of, cnt)
 	}
@@ -73,18 +73,18 @@ func (c *OneConnection) ProcessInv(pl []byte) {
 		c.Mutex.Unlock()
 		common.CountSafe(fmt.Sprint("InvGot-", typ))
 		if typ == MSG_BLOCK {
-			bhash := btc.NewUint256(pl[of+4 : of+36])
+			bhash := bch.NewUint256(pl[of+4 : of+36])
 			if !ahr {
 				common.CountSafe("InvBlockIgnored")
 			} else {
 				if !blockReceived(bhash) {
 					MutexRcv.Lock()
 					if b2g, ok := BlocksToGet[bhash.BIdx()]; ok {
-						if c.Node.Height < b2g.Block.Height {
-							c.Node.Height = b2g.Block.Height
+						if c.Node.Height < b2g.BchBlock.Height {
+							c.Node.Height = b2g.BchBlock.Height
 						}
 						common.CountSafe("InvBlockFresh")
-						println(c.PeerAddr.Ip(), c.Node.Version, "also knows the block", b2g.Block.Height, bhash.String())
+						println(c.PeerAddr.Ip(), c.Node.Version, "also knows the block", b2g.BchBlock.Height, bhash.String())
 						c.MutexSetBool(&c.X.GetBlocksDataNow, true)
 					} else {
 						common.CountSafe("InvBlockNew")
@@ -109,7 +109,7 @@ func (c *OneConnection) ProcessInv(pl []byte) {
 	return
 }
 
-func NetRouteInv(typ uint32, h *btc.Uint256, fromConn *OneConnection) uint32 {
+func NetRouteInv(typ uint32, h *bch.Uint256, fromConn *OneConnection) uint32 {
 	var fee_spkb uint64
 	if typ == MSG_TX {
 		TxMutex.Lock()
@@ -124,7 +124,7 @@ func NetRouteInv(typ uint32, h *btc.Uint256, fromConn *OneConnection) uint32 {
 }
 
 // This function is called from the main thread (or from an UI)
-func NetRouteInvExt(typ uint32, h *btc.Uint256, fromConn *OneConnection, fee_spkb uint64) (cnt uint32) {
+func NetRouteInvExt(typ uint32, h *bch.Uint256, fromConn *OneConnection, fee_spkb uint64) (cnt uint32) {
 	common.CountSafe(fmt.Sprint("NetRouteInv", typ))
 
 	// Prepare the inv
@@ -174,11 +174,11 @@ func NetRouteInvExt(typ uint32, h *btc.Uint256, fromConn *OneConnection, fee_spk
 }
 
 // Call this function only when BlockIndexAccess is locked
-func addInvBlockBranch(inv map[[32]byte]bool, bl *bch_chain.BlockTreeNode, stop *btc.Uint256) {
-	if len(inv) >= 500 || bl.BlockHash.Equal(stop) {
+func addInvBlockBranch(inv map[[32]byte]bool, bl *bch_chain.BchBlockTreeNode, stop *bch.Uint256) {
+	if len(inv) >= 500 || bl.BchBlockHash.Equal(stop) {
 		return
 	}
-	inv[bl.BlockHash.Hash] = true
+	inv[bl.BchBlockHash.Hash] = true
 	for i := range bl.Childs {
 		if len(inv) >= 500 {
 			return
@@ -198,20 +198,20 @@ func (c *OneConnection) GetBlocks(pl []byte) {
 
 	invs := make(map[[32]byte]bool, 500)
 	for i := range h2get {
-		common.BlockChain.BlockIndexAccess.Lock()
-		if bl, ok := common.BlockChain.BlockIndex[h2get[i].BIdx()]; ok {
+		common.BchBlockChain.BchBlockIndexAccess.Lock()
+		if bl, ok := common.BchBlockChain.BchBlockIndex[h2get[i].BIdx()]; ok {
 			// make sure that this block is in our main chain
 			common.Last.Mutex.Lock()
-			end := common.Last.Block
+			end := common.Last.BchBlock
 			common.Last.Mutex.Unlock()
 			for ; end != nil && end.Height >= bl.Height; end = end.Parent {
 				if end == bl {
 					addInvBlockBranch(invs, bl, hashstop) // Yes - this is the main chain
 					if len(invs) > 0 {
-						common.BlockChain.BlockIndexAccess.Unlock()
+						common.BchBlockChain.BchBlockIndexAccess.Unlock()
 
 						inv := new(bytes.Buffer)
-						btc.WriteVlen(inv, uint64(len(invs)))
+						bch.WriteVlen(inv, uint64(len(invs)))
 						for k := range invs {
 							binary.Write(inv, binary.LittleEndian, uint32(2))
 							inv.Write(k[:])
@@ -222,7 +222,7 @@ func (c *OneConnection) GetBlocks(pl []byte) {
 				}
 			}
 		}
-		common.BlockChain.BlockIndexAccess.Unlock()
+		common.BchBlockChain.BchBlockIndexAccess.Unlock()
 	}
 
 	common.CountSafe("GetblksMissed")
@@ -232,7 +232,7 @@ func (c *OneConnection) GetBlocks(pl []byte) {
 func (c *OneConnection) SendInvs() (res bool) {
 	b_txs := new(bytes.Buffer)
 	b_blk := new(bytes.Buffer)
-	var c_blk []*btc.Uint256
+	var c_blk []*bch.Uint256
 
 	c.Mutex.Lock()
 	if len(c.PendingInvs) > 0 {
@@ -242,17 +242,17 @@ func (c *OneConnection) SendInvs() (res bool) {
 			c.InvStore(typ, (*c.PendingInvs[i])[4:36])
 			if typ == MSG_BLOCK {
 				if c.Node.SendCmpctVer >= 1 && c.Node.HighBandwidth {
-					c_blk = append(c_blk, btc.NewUint256((*c.PendingInvs[i])[4:]))
+					c_blk = append(c_blk, bch.NewUint256((*c.PendingInvs[i])[4:]))
 					inv_sent_otherwise = true
 				} else if c.Node.SendHeaders {
 					// convert block inv to block header
-					common.BlockChain.BlockIndexAccess.Lock()
-					bl := common.BlockChain.BlockIndex[btc.NewUint256((*c.PendingInvs[i])[4:]).BIdx()]
+					common.BchBlockChain.BchBlockIndexAccess.Lock()
+					bl := common.BchBlockChain.BchBlockIndex[bch.NewUint256((*c.PendingInvs[i])[4:]).BIdx()]
 					if bl != nil {
-						b_blk.Write(bl.BlockHeader[:])
+						b_blk.Write(bl.BchBlockHeader[:])
 						b_blk.Write([]byte{0}) // 0 txs
 					}
-					common.BlockChain.BlockIndexAccess.Unlock()
+					common.BchBlockChain.BchBlockIndexAccess.Unlock()
 					inv_sent_otherwise = true
 				}
 			}
@@ -275,14 +275,14 @@ func (c *OneConnection) SendInvs() (res bool) {
 	if b_blk.Len() > 0 {
 		common.CountSafe("InvSentAsHeader")
 		b := new(bytes.Buffer)
-		btc.WriteVlen(b, uint64(b_blk.Len()/81))
+		bch.WriteVlen(b, uint64(b_blk.Len()/81))
 		c.SendRawMsg("headers", append(b.Bytes(), b_blk.Bytes()...))
 		//println("sent block's header(s)", b_blk.Len(), uint64(b_blk.Len()/81))
 	}
 
 	if b_txs.Len() > 0 {
 		b := new(bytes.Buffer)
-		btc.WriteVlen(b, uint64(b_txs.Len()/36))
+		bch.WriteVlen(b, uint64(b_txs.Len()/36))
 		c.SendRawMsg("inv", append(b.Bytes(), b_txs.Bytes()...))
 	}
 

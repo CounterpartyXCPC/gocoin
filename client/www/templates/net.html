@@ -210,7 +210,7 @@ function update_connection_info(ci) {
 	s += 'Last command sent at ' + tim2str(Date.parse(ci.LastSent)/1000, true) + ' - ' + ci.LastCmdSent + ':' + ci.LastBtsSent + '\n'
 	s += 'Invs  Done:' + ci.InvsDone + '   Recieved:' + ci.InvsRecieved + '  Pending:' + ci.InvsToSend +  '\n'
 	s += 'Bytes to send:' + ci.BytesToSend + ' (' + ci.MaxSentBufSize + ' max)\n'
-	s += 'BlockInProgress:' + ci.BlocksInProgress + '  GetHeadersInProgress:' + ci.GetHeadersInProgress + '\n'
+	s += 'BlockInProgress:' + ci.BchBlocksInProgress + '  GetHeadersInProgress:' + ci.GetHeadersInProgress + '\n'
 	s += 'GetBlocksDataNow:' + ci.GetBlocksDataNow + '  AllHeadersReceived:' + ci.AllHeadersReceived + '\n'
 	s += 'Authorized:' + ci.Authorized + '  AuthMsgGot:' + ci.AuthMsgGot + '  AuthAckGot:' + ci.AuthAckGot + '\n'
 	s += 'Total Received:' + ci.BytesReceived + ' / Sent:' + ci.BytesSent + '\n'
@@ -462,14 +462,14 @@ function refreshconnections(force) {
 				td = row.insertCell(-1)
 				td.style.textAlign = 'right'
 				td.noWrap = true
-				if (cs[i].BlocksReceived>0) td.innerHTML = cs[i].BlocksReceived
+				if (cs[i].BchBlocksReceived>0) td.innerHTML = cs[i].BchBlocksReceived
 
 				// blocks in progress
 				td = row.insertCell(-1)
 				td.style.textAlign = 'right'
 				td.noWrap = true
-				if (cs[i].BlocksInProgress>0) {
-					td.innerHTML = cs[i].BlocksInProgress + ( cs[i].GetHeadersInProgress ? '*' : '')
+				if (cs[i].BchBlocksInProgress>0) {
+					td.innerHTML = cs[i].BchBlocksInProgress + ( cs[i].GetHeadersInProgress ? '*' : '')
 				} else if (cs[i].GetHeadersInProgress) {
 					td.innerHTML = '*'
 				}

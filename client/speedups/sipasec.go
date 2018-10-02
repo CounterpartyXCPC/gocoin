@@ -12,7 +12,7 @@ package main
 
 import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/cgo/sipasec"
 )
 
@@ -22,5 +22,5 @@ func EC_Verify(k, s, h []byte) bool {
 
 func init() {
 	common.Log.Println("Using libsecp256k1.a by sipa for EC_Verify")
-	btc.EC_Verify = EC_Verify
+	bch.EC_Verify = EC_Verify
 }

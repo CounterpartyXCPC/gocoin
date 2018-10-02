@@ -227,11 +227,11 @@ function fetch_wallet_balance(name) {
 				totbtc += rec.Value
 				idxx++
 			}
-			total_btc.innerText = val2str(totbtc)
+			total_bch.innerText = val2str(totbtc)
 			unspent_outs.innerText = totouts
 
 			if (mempool && totcntin>0) {
-				arriving_btc.innerText = val2str(totvalin)
+				arriving_bch.innerText = val2str(totvalin)
 				arriving_cnt.innerText = totcntin
 				arriving_info_id.style.display = 'table-cell'
 			} else {
@@ -239,7 +239,7 @@ function fetch_wallet_balance(name) {
 			}
 
 			if (mempool && totcntout>0) {
-				spending_btc.innerText = val2str(totvalout)
+				spending_bch.innerText = val2str(totvalout)
 				spending_cnt.innerText = totcntout
 				spending_info_id.style.display = 'table-cell'
 			} else {
@@ -615,7 +615,7 @@ blno.addEventListener("lastblock", function(e) {
 	if (_lblo==0) {
 		_lblo = e.block.Height
 		if (e.block.MinValue>0) {
-			min_val_btc.innerText = val2str(e.block.MinValue)
+			min_val_bch.innerText = val2str(e.block.MinValue)
 			wallet_min_warning.style.display = 'block'
 		}
 	} else if (!edit_in_progress && !do_not_refresh && e.block.Height!=_lblo) {

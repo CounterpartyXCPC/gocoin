@@ -15,7 +15,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
@@ -74,7 +74,7 @@ func p_txs(w http.ResponseWriter, r *http.Request) {
 	write_html_tail(w)
 }
 
-func output_tx_xml(w http.ResponseWriter, tx *btc.Tx) {
+func output_tx_xml(w http.ResponseWriter, tx *bch.Tx) {
 	w.Write([]byte("<input_list>"))
 	for i := range tx.TxIn {
 		w.Write([]byte("<input>"))
@@ -82,14 +82,14 @@ func output_tx_xml(w http.ResponseWriter, tx *btc.Tx) {
 		w.Write([]byte(hex.EncodeToString(tx.TxIn[i].ScriptSig)))
 		w.Write([]byte("</script_sig>"))
 		fmt.Fprint(w, "<txid-vout>", tx.TxIn[i].Input.String(), "</txid-vout>")
-		var po *btc.TxOut
-		inpid := btc.NewUint256(tx.TxIn[i].Input.Hash[:])
+		var po *bch.TxOut
+		inpid := bch.NewUint256(tx.TxIn[i].Input.Hash[:])
 		if txinmem, ok := network.TransactionsToSend[inpid.BIdx()]; ok {
 			if int(tx.TxIn[i].Input.Vout) < len(txinmem.TxOut) {
 				po = txinmem.TxOut[tx.TxIn[i].Input.Vout]
 			}
 		} else {
-			po = common.BlockChain.Unspent.UnspentGet(&tx.TxIn[i].Input)
+			po = common.BchBlockChain.Unspent.UnspentGet(&tx.TxIn[i].Input)
 		}
 		if po != nil {
 			ok := script.VerifyTxScript(po.Pk_script, po.Value, i, tx, script.STANDARD_VERIFY_FLAGS)
@@ -100,13 +100,13 @@ func output_tx_xml(w http.ResponseWriter, tx *btc.Tx) {
 			}
 			fmt.Fprint(w, "<value>", po.Value, "</value>")
 			fmt.Fprint(w, "<pkscript>", hex.EncodeToString(po.Pk_script), "</pkscript>")
-			if ad := btc.NewAddrFromPkScript(po.Pk_script, common.Testnet); ad != nil {
+			if ad := bch.NewAddrFromPkScript(po.Pk_script, common.Testnet); ad != nil {
 				fmt.Fprint(w, "<addr>", ad.String(), "</addr>")
 			}
-			fmt.Fprint(w, "<block>", po.BlockHeight, "</block>")
+			fmt.Fprint(w, "<block>", po.BchBlockHeight, "</block>")
 
-			if btc.IsP2SH(po.Pk_script) {
-				fmt.Fprint(w, "<input_sigops>", btc.WITNESS_SCALE_FACTOR*btc.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig), "</input_sigops>")
+			if bch.IsP2SH(po.Pk_script) {
+				fmt.Fprint(w, "<input_sigops>", bch.WITNESS_SCALE_FACTOR*bch.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig), "</input_sigops>")
 			}
 			fmt.Fprint(w, "<witness_sigops>", tx.CountWitnessSigOps(i, po.Pk_script), "</witness_sigops>")
 		} else {
@@ -131,7 +131,7 @@ func output_tx_xml(w http.ResponseWriter, tx *btc.Tx) {
 	for i := range tx.TxOut {
 		w.Write([]byte("<output>"))
 		fmt.Fprint(w, "<value>", tx.TxOut[i].Value, "</value>")
-		adr := btc.NewAddrFromPkScript(tx.TxOut[i].Pk_script, common.Testnet)
+		adr := bch.NewAddrFromPkScript(tx.TxOut[i].Pk_script, common.Testnet)
 		if adr != nil {
 			fmt.Fprint(w, "<addr>", adr.String(), "</addr>")
 		} else {
@@ -170,14 +170,14 @@ func tx_xml(w http.ResponseWriter, v *network.OneTxToSend, verbose bool) {
 	fmt.Fprint(w, "<sentlast>", v.Lastsent.Unix(), "</sentlast>")
 	fmt.Fprint(w, "<volume>", v.Volume, "</volume>")
 	fmt.Fprint(w, "<fee>", v.Fee, "</fee>")
-	fmt.Fprint(w, "<blocked>", network.ReasonToString(v.Blocked), "</blocked>")
+	fmt.Fprint(w, "<blocked>", network.ReasonToString(v.BchBlocked), "</blocked>")
 	fmt.Fprint(w, "<final>", v.Final, "</final>")
 	fmt.Fprint(w, "<verify_us>", uint(v.VerifyTime/time.Microsecond), "</verify_us>")
 	w.Write([]byte("</tx>"))
 }
 
 func output_utxo_tx_xml(w http.ResponseWriter, minedid, minedat string) {
-	txid := btc.NewUint256FromString(minedid)
+	txid := bch.NewUint256FromString(minedid)
 	if txid == nil {
 		return
 	}
@@ -198,7 +198,7 @@ func output_utxo_tx_xml(w http.ResponseWriter, minedid, minedat string) {
 	if dat, er := common.GetRawTx(uint32(block_number), txid); er == nil {
 		w.Write([]byte("<status>OK</status>"))
 		w.Write([]byte(fmt.Sprint("<size>", len(dat), "</size>")))
-		tx, _ := btc.NewTx(dat)
+		tx, _ := bch.NewTx(dat)
 		output_tx_xml(w, tx)
 	} else {
 		w.Write([]byte("<status>Not found</status>"))
@@ -272,7 +272,7 @@ func xml_txs2s(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(r.Form["id"]) > 0 {
-		txid := btc.NewUint256FromString(r.Form["id"][0])
+		txid := bch.NewUint256FromString(r.Form["id"][0])
 		if txid == nil {
 			return
 		}
@@ -291,7 +291,7 @@ func xml_txs2s(w http.ResponseWriter, r *http.Request) {
 
 	if checksid(r) {
 		if len(r.Form["del"]) > 0 {
-			tid := btc.NewUint256FromString(r.Form["del"][0])
+			tid := bch.NewUint256FromString(r.Form["del"][0])
 			if tid != nil {
 				network.TxMutex.Lock()
 				if tts, ok := network.TransactionsToSend[tid.BIdx()]; ok {
@@ -302,7 +302,7 @@ func xml_txs2s(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if len(r.Form["send"]) > 0 {
-			tid := btc.NewUint256FromString(r.Form["send"][0])
+			tid := bch.NewUint256FromString(r.Form["send"][0])
 			if tid != nil {
 				network.TxMutex.Lock()
 				if ptx, ok := network.TransactionsToSend[tid.BIdx()]; ok {
@@ -320,7 +320,7 @@ func xml_txs2s(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if len(r.Form["sendone"]) > 0 {
-			tid := btc.NewUint256FromString(r.Form["sendone"][0])
+			tid := bch.NewUint256FromString(r.Form["sendone"][0])
 			if tid != nil {
 				network.TxMutex.Lock()
 				if ptx, ok := network.TransactionsToSend[tid.BIdx()]; ok {
@@ -441,7 +441,7 @@ func raw_tx(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	txid := btc.NewUint256FromString(r.Form["id"][0])
+	txid := bch.NewUint256FromString(r.Form["id"][0])
 	fmt.Fprintln(w, "TxID:", txid.String())
 	if tx, ok := network.TransactionsToSend[txid.BIdx()]; ok {
 		s, _, _, _, _ := usif.DecodeTx(tx.Tx)

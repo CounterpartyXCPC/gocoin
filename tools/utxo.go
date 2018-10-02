@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func main() {
@@ -19,13 +19,13 @@ func main() {
 		fmt.Println(er.Error())
 		return
 	}
-	er = btc.ReadAll(f, buf[:])
+	er = bch.ReadAll(f, buf[:])
 	f.Close()
 	if er != nil {
 		fmt.Println(er.Error())
 		return
 	}
 	fmt.Println("Last Block Height:", binary.LittleEndian.Uint64(buf[:8]))
-	fmt.Println("Last Block Hash:", btc.NewUint256(buf[8:40]).String())
+	fmt.Println("Last Block Hash:", bch.NewUint256(buf[8:40]).String())
 	fmt.Println("Number of UTXO records:", binary.LittleEndian.Uint64(buf[40:48]))
 }

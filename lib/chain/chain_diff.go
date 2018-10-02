@@ -3,7 +3,7 @@ package chain
 import (
 	"math/big"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 const (
@@ -52,7 +52,7 @@ func (ch *Chain) GetNextWorkRequired(lst *BlockTreeNode, ts uint32) (res uint32)
 	}
 
 	// Retarget
-	bnewbn := btc.SetCompact(lst.Bits())
+	bnewbn := bch.SetCompact(lst.Bits())
 	bnewbn.Mul(bnewbn, big.NewInt(actualTimespan))
 	bnewbn.Div(bnewbn, big.NewInt(POWRetargetSpam))
 
@@ -60,7 +60,7 @@ func (ch *Chain) GetNextWorkRequired(lst *BlockTreeNode, ts uint32) (res uint32)
 		bnewbn = ch.Consensus.MaxPOWValue
 	}
 
-	res = btc.GetCompact(bnewbn)
+	res = bch.GetCompact(bnewbn)
 
 	return
 }
@@ -69,16 +69,16 @@ func (ch *Chain) GetNextWorkRequired(lst *BlockTreeNode, ts uint32) (res uint32)
 func (b1 *BlockTreeNode) MorePOW(b2 *BlockTreeNode) bool {
 	var b1sum, b2sum float64
 	for b1.Height > b2.Height {
-		b1sum += btc.GetDifficulty(b1.Bits())
+		b1sum += bch.GetDifficulty(b1.Bits())
 		b1 = b1.Parent
 	}
 	for b2.Height > b1.Height {
-		b2sum += btc.GetDifficulty(b2.Bits())
+		b2sum += bch.GetDifficulty(b2.Bits())
 		b2 = b2.Parent
 	}
 	for b1 != b2 {
-		b1sum += btc.GetDifficulty(b1.Bits())
-		b2sum += btc.GetDifficulty(b2.Bits())
+		b1sum += bch.GetDifficulty(b1.Bits())
+		b2sum += bch.GetDifficulty(b2.Bits())
 		b1 = b1.Parent
 		b2 = b2.Parent
 	}

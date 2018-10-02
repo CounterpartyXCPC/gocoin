@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 var CNT int = 100e3
@@ -23,7 +23,7 @@ func main() {
 		wg.Add(1)
 		max_routines <- true
 		go func() {
-			if !btc.EcdsaVerify(key, sig, msg) {
+			if !bch.EcdsaVerify(key, sig, msg) {
 				println("Verify error")
 			}
 			wg.Done()

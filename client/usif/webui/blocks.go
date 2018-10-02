@@ -7,7 +7,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 
 	//	"regexp"
 	"strconv"
@@ -57,13 +57,13 @@ func json_blocks(w http.ResponseWriter, r *http.Request) {
 	var blks []*one_block
 
 	common.Last.Mutex.Lock()
-	end := common.Last.Block
+	end := common.Last.BchBlock
 	common.Last.Mutex.Unlock()
 
 	//eb_ad_x := regexp.MustCompile("/EB[0-9]+/AD[0-9]+/")
 
 	for cnt := uint32(0); end != nil && cnt < common.GetUint32(&common.CFG.WebUI.ShowBlocks); cnt++ {
-		bl, _, e := common.BlockChain.Blocks.BlockGet(end.BlockHash)
+		bl, _, e := common.BchBlockChain.BchBlocks.BchBlockGet(end.BchBlockHash)
 		if e != nil {
 			break
 		}
@@ -74,29 +74,29 @@ func json_blocks(w http.ResponseWriter, r *http.Request) {
 
 		b := new(one_block)
 		b.Height = end.Height
-		b.Timestamp = block.BlockTime()
-		b.Hash = end.BlockHash.String()
+		b.Timestamp = block.BchBlockTime()
+		b.Hash = end.BchBlockHash.String()
 		b.TxCnt = block.TxCount
 		b.Size = len(bl)
-		b.Weight = block.BlockWeight
+		b.Weight = block.BchBlockWeight
 		b.Version = block.Version()
 
-		cbasetx, cbaselen := btc.NewTx(bl[block.TxOffset:])
+		cbasetx, cbaselen := bch.NewTx(bl[block.TxOffset:])
 		for o := range cbasetx.TxOut {
 			b.Reward += cbasetx.TxOut[o].Value
 		}
 
 		b.Miner, _ = common.TxMiner(cbasetx)
 		if len(bl)-block.TxOffset-cbaselen != 0 {
-			b.FeeSPB = float64(b.Reward-btc.GetBlockReward(end.Height)) / float64(len(bl)-block.TxOffset-cbaselen)
+			b.FeeSPB = float64(b.Reward-bch.GetBlockReward(end.Height)) / float64(len(bl)-block.TxOffset-cbaselen)
 		}
 
-		common.BlockChain.BlockIndexAccess.Lock()
-		node := common.BlockChain.BlockIndex[end.BlockHash.BIdx()]
-		common.BlockChain.BlockIndexAccess.Unlock()
+		common.BchBlockChain.BchBlockIndexAccess.Lock()
+		node := common.BchBlockChain.BchBlockIndex[end.BchBlockHash.BIdx()]
+		common.BchBlockChain.BchBlockIndexAccess.Unlock()
 
 		network.MutexRcv.Lock()
-		rb := network.ReceivedBlocks[end.BlockHash.BIdx()]
+		rb := network.ReceivedBlocks[end.BchBlockHash.BIdx()]
 		network.MutexRcv.Unlock()
 
 		b.Received = uint32(rb.TmStart.Unix())
@@ -136,9 +136,9 @@ func json_blocks(w http.ResponseWriter, r *http.Request) {
 			b.EBAD = string(res)
 		}*/
 
-		usif.BlockFeesMutex.Lock()
-		_, b.HaveFeeStats = usif.BlockFees[end.Height]
-		usif.BlockFeesMutex.Unlock()
+		usif.BchBlockFeesMutex.Lock()
+		_, b.HaveFeeStats = usif.BchBlockFees[end.Height]
+		usif.BchBlockFeesMutex.Unlock()
 
 		blks = append(blks, b)
 		end = end.Parent
@@ -170,9 +170,9 @@ func json_blfees(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usif.BlockFeesMutex.Lock()
-	fees, ok := usif.BlockFees[uint32(height)]
-	usif.BlockFeesMutex.Unlock()
+	usif.BchBlockFeesMutex.Lock()
+	fees, ok := usif.BchBlockFees[uint32(height)]
+	usif.BchBlockFeesMutex.Unlock()
 
 	if !ok {
 		w.Write([]byte("File not found"))

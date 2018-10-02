@@ -62,7 +62,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
@@ -79,7 +79,7 @@ type FunctionWalkUnspent func(*UtxoRec)
 
 type CallbackFunctions struct {
 	// If NotifyTx is set, it will be called each time a new unspent
-	// output is being added or removed. When being removed, btc.TxOut is nil.
+	// output is being added or removed. When being removed, bch.TxOut is nil.
 	NotifyTxAdd func(*UtxoRec)
 	NotifyTxDel func(*UtxoRec, []bool)
 }
@@ -192,18 +192,18 @@ redo:
 		if opts.AbortNow != nil && *opts.AbortNow {
 			break
 		}
-		le, er = btc.ReadVLen(rd)
+		le, er = bch.ReadVLen(rd)
 		if er != nil {
 			goto fatal_error
 		}
 
-		er = btc.ReadAll(rd, k[:])
+		er = bch.ReadAll(rd, k[:])
 		if er != nil {
 			goto fatal_error
 		}
 
 		b := malloc(uint32(int(le) - UtxoIdxLen))
-		er = btc.ReadAll(rd, b)
+		er = bch.ReadAll(rd, b)
 		if er != nil {
 			goto fatal_error
 		}
@@ -310,7 +310,7 @@ func (db *UnspentDB) save() {
 			os.Rename(fname, db.dir_utxo+"UTXO.db")
 		}
 		db.lastFileClosed.Done()
-	}(db.dir_utxo + btc.NewUint256(db.LastBlockHash).String() + ".db.tmp")
+	}(db.dir_utxo + bch.NewUint256(db.LastBlockHash).String() + ".db.tmp")
 
 	for k, v := range db.HashMap {
 		if check_time {
@@ -340,7 +340,7 @@ func (db *UnspentDB) save() {
 			}
 		}
 
-		btc.WriteVlen(buf, uint64(UtxoIdxLen+len(v)))
+		bch.WriteVlen(buf, uint64(UtxoIdxLen+len(v)))
 		buf.Write(k[:])
 		buf.Write(v)
 		if buf.Len() >= save_buffer_min {
@@ -386,7 +386,7 @@ func (db *UnspentDB) CommitBlockTxs(changes *BchBlockChanges, blhash []byte) (e 
 		if changes.UndoData != nil {
 			for _, xx := range changes.UndoData {
 				bin := xx.Serialize(true)
-				btc.WriteVlen(bu, uint64(len(bin)))
+				bch.WriteVlen(bu, uint64(len(bin)))
 				bu.Write(bin)
 			}
 		}
@@ -410,7 +410,7 @@ func (db *UnspentDB) CommitBlockTxs(changes *BchBlockChanges, blhash []byte) (e 
 	return
 }
 
-func (db *UnspentDB) UndoBlockTxs(bl *btc.BchBlock, newhash []byte) {
+func (db *UnspentDB) UndoBlockTxs(bl *bch.BchBlock, newhash []byte) {
 	db.Mutex.Lock()
 	defer db.Mutex.Unlock()
 	db.abortWriting()
@@ -437,7 +437,7 @@ func (db *UnspentDB) UndoBlockTxs(bl *btc.BchBlock, newhash []byte) {
 
 	off := 32 // ship the block hash
 	for off < len(dat) {
-		le, n := btc.VLen(dat[off:])
+		le, n := bch.VLen(dat[off:])
 		off += n
 		qr := FullUtxoRec(dat[off : off+le])
 		off += le
@@ -518,7 +518,7 @@ func (db *UnspentDB) Close() {
 }
 
 // Get given unspent output
-func (db *UnspentDB) UnspentGet(po *btc.TxPrevOut) (res *btc.TxOut) {
+func (db *UnspentDB) UnspentGet(po *bch.TxPrevOut) (res *bch.TxOut) {
 	var ind UtxoKeyType
 	var v []byte
 	copy(ind[:], po.Hash[:])
@@ -534,7 +534,7 @@ func (db *UnspentDB) UnspentGet(po *btc.TxPrevOut) (res *btc.TxOut) {
 }
 
 // Returns true if gived TXID is in UTXO
-func (db *UnspentDB) TxPresent(id *btc.Uint256) (res bool) {
+func (db *UnspentDB) TxPresent(id *bch.Uint256) (res bool) {
 	var ind UtxoKeyType
 	copy(ind[:], id.Hash[:])
 	db.RWMutex.RLock()
@@ -646,7 +646,7 @@ func (db *UnspentDB) UTXOStats() (s string) {
 		float64(sum)/1e8, outcnt, lele, float64(sumcb)/1e8)
 	s += fmt.Sprintf(" TotalData:%.1fMB  MaxTxOutCnt:%d  DirtyDB:%t  Writing:%t  Abort:%t\n",
 		float64(totdatasize)/1e6, len(rec_outs), db.DirtyDB.Get(), db.WritingInProgress.Get(), len(db.abortwritingnow) > 0)
-	s += fmt.Sprintf(" Last Block : %s @ %d\n", btc.NewUint256(db.LastBlockHash).String(),
+	s += fmt.Sprintf(" Last Block : %s @ %d\n", bch.NewUint256(db.LastBlockHash).String(),
 		db.LastBlockHeight)
 	s += fmt.Sprintf(" Unspendable outputs: %d (%dKB)  txs:%d\n",
 		unspendable, unspendable_bytes>>10, unspendable_recs)
@@ -662,7 +662,7 @@ func (db *UnspentDB) GetStats() (s string) {
 
 	s = fmt.Sprintf("UNSPENT: %d records. MaxTxOutCnt:%d  DirtyDB:%t  Writing:%t  Abort:%t\n",
 		hml, len(rec_outs), db.DirtyDB.Get(), db.WritingInProgress.Get(), len(db.abortwritingnow) > 0)
-	s += fmt.Sprintf(" Last Block : %s @ %d\n", btc.NewUint256(db.LastBlockHash).String(),
+	s += fmt.Sprintf(" Last Block : %s @ %d\n", bch.NewUint256(db.LastBlockHash).String(),
 		db.LastBlockHeight)
 	return
 }

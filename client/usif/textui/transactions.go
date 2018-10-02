@@ -10,7 +10,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func load_tx(par string) {
@@ -32,7 +32,7 @@ func load_tx(par string) {
 }
 
 func send_tx(par string) {
-	txid := btc.NewUint256FromString(par)
+	txid := bch.NewUint256FromString(par)
 	if txid == nil {
 		fmt.Println("You must specify a valid transaction ID for this command.")
 		list_txs("")
@@ -53,7 +53,7 @@ func send_tx(par string) {
 }
 
 func send1_tx(par string) {
-	txid := btc.NewUint256FromString(par)
+	txid := bch.NewUint256FromString(par)
 	if txid == nil {
 		fmt.Println("You must specify a valid transaction ID for this command.")
 		list_txs("")
@@ -74,7 +74,7 @@ func send1_tx(par string) {
 }
 
 func del_tx(par string) {
-	txid := btc.NewUint256FromString(par)
+	txid := bch.NewUint256FromString(par)
 	if txid == nil {
 		fmt.Println("You must specify a valid transaction ID for this command.")
 		list_txs("")
@@ -94,7 +94,7 @@ func del_tx(par string) {
 }
 
 func dec_tx(par string) {
-	txid := btc.NewUint256FromString(par)
+	txid := bch.NewUint256FromString(par)
 	if txid == nil {
 		fmt.Println("You must specify a valid transaction ID for this command.")
 		list_txs("")
@@ -109,7 +109,7 @@ func dec_tx(par string) {
 }
 
 func save_tx(par string) {
-	txid := btc.NewUint256FromString(par)
+	txid := bch.NewUint256FromString(par)
 	if txid == nil {
 		fmt.Println("You must specify a valid transaction ID for this command.")
 		list_txs("")
@@ -175,7 +175,7 @@ func baned_txs(par string) {
 	network.TxMutex.Lock()
 	for k, v := range network.TransactionsRejected {
 		cnt++
-		fmt.Println("", cnt, btc.NewUint256(k[:]).String(), "-", v.Size, "bytes",
+		fmt.Println("", cnt, bch.NewUint256(k[:]).String(), "-", v.Size, "bytes",
 			"-", v.Reason, "-", time.Now().Sub(v.Time).String(), "ago")
 	}
 	network.TxMutex.Unlock()
@@ -185,7 +185,7 @@ func send_all_tx(par string) {
 	network.TxMutex.Lock()
 	for k, v := range network.TransactionsToSend {
 		if v.Local {
-			cnt := network.NetRouteInv(1, btc.NewUint256(k[:]), nil)
+			cnt := network.NetRouteInv(1, bch.NewUint256(k[:]), nil)
 			v.Invsentcnt += cnt
 			fmt.Println("INV for TxID", v.Hash.String(), "sent to", cnt, "node(s)")
 		}

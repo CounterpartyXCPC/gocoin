@@ -8,10 +8,10 @@ import (
 	"os"
 	"strconv"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
-func raw_tx_from_file(fn string) *btc.Tx {
+func raw_tx_from_file(fn string) *bch.Tx {
 	d, er := ioutil.ReadFile(fn)
 	if er != nil {
 		fmt.Println(er.Error())
@@ -23,7 +23,7 @@ func raw_tx_from_file(fn string) *btc.Tx {
 		fmt.Println("hex.DecodeString failed - assume binary transaction file")
 		dat = d
 	}
-	tx, txle := btc.NewTx(dat)
+	tx, txle := bch.NewTx(dat)
 
 	if tx != nil && txle != len(dat) {
 		fmt.Println("WARNING: Raw transaction length mismatch", txle, len(dat))
@@ -32,7 +32,7 @@ func raw_tx_from_file(fn string) *btc.Tx {
 	return tx
 }
 
-func write_tx_file(tx *btc.Tx) {
+func write_tx_file(tx *bch.Tx) {
 	signedrawtx := tx.Serialize()
 	tx.SetHash(signedrawtx)
 
@@ -85,9 +85,9 @@ func main() {
 	}
 
 	buf := new(bytes.Buffer)
-	btc.WriteVlen(buf, uint64(len(sig)))
+	bch.WriteVlen(buf, uint64(len(sig)))
 	buf.Write(sig)
-	btc.WriteVlen(buf, uint64(len(pk)))
+	bch.WriteVlen(buf, uint64(len(pk)))
 	buf.Write(pk)
 
 	tx.TxIn[in].ScriptSig = buf.Bytes()

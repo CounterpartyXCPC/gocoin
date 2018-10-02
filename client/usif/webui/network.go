@@ -12,7 +12,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func p_net(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +24,7 @@ func p_net(w http.ResponseWriter, r *http.Request) {
 
 	network.Mutex_net.Lock()
 	net_page = strings.Replace(net_page, "{LISTEN_TCP}", fmt.Sprint(common.IsListenTCP(), network.TCPServerStarted), 1)
-	net_page = strings.Replace(net_page, "{EXTERNAL_ADDR}", btc.NewNetAddr(network.BestExternalAddr()).String(), 1)
+	net_page = strings.Replace(net_page, "{EXTERNAL_ADDR}", bch.NewNetAddr(network.BestExternalAddr()).String(), 1)
 
 	network.Mutex_net.Unlock()
 

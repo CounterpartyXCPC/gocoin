@@ -136,7 +136,7 @@ func (ch *Chain) CommitBlock(bl *bch.BchBlock, cur *BchBlockTreeNode) (e error) 
 			}
 		}
 	} else {
-		// The block's parent is not the current head of the chain...
+		// The block's parent is not the current head of the bch_chain...
 
 		// Save the block, though do not mark it as "trusted" just yet
 		ch.BchBlocks.BchBlockAdd(cur.Height, bl)

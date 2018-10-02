@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/blockdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
@@ -18,7 +18,7 @@ var (
 	Magic               [4]byte
 	GocoinCashHomeDir   string
 	BtcRootDir          string
-	GenesisBlock        *btc.Uint256
+	GenesisBlock        *bch.Uint256
 	prev_EcdsaVerifyCnt uint64
 )
 
@@ -26,7 +26,7 @@ func stat(totnsec, pernsec int64, totbytes, perbytes uint64, height uint32) {
 	totmbs := float64(totbytes) / (1024 * 1024)
 	perkbs := float64(perbytes) / (1024)
 	var x string
-	cn := btc.EcdsaVerifyCnt() - prev_EcdsaVerifyCnt
+	cn := bch.EcdsaVerifyCnt() - prev_EcdsaVerifyCnt
 	if cn > 0 {
 		x = fmt.Sprintf("|  %d -> %d us/ecdsa", cn, uint64(pernsec)/cn/1e3)
 		prev_EcdsaVerifyCnt += cn
@@ -37,9 +37,9 @@ func stat(totnsec, pernsec int64, totbytes, perbytes uint64, height uint32) {
 
 func import_blockchain(dir string) {
 	BlockDatabase := blockdb.NewBchBlockDB(dir, Magic)
-	chain := chain.NewChainExt(GocoinCashHomeDir, GenesisBlock, false, nil, nil)
+	chain := bch_chain.NewChainExt(GocoinCashHomeDir, GenesisBlock, false, nil, nil)
 
-	var bl *btc.Block
+	var bl *bch.BchBlock
 	var er error
 	var dat []byte
 	var totbytes, perbytes uint64
@@ -50,7 +50,7 @@ func import_blockchain(dir string) {
 	for {
 		now := time.Now().UnixNano()
 		if now-prv >= 10e9 {
-			stat(now-start, now-prv, totbytes, perbytes, chain.LastBlock().Height)
+			stat(now-start, now-prv, totbytes, perbytes, bch_chain.LastBlock().Height)
 			prv = now // show progress each 10 seconds
 			perbytes = 0
 		}
@@ -69,7 +69,7 @@ func import_blockchain(dir string) {
 
 		bl.Trusted = Trust
 
-		er, _, _ = chain.CheckBlock(bl)
+		er, _, _ = bch_chain.CheckBlock(bl)
 
 		if er != nil {
 			if er.Error() != "Genesis" {
@@ -79,7 +79,7 @@ func import_blockchain(dir string) {
 			continue
 		}
 
-		er = chain.AcceptBlock(bl)
+		er = bch_chain.AcceptBlock(bl)
 		if er != nil {
 			println("AcceptBlock failed:", er.Error())
 			os.Exit(1) // Such a thing should not happen, so let's better abort here.
@@ -90,7 +90,7 @@ func import_blockchain(dir string) {
 	}
 
 	stop := time.Now().UnixNano()
-	stat(stop-start, stop-prv, totbytes, perbytes, chain.LastBlock().Height)
+	stat(stop-start, stop-prv, totbytes, perbytes, bch_chain.LastBlock().Height)
 
 	fmt.Println("Satoshi's database import finished in", (stop-start)/1e9, "seconds")
 
@@ -145,11 +145,11 @@ func main() {
 	if Magic == [4]byte{0x0B, 0x11, 0x09, 0x07} {
 		// testnet3
 		fmt.Println("There are Testnet3 blocks")
-		GenesisBlock = btc.NewUint256FromString("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943")
+		GenesisBlock = bch.NewUint256FromString("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943")
 		GocoinCashHomeDir += "tstnet" + string(os.PathSeparator)
 	} else if Magic == [4]byte{0xF9, 0xBE, 0xB4, 0xD9} {
 		fmt.Println("There are valid Bitcoin blocks")
-		GenesisBlock = btc.NewUint256FromString("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
+		GenesisBlock = bch.NewUint256FromString("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
 		GocoinCashHomeDir += "btcnet" + string(os.PathSeparator)
 	} else {
 		println("blk00000.dat has an unexpected magic")

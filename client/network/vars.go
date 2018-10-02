@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
@@ -24,22 +24,22 @@ type OneReceivedBlock struct {
 
 type BlockRcvd struct {
 	Conn *OneConnection
-	*btc.Block
-	*bch_chain.BlockTreeNode
+	*bch.BchBlock
+	*bch_chain.BchBlockTreeNode
 	*OneReceivedBlock
-	*btc.BlockExtraInfo
+	*bch.BchBlockExtraInfo
 }
 
 type TxRcvd struct {
 	conn *OneConnection
-	*btc.Tx
+	*bch.Tx
 	trusted, local bool
 }
 
 type OneBlockToGet struct {
 	Started time.Time
-	*btc.Block
-	*bch_chain.BlockTreeNode
+	*bch.BchBlock
+	*bch_chain.BchBlockTreeNode
 	InProgress uint
 	TmPreproc  time.Time // how long it took to start downloading this block
 	SendInvs   bool
@@ -50,7 +50,7 @@ var (
 	BlocksToGet              map[BIDX]*OneBlockToGet    = make(map[BIDX]*OneBlockToGet)
 	IndexToBlocksToGet       map[uint32][]BIDX          = make(map[uint32][]BIDX)
 	LowestIndexToBlocksToGet uint32
-	LastCommitedHeader       *bch_chain.BlockTreeNode
+	LastCommitedHeader       *bch_chain.BchBlockTreeNode
 	MutexRcv                 sync.Mutex
 
 	NetBlocks chan *BlockRcvd = make(chan *BlockRcvd, MAX_BLOCKS_FORWARD_CNT+10)
@@ -65,9 +65,9 @@ var (
 )
 
 func AddB2G(b2g *OneBlockToGet) {
-	bidx := b2g.Block.Hash.BIdx()
+	bidx := b2g.BchBlock.Hash.BIdx()
 	BlocksToGet[bidx] = b2g
-	bh := b2g.BlockTreeNode.Height
+	bh := b2g.BchBlockTreeNode.Height
 	IndexToBlocksToGet[bh] = append(IndexToBlocksToGet[bh], bidx)
 	if LowestIndexToBlocksToGet == 0 || bh < LowestIndexToBlocksToGet {
 		LowestIndexToBlocksToGet = bh
@@ -90,7 +90,7 @@ func DelB2G(idx BIDX) {
 		return
 	}
 
-	bh := b2g.BlockTreeNode.Height
+	bh := b2g.BchBlockTreeNode.Height
 	iii := IndexToBlocksToGet[bh]
 	if len(iii) > 1 {
 		var n []BIDX

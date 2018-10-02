@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 const (
@@ -20,7 +20,7 @@ var (
 	BlockFeesDirty bool                                                  // it true, clean up old data
 )
 
-func ProcessBlockFees(height uint32, bl *btc.Block) {
+func ProcessBlockFees(height uint32, bl *bch.BchBlock) {
 	if len(bl.Txs) < 2 {
 		return
 	}
@@ -56,7 +56,7 @@ func ProcessBlockFees(height uint32, bl *btc.Block) {
 func ExpireBlockFees() {
 	var height uint32
 	common.Last.Lock()
-	height = common.Last.Block.Height
+	height = common.Last.BchBlock.Height
 	common.Last.Unlock()
 
 	if height <= 144 {

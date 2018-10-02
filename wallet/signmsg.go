@@ -7,14 +7,14 @@ import (
 	"io/ioutil"
 	"os"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 )
 
 // this function signs either a message or a raw hash
 func sign_message() {
 	var hash []byte
-	var signkey *btc.PrivateAddr
+	var signkey *bch.PrivateAddr
 
 	signkey = address_to_key(*signaddr)
 	if signkey == nil {
@@ -29,9 +29,9 @@ func sign_message() {
 			println(er.Error())
 			return
 		} else if len(hash) > 0 {
-			txsig := new(btc.Signature)
+			txsig := new(bch.Signature)
 			txsig.HashType = 0x01
-			r, s, e := btc.EcdsaSign(signkey.Key, hash)
+			r, s, e := bch.EcdsaSign(signkey.Key, hash)
 			if e != nil {
 				println(e.Error())
 				return
@@ -55,17 +55,17 @@ func sign_message() {
 	if litecoin {
 		ltc.HashFromMessage(msg, hash)
 	} else {
-		btc.HashFromMessage(msg, hash)
+		bch.HashFromMessage(msg, hash)
 	}
 
-	btcsig := new(btc.Signature)
+	btcsig := new(bch.Signature)
 	var sb [65]byte
 	sb[0] = 27
 	if signkey.IsCompressed() {
 		sb[0] += 4
 	}
 
-	r, s, e := btc.EcdsaSign(signkey.Key, hash)
+	r, s, e := bch.EcdsaSign(signkey.Key, hash)
 	if e != nil {
 		println(e.Error())
 		return
@@ -79,14 +79,14 @@ func sign_message() {
 	copy(sb[1+64-len(sd):], sd)
 
 	rpk := btcsig.RecoverPublicKey(hash[:], 0)
-	sa := btc.NewAddrFromPubkey(rpk.Bytes(signkey.IsCompressed()), signkey.BtcAddr.Version)
+	sa := bch.NewAddrFromPubkey(rpk.Bytes(signkey.IsCompressed()), signkey.BtcAddr.Version)
 	if sa.Hash160 == signkey.BtcAddr.Hash160 {
 		fmt.Println(base64.StdEncoding.EncodeToString(sb[:]))
 		return
 	}
 
 	rpk = btcsig.RecoverPublicKey(hash[:], 1)
-	sa = btc.NewAddrFromPubkey(rpk.Bytes(signkey.IsCompressed()), signkey.BtcAddr.Version)
+	sa = bch.NewAddrFromPubkey(rpk.Bytes(signkey.IsCompressed()), signkey.BtcAddr.Version)
 	if sa.Hash160 == signkey.BtcAddr.Hash160 {
 		sb[0]++
 		fmt.Println(base64.StdEncoding.EncodeToString(sb[:]))

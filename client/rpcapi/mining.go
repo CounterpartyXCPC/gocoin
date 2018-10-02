@@ -8,7 +8,7 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 const MAX_TXS_LEN = 999e3 // 999KB, with 1KB margin to not exceed 1MB with conibase
@@ -54,25 +54,25 @@ func GetNextBlockTemplate(r *GetBlockTemplateResp) {
 	common.Last.Mutex.Lock()
 
 	r.Curtime = uint(time.Now().Unix())
-	r.Mintime = uint(common.Last.Block.GetMedianTimePast()) + 1
+	r.Mintime = uint(common.Last.BchBlock.GetMedianTimePast()) + 1
 	if r.Curtime < r.Mintime {
 		r.Curtime = r.Mintime
 	}
-	height := common.Last.Block.Height + 1
-	bits := common.BlockChain.GetNextWorkRequired(common.Last.Block, uint32(r.Curtime))
-	target := btc.SetCompact(bits).Bytes()
+	height := common.Last.BchBlock.Height + 1
+	bits := common.BchBlockChain.GetNextWorkRequired(common.Last.BchBlock, uint32(r.Curtime))
+	target := bch.SetCompact(bits).Bytes()
 
 	r.Capabilities = []string{"proposal"}
 	r.Version = 4
-	r.PreviousBlockHash = common.Last.Block.BlockHash.String()
+	r.PreviousBlockHash = common.Last.BchBlock.BchBlockHash.String()
 	r.Transactions, r.Coinbasevalue = GetTransactions(height, uint32(r.Mintime))
-	r.Coinbasevalue += btc.GetBlockReward(height)
+	r.Coinbasevalue += bch.GetBlockReward(height)
 	r.Coinbaseaux.Flags = ""
 	r.Longpollid = r.PreviousBlockHash
 	r.Target = hex.EncodeToString(append(zer[:32-len(target)], target...))
 	r.Mutable = []string{"time", "transactions", "prevblock"}
 	r.Noncerange = "00000000ffffffff"
-	r.Sigoplimit = btc.MAX_BLOCK_SIGOPS_COST / btc.WITNESS_SCALE_FACTOR
+	r.Sigoplimit = bch.MAX_BLOCK_SIGOPS_COST / bch.WITNESS_SCALE_FACTOR
 	r.Sizelimit = 1e6
 	r.Bits = fmt.Sprintf("%08x", bits)
 	r.Height = uint(height)
@@ -101,7 +101,7 @@ var totlen int
 var sigops uint64
 
 func get_next_tranche_of_txs(height, timestamp uint32) (res sortedTxList) {
-	var unsp *btc.TxOut
+	var unsp *bch.TxOut
 	var all_inputs_found bool
 	for _, v := range network.TransactionsToSend {
 		tx := v.Tx
@@ -120,7 +120,7 @@ func get_next_tranche_of_txs(height, timestamp uint32) (res sortedTxList) {
 		}
 		totlen += len(v.Raw)
 
-		if sigops+v.SigopsCost > btc.MAX_BLOCK_SIGOPS_COST {
+		if sigops+v.SigopsCost > bch.MAX_BLOCK_SIGOPS_COST {
 			//println("Too many sigops - limit to 999000 bytes")
 			return
 		}
@@ -129,7 +129,7 @@ func get_next_tranche_of_txs(height, timestamp uint32) (res sortedTxList) {
 		all_inputs_found = true
 		var depends []uint
 		for i := range tx.TxIn {
-			unsp = common.BlockChain.Unspent.UnspentGet(&tx.TxIn[i].Input)
+			unsp = common.BchBlockChain.Unspent.UnspentGet(&tx.TxIn[i].Input)
 			if unsp == nil {
 				// not found in the confirmed blocks
 				// check if txid is in txs_so_far

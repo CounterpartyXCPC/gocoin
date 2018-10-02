@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 // hex dump with max 32 bytes per line
@@ -24,7 +24,7 @@ func hex_dump(d []byte) (s string) {
 }
 
 func dump_raw_sigscript(d []byte) bool {
-	ss, er := btc.ScriptToText(d)
+	ss, er := bch.ScriptToText(d)
 	if er != nil {
 		println(er.Error())
 		return false
@@ -32,7 +32,7 @@ func dump_raw_sigscript(d []byte) bool {
 
 	p2sh := len(ss) >= 2 && d[0] == 0
 	if p2sh {
-		ms, er := btc.NewMultiSigFromScript(d)
+		ms, er := bch.NewMultiSigFromScript(d)
 		if er == nil {
 			fmt.Println("      Multisig script", ms.SigsNeeded, "of", len(ms.PublicKeys))
 			for i := range ms.PublicKeys {
@@ -54,7 +54,7 @@ func dump_raw_sigscript(d []byte) bool {
 		if p2sh && i == len(ss)-1 {
 			// Print p2sh script
 			d, _ = hex.DecodeString(ss[i])
-			s2, er := btc.ScriptToText(d)
+			s2, er := bch.ScriptToText(d)
 			if er != nil {
 				println(er.Error())
 				p2sh = false
@@ -90,7 +90,7 @@ func dump_sigscript(d []byte) bool {
 	if er != nil {
 		return dump_raw_sigscript(d)
 	}
-	sig, er := btc.NewSignature(sd)
+	sig, er := bch.NewSignature(sd)
 	if er != nil {
 		return dump_raw_sigscript(d)
 	}
@@ -115,7 +115,7 @@ func dump_sigscript(d []byte) bool {
 	}
 
 	fmt.Printf("       PublicKeyType = %02x\n", sd[0])
-	key, er := btc.NewPublicKey(sd)
+	key, er := bch.NewPublicKey(sd)
 	if er != nil {
 		fmt.Println("       WARNING: PublicKey broken", er.Error())
 		fmt.Print(hex_dump(d))
@@ -179,10 +179,10 @@ func dump_raw_tx() {
 			fmt.Printf("%4d) %s sl=%d seq=%08x\n", i, tx.TxIn[i].Input.String(),
 				len(tx.TxIn[i].ScriptSig), tx.TxIn[i].Sequence)
 
-			if intx := tx_from_balance(btc.NewUint256(tx.TxIn[i].Input.Hash[:]), false); intx != nil {
+			if intx := tx_from_balance(bch.NewUint256(tx.TxIn[i].Input.Hash[:]), false); intx != nil {
 				val := intx.TxOut[tx.TxIn[i].Input.Vout].Value
 				totin += val
-				fmt.Printf("%15s BTC\n", btc.UintToBtc(val))
+				fmt.Printf("%15s BTC\n", bch.UintToBtc(val))
 			} else {
 				noins++
 			}
@@ -212,7 +212,7 @@ func dump_raw_tx() {
 	fmt.Println("TX OUT cnt:", len(tx.TxOut))
 	for i := range tx.TxOut {
 		totout += tx.TxOut[i].Value
-		fmt.Printf("%4d) %20s BTC ", i, btc.UintToBtc(tx.TxOut[i].Value))
+		fmt.Printf("%4d) %20s BTC ", i, bch.UintToBtc(tx.TxOut[i].Value))
 		addr := addr_from_pkscr(tx.TxOut[i].Pk_script)
 		if addr != nil {
 			if addr.Version == ver_script() {
@@ -226,7 +226,7 @@ func dump_raw_tx() {
 			} else {
 				fmt.Println("NULL output to Pk_script:")
 			}
-			ss, er := btc.ScriptToText(tx.TxOut[i].Pk_script)
+			ss, er := bch.ScriptToText(tx.TxOut[i].Pk_script)
 			if er == nil {
 				for i := range ss {
 					fmt.Println("       ", ss[i])
@@ -239,10 +239,10 @@ func dump_raw_tx() {
 	}
 	fmt.Println("Lock Time:", tx.Lock_time)
 
-	fmt.Println("Output volume:", btc.UintToBtc(totout), "BTC")
+	fmt.Println("Output volume:", bch.UintToBtc(totout), "BTC")
 	if noins == 0 {
-		fmt.Println("Input volume :", btc.UintToBtc(totin), "BTC")
-		fmt.Println("Transact. fee:", btc.UintToBtc(totin-totout), "BTC")
+		fmt.Println("Input volume :", bch.UintToBtc(totin), "BTC")
+		fmt.Println("Transact. fee:", bch.UintToBtc(totin-totout), "BTC")
 	} else {
 		fmt.Println("WARNING: Unable to figure out what the fee is")
 	}

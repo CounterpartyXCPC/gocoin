@@ -55,17 +55,17 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type AllUnspentTx []*OneUnspentTx
 
 // Returned by GetUnspentFromPkScr
 type OneUnspentTx struct {
-	btc.TxPrevOut
+	bch.TxPrevOut
 	Value   uint64
 	MinedAt uint32
-	*btc.BtcAddr
+	*bch.BtcAddr
 	destString string
 	Coinbase   bool
 	Message    []byte
@@ -91,7 +91,7 @@ func (x AllUnspentTx) Swap(i, j int) {
 }
 
 func (ou *OneUnspentTx) String() (s string) {
-	s = fmt.Sprintf("%15s BTC %s", btc.UintToBtc(ou.Value), ou.TxPrevOut.String())
+	s = fmt.Sprintf("%15s BTC %s", bch.UintToBtc(ou.Value), ou.TxPrevOut.String())
 	if ou.BtcAddr != nil {
 		s += " " + ou.DestAddr() + ou.BtcAddr.Label()
 	}

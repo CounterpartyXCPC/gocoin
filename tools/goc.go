@@ -12,7 +12,7 @@ import (
 	"os"
 	"strings"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
@@ -123,7 +123,7 @@ func push_tx(rawtx string) {
 		defer r.Body.Close()
 		res, _ := ioutil.ReadAll(r.Body)
 		if len(res) > 100 {
-			txid := btc.NewSha2Hash(dat)
+			txid := bch.NewSha2Hash(dat)
 			fmt.Println("TxID", txid.String(), "loaded")
 
 			http_get(HOST + "cfg") // get SID

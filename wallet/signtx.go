@@ -6,27 +6,27 @@ import (
 	"fmt"
 	"os"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 // prepare a signed transaction
-func sign_tx(tx *btc.Tx) (all_signed bool) {
+func sign_tx(tx *bch.Tx) (all_signed bool) {
 	var multisig_done bool
 	all_signed = true
 
 	// go through each input
 	for in := range tx.TxIn {
-		if ms, _ := btc.NewMultiSigFromScript(tx.TxIn[in].ScriptSig); ms != nil {
-			hash := tx.SignatureHash(ms.P2SH(), in, btc.SIGHASH_ALL)
+		if ms, _ := bch.NewMultiSigFromScript(tx.TxIn[in].ScriptSig); ms != nil {
+			hash := tx.SignatureHash(ms.P2SH(), in, bch.SIGHASH_ALL)
 			for ki := range ms.PublicKeys {
 				k := public_to_key(ms.PublicKeys[ki])
 				if k != nil {
-					r, s, e := btc.EcdsaSign(k.Key, hash)
+					r, s, e := bch.EcdsaSign(k.Key, hash)
 					if e != nil {
 						println("ERROR in sign_tx:", e.Error())
 						all_signed = false
 					} else {
-						btcsig := &btc.Signature{HashType: 0x01}
+						btcsig := &bch.Signature{HashType: 0x01}
 						btcsig.R.Set(r)
 						btcsig.S.Set(s)
 
@@ -51,7 +51,7 @@ func sign_tx(tx *btc.Tx) (all_signed bool) {
 				continue
 			}
 
-			ver, segwit_prog := btc.IsWitnessProgram(uo.Pk_script)
+			ver, segwit_prog := bch.IsWitnessProgram(uo.Pk_script)
 			if len(segwit_prog) == 20 && ver == 0 {
 				copy(adr.Hash160[:], segwit_prog) // native segwith P2WPKH output
 			}
@@ -65,12 +65,12 @@ func sign_tx(tx *btc.Tx) (all_signed bool) {
 			var er error
 			k := keys[k_idx]
 			if segwit_prog != nil {
-				er = tx.SignWitness(in, k.BtcAddr.OutScript(), uo.Value, btc.SIGHASH_ALL, k.BtcAddr.Pubkey, k.Key)
+				er = tx.SignWitness(in, k.BtcAddr.OutScript(), uo.Value, bch.SIGHASH_ALL, k.BtcAddr.Pubkey, k.Key)
 			} else if adr.String() == segwit[k_idx].String() {
 				tx.TxIn[in].ScriptSig = append([]byte{22, 0, 20}, k.BtcAddr.Hash160[:]...)
-				er = tx.SignWitness(in, k.BtcAddr.OutScript(), uo.Value, btc.SIGHASH_ALL, k.BtcAddr.Pubkey, k.Key)
+				er = tx.SignWitness(in, k.BtcAddr.OutScript(), uo.Value, bch.SIGHASH_ALL, k.BtcAddr.Pubkey, k.Key)
 			} else {
-				er = tx.Sign(in, uo.Pk_script, btc.SIGHASH_ALL, k.BtcAddr.Pubkey, k.Key)
+				er = tx.Sign(in, uo.Pk_script, bch.SIGHASH_ALL, k.BtcAddr.Pubkey, k.Key)
 			}
 			if er != nil {
 				fmt.Println("ERROR: Sign failed for input number", in, er.Error())
@@ -91,7 +91,7 @@ func sign_tx(tx *btc.Tx) (all_signed bool) {
 	return
 }
 
-func write_tx_file(tx *btc.Tx) {
+func write_tx_file(tx *bch.Tx) {
 	var signedrawtx []byte
 	if tx.SegWit != nil {
 		signedrawtx = tx.SerializeNew()
@@ -122,7 +122,7 @@ func write_tx_file(tx *btc.Tx) {
 // prepare a signed transaction
 func make_signed_tx() {
 	// Make an empty transaction
-	tx := new(btc.Tx)
+	tx := new(bch.Tx)
 	tx.Version = 1
 	tx.Lock_time = 0
 
@@ -134,7 +134,7 @@ func make_signed_tx() {
 		}
 		uo := getUO(&unspentOuts[i].TxPrevOut)
 		// add the input to our transaction:
-		tin := new(btc.TxIn)
+		tin := new(bch.TxIn)
 		tin.Input = unspentOuts[i].TxPrevOut
 		tin.Sequence = uint32(*sequence)
 		tx.TxIn = append(tx.TxIn, tin)
@@ -146,8 +146,8 @@ func make_signed_tx() {
 		}
 	}
 	if btcsofar < (spendBtc + feeBtc) {
-		fmt.Println("ERROR: You have", btc.UintToBtc(btcsofar), "BTC, but you need",
-			btc.UintToBtc(spendBtc+feeBtc), "BTC for the transaction")
+		fmt.Println("ERROR: You have", bch.UintToBtc(btcsofar), "BTC, but you need",
+			bch.UintToBtc(spendBtc+feeBtc), "BTC for the transaction")
 		cleanExit(1)
 	}
 	changeBtc = btcsofar - (spendBtc + feeBtc)
@@ -157,7 +157,7 @@ func make_signed_tx() {
 
 	// Build transaction outputs:
 	for o := range sendTo {
-		outs, er := btc.NewSpendOutputs(sendTo[o].addr, sendTo[o].amount, testnet)
+		outs, er := bch.NewSpendOutputs(sendTo[o].addr, sendTo[o].amount, testnet)
 		if er != nil {
 			fmt.Println("ERROR:", er.Error())
 			cleanExit(1)
@@ -171,7 +171,7 @@ func make_signed_tx() {
 		if *verbose {
 			fmt.Println("Sending change", changeBtc, "to", chad.String())
 		}
-		outs, er := btc.NewSpendOutputs(chad, changeBtc, testnet)
+		outs, er := bch.NewSpendOutputs(chad, changeBtc, testnet)
 		if er != nil {
 			fmt.Println("ERROR:", er.Error())
 			cleanExit(1)
@@ -183,9 +183,9 @@ func make_signed_tx() {
 		// Add NULL output with an arbitrary message
 		scr := new(bytes.Buffer)
 		scr.WriteByte(0x6a) // OP_RETURN
-		btc.WritePutLen(scr, uint32(len(*message)))
+		bch.WritePutLen(scr, uint32(len(*message)))
 		scr.Write([]byte(*message))
-		tx.TxOut = append(tx.TxOut, &btc.TxOut{Value: 0, Pk_script: scr.Bytes()})
+		tx.TxOut = append(tx.TxOut, &bch.TxOut{Value: 0, Pk_script: scr.Bytes()})
 	}
 
 	signed := sign_tx(tx)

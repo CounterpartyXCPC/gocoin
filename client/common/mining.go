@@ -1,3 +1,58 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:		mining.go
+// Description:	Bictoin Cash Mining Package (Yes! You can mine too)
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The bchsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
+// Package main manages Counterparty Cash (XCPC) nodes. As XCPC transactions are executed
+// or queried, the state is maintain in the local LevelDB databstore. Signed RAW transactions
+// are parsed to gocoin-cash for transmission to the Bitcoin Cash blockchain.
+
 package common
 
 import (
@@ -6,7 +61,7 @@ import (
 	"io/ioutil"
 	"sync"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type oneMinerId struct {
@@ -17,7 +72,7 @@ type oneMinerId struct {
 var MinerIds []oneMinerId
 
 // return miner ID of the given coinbase transaction
-func TxMiner(cbtx *btc.Tx) (string, int) {
+func TxMiner(cbtx *bch.Tx) (string, int) {
 	txdat := cbtx.Serialize()
 	for i, m := range MinerIds {
 		if bytes.Equal(m.Tag, []byte("_p2pool_")) { // P2Pool
@@ -31,7 +86,7 @@ func TxMiner(cbtx *btc.Tx) (string, int) {
 	}
 
 	for _, txo := range cbtx.TxOut {
-		adr := btc.NewAddrFromPkScript(txo.Pk_script, Testnet)
+		adr := bch.NewAddrFromPkScript(txo.Pk_script, Testnet)
 		if adr != nil {
 			return adr.String(), -1
 		}
@@ -56,7 +111,7 @@ func ReloadMiners() {
 			if r[1] != "" {
 				rec.Tag = []byte(r[1])
 			} else {
-				if a, _ := btc.NewAddrFromString(r[2]); a != nil {
+				if a, _ := bch.NewAddrFromString(r[2]); a != nil {
 					rec.Tag = a.OutScript()
 				} else {
 					println("Error in miners.json for", r[0])
@@ -79,7 +134,7 @@ var (
 
 func GetAverageFee() float64 {
 	Last.Mutex.Lock()
-	end := Last.Block
+	end := Last.BchBlock
 	Last.Mutex.Unlock()
 
 	LockCfg()
@@ -103,7 +158,7 @@ func GetAverageFee() float64 {
 	AverageFeeTotal = 0
 
 	for blocks > 0 {
-		bl, _, e := BlockChain.Blocks.BlockGet(end.BlockHash)
+		bl, _, e := BlockChain.BchBlocks.BchBlockGet(end.BchBlockHash)
 		if e != nil {
 			return 0
 		}
@@ -112,12 +167,12 @@ func GetAverageFee() float64 {
 			return 0
 		}
 
-		cbasetx, cbasetxlen := btc.NewTx(bl[block.TxOffset:])
+		cbasetx, cbasetxlen := bch.NewTx(bl[block.TxOffset:])
 		var fees_from_this_block int64
 		for o := range cbasetx.TxOut {
 			fees_from_this_block += int64(cbasetx.TxOut[o].Value)
 		}
-		fees_from_this_block -= int64(btc.GetBlockReward(end.Height))
+		fees_from_this_block -= int64(bch.GetBlockReward(end.Height))
 
 		if fees_from_this_block > 0 {
 			AverageFeeTotal += uint64(fees_from_this_block)

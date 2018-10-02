@@ -18,7 +18,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif/textui"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif/webui"
 	"github.com/counterpartyxcpc/gocoin-cash/client/wallet"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
@@ -40,29 +40,29 @@ func reset_save_timer() {
 	for len(SaveBlockChain.C) > 0 {
 		<-SaveBlockChain.C
 	}
-	if common.BlockChainSynchronized {
+	if common.BchBlockChainSynchronized {
 		SaveBlockChain.Reset(SaveBlockChainAfter)
 	} else {
 		SaveBlockChain.Reset(SaveBlockChainAfterNoSync)
 	}
 }
 
-func blockMined(bl *btc.Block) {
-	network.BlockMined(bl)
+func blockMined(bl *bch.BchBlock) {
+	network.BchBlockMined(bl)
 	if int(bl.LastKnownHeight)-int(bl.Height) < 144 { // do not run it when syncing chain
 		usif.ProcessBlockFees(bl.Height, bl)
 	}
 }
 
-func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
+func LocalAcceptBlock(newbl *network.BchBlockRcvd) (e error) {
 	print("LocalAcceptBlock")
-	bl := newbl.Block
-	if common.FLAG.TrustAll || newbl.BlockTreeNode.Trusted {
+	bl := newbl.BchBlock
+	if common.FLAG.TrustAll || newbl.BchBlockTreeNode.Trusted {
 		bl.Trusted = true
 	}
 
-	common.BlockChain.Unspent.AbortWriting() // abort saving of UTXO.db
-	common.BlockChain.Blocks.BlockAdd(newbl.BlockTreeNode.Height, bl)
+	common.BchBlockChain.Unspent.AbortWriting() // abort saving of UTXO.db
+	common.BchBlockChain.BchBlocks.BchBlockAdd(newbl.BchBlockTreeNode.Height, bl)
 	newbl.TmQueue = time.Now()
 
 	if newbl.DoInvs {
@@ -73,7 +73,7 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 	network.MutexRcv.Lock()
 	bl.LastKnownHeight = network.LastCommitedHeader.Height
 	network.MutexRcv.Unlock()
-	e = common.BlockChain.CommitBlock(bl, newbl.BlockTreeNode)
+	e = common.BchBlockChain.CommitBlock(bl, newbl.BchBlockTreeNode)
 
 	if e == nil {
 		// new block accepted
@@ -85,15 +85,15 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 
 		common.Last.Mutex.Lock()
 		common.Last.Time = time.Now()
-		common.Last.Block = common.BlockChain.LastBlock()
+		common.Last.BchBlock = common.BchBlockChain.LastBlock()
 		common.Last.Mutex.Unlock()
 
 		reset_save_timer()
 	} else {
 		//fmt.Println("Warning: AcceptBlock failed. If the block was valid, you may need to rebuild the unspent DB (-r)")
-		new_end := common.BlockChain.LastBlock()
+		new_end := common.BchBlockChain.LastBlock()
 		common.Last.Mutex.Lock()
-		common.Last.Block = new_end
+		common.Last.BchBlock = new_end
 		common.Last.Mutex.Unlock()
 		// update network.LastCommitedHeader
 		network.MutexRcv.Lock()
@@ -112,37 +112,37 @@ func retry_cached_blocks() bool {
 	common.CountSafe("RedoCachedBlks")
 	for idx < len(network.CachedBlocks) {
 		newbl := network.CachedBlocks[idx]
-		if CheckParentDiscarded(newbl.BlockTreeNode) {
+		if CheckParentDiscarded(newbl.BchBlockTreeNode) {
 			common.CountSafe("DiscardCachedBlock")
-			if newbl.Block == nil {
-				os.Remove(common.TempBlocksDir() + newbl.BlockTreeNode.BlockHash.String())
+			if newbl.BchBlock == nil {
+				os.Remove(common.TempBlocksDir() + newbl.BchBlockTreeNode.BchBlockHash.String())
 			}
 			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
 			network.CachedBlocksLen.Store(len(network.CachedBlocks))
 			return len(network.CachedBlocks) > 0
 		}
-		if common.BlockChain.HasAllParents(newbl.BlockTreeNode) {
+		if common.BchBlockChain.HasAllParents(newbl.BchBlockTreeNode) {
 			common.Busy()
 
-			if newbl.Block == nil {
-				tmpfn := common.TempBlocksDir() + newbl.BlockTreeNode.BlockHash.String()
+			if newbl.BchBlock == nil {
+				tmpfn := common.TempBlocksDir() + newbl.BchBlockTreeNode.BchBlockHash.String()
 				dat, e := ioutil.ReadFile(tmpfn)
 				os.Remove(tmpfn)
 				if e != nil {
 					panic(e.Error())
 				}
-				if newbl.Block, e = bch.NewBchBlock(dat); e != nil {
+				if newbl.BchBlock, e = bch.NewBchBlock(dat); e != nil {
 					panic(e.Error())
 				}
-				if e = newbl.Block.BuildTxList(); e != nil {
+				if e = newbl.BchBlock.BuildTxList(); e != nil {
 					panic(e.Error())
 				}
-				newbl.Block.BlockExtraInfo = *newbl.BlockExtraInfo
+				newbl.BchBlock.BchBlockExtraInfo = *newbl.BchBlockExtraInfo
 			}
 
 			e := LocalAcceptBlock(newbl)
 			if e != nil {
-				fmt.Println("AcceptBlock2", newbl.BlockTreeNode.BlockHash.String(), "-", e.Error())
+				fmt.Println("AcceptBlock2", newbl.BchBlockTreeNode.BchBlockHash.String(), "-", e.Error())
 				newbl.Conn.Misbehave("LocalAcceptBl2", 250)
 			}
 			if usif.Exit_now.Get() {
@@ -161,18 +161,18 @@ func retry_cached_blocks() bool {
 
 // Return true iof the block's parent is on the DiscardedBlocks list
 // Add it to DiscardedBlocks, if returning true
-func CheckParentDiscarded(n *bch_chain.BlockTreeNode) bool {
+func CheckParentDiscarded(n *bch_chain.BchBlockTreeNode) bool {
 	network.MutexRcv.Lock()
 	defer network.MutexRcv.Unlock()
-	if network.DiscardedBlocks[n.Parent.BlockHash.BIdx()] {
-		network.DiscardedBlocks[n.BlockHash.BIdx()] = true
+	if network.DiscardedBlocks[n.Parent.BchBlockHash.BIdx()] {
+		network.DiscardedBlocks[n.BchBlockHash.BIdx()] = true
 		return true
 	}
 	return false
 }
 
 // Called from the blockchain thread
-func HandleNetBlock(newbl *network.BlockRcvd) {
+func HandleNetBlock(newbl *network.BchBlockRcvd) {
 	defer func() {
 		common.CountSafe("MainNetBlock")
 		if common.GetUint32(&common.WalletOnIn) > 0 {
@@ -180,16 +180,16 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 		}
 	}()
 
-	if CheckParentDiscarded(newbl.BlockTreeNode) {
+	if CheckParentDiscarded(newbl.BchBlockTreeNode) {
 		common.CountSafe("DiscardFreshBlockA")
-		if newbl.Block == nil {
-			os.Remove(common.TempBlocksDir() + newbl.BlockTreeNode.BlockHash.String())
+		if newbl.BchBlock == nil {
+			os.Remove(common.TempBlocksDir() + newbl.BchBlockTreeNode.BchBlockHash.String())
 		}
 		retryCachedBlocks = len(network.CachedBlocks) > 0
 		return
 	}
 
-	if !common.BlockChain.HasAllParents(newbl.BlockTreeNode) {
+	if !common.BchBlockChain.HasAllParents(newbl.BchBlockTreeNode) {
 		// it's not linking - keep it for later
 		network.CachedBlocks = append(network.CachedBlocks, newbl)
 		network.CachedBlocksLen.Store(len(network.CachedBlocks))
@@ -197,49 +197,49 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 		return
 	}
 
-	if newbl.Block == nil {
-		tmpfn := common.TempBlocksDir() + newbl.BlockTreeNode.BlockHash.String()
+	if newbl.BchBlock == nil {
+		tmpfn := common.TempBlocksDir() + newbl.BchBlockTreeNode.BchBlockHash.String()
 		dat, e := ioutil.ReadFile(tmpfn)
 		os.Remove(tmpfn)
 		if e != nil {
 			panic(e.Error())
 		}
-		if newbl.Block, e = bch.NewBchBlock(dat); e != nil {
+		if newbl.BchBlock, e = bch.NewBchBlock(dat); e != nil {
 			panic(e.Error())
 		}
-		if e = newbl.Block.BuildTxList(); e != nil {
+		if e = newbl.BchBlock.BuildTxList(); e != nil {
 			panic(e.Error())
 		}
-		newbl.Block.BlockExtraInfo = *newbl.BlockExtraInfo
+		newbl.BchBlock.BchBlockExtraInfo = *newbl.BchBlockExtraInfo
 	}
 
 	common.Busy()
 	if e := LocalAcceptBlock(newbl); e != nil {
 		common.CountSafe("DiscardFreshBlockB")
-		fmt.Println("AcceptBlock1", newbl.Block.Hash.String(), "-", e.Error())
+		fmt.Println("AcceptBlock1", newbl.BchBlock.Hash.String(), "-", e.Error())
 		newbl.Conn.Misbehave("LocalAcceptBl1", 250)
 	} else {
-		//println("block", newbl.Block.Height, "accepted")
+		//println("block", newbl.BchBlock.Height, "accepted")
 		retryCachedBlocks = retry_cached_blocks()
 	}
 }
 
-func HandleRpcBlock(msg *rpcapi.BlockSubmited) {
+func HandleRpcBlock(msg *rpcapi.BchBlockSubmited) {
 	common.CountSafe("RPCNewBlock")
 
 	network.MutexRcv.Lock()
-	rb := network.ReceivedBlocks[msg.Block.Hash.BIdx()]
+	rb := network.ReceivedBlocks[msg.BchBlock.Hash.BIdx()]
 	network.MutexRcv.Unlock()
 	if rb == nil {
-		panic("Block " + msg.Block.Hash.String() + " not in ReceivedBlocks map")
+		panic("Block " + msg.BchBlock.Hash.String() + " not in ReceivedBlocks map")
 	}
 
-	common.BlockChain.Unspent.AbortWriting()
+	common.BchBlockChain.Unspent.AbortWriting()
 	rb.TmQueue = time.Now()
 
-	e, _, _ := common.BlockChain.CheckBlock(msg.Block)
+	e, _, _ := common.BchBlockChain.CheckBlock(msg.BchBlock)
 	if e == nil {
-		e = common.BlockChain.AcceptBlock(msg.Block)
+		e = common.BchBlockChain.AcceptBlock(msg.BchBlock)
 		rb.TmAccepted = time.Now()
 	}
 	if e != nil {
@@ -249,15 +249,15 @@ func HandleRpcBlock(msg *rpcapi.BlockSubmited) {
 		return
 	}
 
-	network.NetRouteInv(network.MSG_BLOCK, msg.Block.Hash, nil)
+	network.NetRouteInv(network.MSG_BLOCK, msg.BchBlock.Hash, nil)
 	common.RecalcAverageBlockSize()
 
 	common.CountSafe("RPCBlockOK")
-	println("New mined block", msg.Block.Height, "accepted OK in", rb.TmAccepted.Sub(rb.TmQueue).String())
+	println("New mined block", msg.BchBlock.Height, "accepted OK in", rb.TmAccepted.Sub(rb.TmQueue).String())
 
 	common.Last.Mutex.Lock()
 	common.Last.Time = time.Now()
-	common.Last.Block = common.BlockChain.LastBlock()
+	common.Last.BchBlock = common.BchBlockChain.LastBlock()
 	common.Last.Mutex.Unlock()
 
 	msg.Done.Done()
@@ -352,10 +352,10 @@ func main() {
 			fmt.Println(len(keys), "peers un-baned")
 		}
 
-		for k, v := range common.BlockChain.BlockIndex {
+		for k, v := range common.BchBlockChain.BchBlockIndex {
 			network.ReceivedBlocks[k] = &network.OneReceivedBlock{TmStart: time.Unix(int64(v.Timestamp()), 0)}
 		}
-		network.LastCommitedHeader = common.Last.Block
+		network.LastCommitedHeader = common.Last.BchBlock
 
 		if common.CFG.TXPool.SaveOnDisk {
 			network.MempoolLoad2()
@@ -462,7 +462,7 @@ func main() {
 			case <-SaveBlockChain.C:
 				common.Busy()
 				common.CountSafe("SaveBlockChain")
-				if common.BlockChain.Idle() {
+				if common.BchBlockChain.Idle() {
 					common.CountSafe("ChainIdleUsed")
 				}
 
@@ -476,21 +476,21 @@ func main() {
 				common.CountSafe("MainNetTick")
 				network.NetworkTick()
 
-				if common.BlockChainSynchronized {
+				if common.BchBlockChainSynchronized {
 					if common.WalletPendingTick() {
 						wallet.OnOff <- true
 					}
 					break // BlockChainSynchronized so never mind checking it
 				}
 
-				if network.HeadersReceived.Get() >= 15 && network.BlocksToGetCnt() == 0 &&
+				if network.HeadersReceived.Get() >= 15 && network.BchBlocksToGetCnt() == 0 &&
 					len(network.NetBlocks) == 0 && network.CachedBlocksLen.Get() == 0 {
 					// only when we have no pending blocks and rteceived header messages, startup_ticks can go down..
 					if startup_ticks > 0 {
 						startup_ticks--
 						break
 					}
-					common.SetBool(&common.BlockChainSynchronized, true)
+					common.SetBool(&common.BchBlockChainSynchronized, true)
 					reset_save_timer()
 				} else {
 					startup_ticks = 5 // snooze by 5 seconds each time we're in here
@@ -518,7 +518,7 @@ func main() {
 			}
 		}
 
-		common.BlockChain.Unspent.HurryUp()
+		common.BchBlockChain.Unspent.HurryUp()
 		wallet.UpdateMapSizes()
 		network.NetCloseAll()
 	}

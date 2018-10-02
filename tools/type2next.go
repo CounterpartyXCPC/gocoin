@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"os"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 func main() {
@@ -41,10 +41,10 @@ func main() {
 	testnet := len(os.Args) > 3 && os.Args[3] == "-t"
 
 	// Old address
-	public_key = btc.DeriveNextPublic(public_key, secret)
+	public_key = bch.DeriveNextPublic(public_key, secret)
 
 	// New address
-	fmt.Println(btc.NewAddrFromPubkey(public_key, btc.AddrVerPubkey(testnet)).String())
+	fmt.Println(bch.NewAddrFromPubkey(public_key, bch.AddrVerPubkey(testnet)).String())
 	// New key
 	fmt.Println(hex.EncodeToString(public_key))
 

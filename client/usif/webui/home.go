@@ -10,7 +10,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
@@ -70,14 +70,14 @@ func json_status(w http.ResponseWriter, r *http.Request) {
 		BlockChainSynchronized bool
 	}
 	common.Last.Mutex.Lock()
-	out.Height = common.Last.Block.Height
-	out.Hash = common.Last.Block.BlockHash.String()
-	out.Timestamp = common.Last.Block.Timestamp()
+	out.Height = common.Last.BchBlock.Height
+	out.Hash = common.Last.BchBlock.BchBlockHash.String()
+	out.Timestamp = common.Last.BchBlock.Timestamp()
 	out.Received = common.Last.Time.Unix()
 	out.Time_now = time.Now().Unix()
-	out.Diff = btc.GetDifficulty(common.Last.Block.Bits())
-	out.Median = common.Last.Block.GetMedianTimePast()
-	out.Version = common.Last.Block.BlockVersion()
+	out.Diff = bch.GetDifficulty(common.Last.BchBlock.Bits())
+	out.Median = common.Last.BchBlock.GetMedianTimePast()
+	out.Version = common.Last.BchBlock.BchBlockVersion()
 	common.Last.Mutex.Unlock()
 	out.MinValue = common.AllBalMinVal()
 	out.WalletON = common.GetBool(&common.WalletON)
@@ -85,7 +85,7 @@ func json_status(w http.ResponseWriter, r *http.Request) {
 	network.MutexRcv.Lock()
 	out.LastHeaderHeight = network.LastCommitedHeader.Height
 	network.MutexRcv.Unlock()
-	out.BlockChainSynchronized = common.GetBool(&common.BlockChainSynchronized)
+	out.BchBlockChainSynchronized = common.GetBool(&common.BchBlockChainSynchronized)
 
 	bx, er := json.Marshal(out)
 	if er == nil {
@@ -119,9 +119,9 @@ func json_system(w http.ResponseWriter, r *http.Request) {
 		SavingUTXO         bool
 	}
 
-	out.Blocks_cached = network.CachedBlocksLen.Get()
+	out.BchBlocks_cached = network.CachedBlocksLen.Get()
 	network.MutexRcv.Lock()
-	out.BlocksToGet = len(network.BlocksToGet)
+	out.BchBlocksToGet = len(network.BchBlocksToGet)
 	network.MutexRcv.Unlock()
 	out.Known_peers = peersdb.PeerDB.Count()
 	out.Node_uptime = uint64(time.Now().Sub(common.StartTime).Seconds())
@@ -129,7 +129,7 @@ func json_system(w http.ResponseWriter, r *http.Request) {
 	out.Net_tx_qsize = len(network.NetTxs)
 	out.Heap_size, out.Heap_sysmem = sys.MemUsed()
 	out.Qdb_extramem = utxo.ExtraMemoryConsumed()
-	out.Ecdsa_verify_cnt = btc.EcdsaVerifyCnt()
+	out.Ecdsa_verify_cnt = bch.EcdsaVerifyCnt()
 	out.Average_block_size = common.AverageBlockSize.Get()
 	out.Average_fee = common.GetAverageFee()
 	network.MutexRcv.Lock()
@@ -144,7 +144,7 @@ func json_system(w http.ResponseWriter, r *http.Request) {
 	out.NetworkHashRate = lastHrate
 	mutexHrate.Unlock()
 
-	out.SavingUTXO = common.BlockChain.Unspent.WritingInProgress.Get()
+	out.SavingUTXO = common.BchBlockChain.Unspent.WritingInProgress.Get()
 
 	bx, er := json.Marshal(out)
 	if er == nil {

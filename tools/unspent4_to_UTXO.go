@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
 )
 
@@ -92,7 +92,7 @@ func save_map(ndb map[qdb.KeyType][]byte) {
 	wr.Write(block_hash)
 	binary.Write(wr, binary.LittleEndian, uint64(len(ndb)))
 	for k, v := range ndb {
-		btc.WriteVlen(wr, uint64(len(v)+8))
+		bch.WriteVlen(wr, uint64(len(v)+8))
 		binary.Write(wr, binary.LittleEndian, k)
 		//binary.Write(wr, binary.LittleEndian, uint32(len(v)))
 		_, er = wr.Write(v)
@@ -129,7 +129,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("Loading input database. Block", block_height, btc.NewUint256(block_hash).String())
+	fmt.Println("Loading input database. Block", block_height, bch.NewUint256(block_hash).String())
 	sta = time.Now()
 	ndb := load_map4()
 	fmt.Println(len(ndb), "records loaded in", time.Now().Sub(sta).String())

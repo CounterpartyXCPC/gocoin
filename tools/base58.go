@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 var (
@@ -30,13 +30,13 @@ func main() {
 	}
 
 	if *decode {
-		res := btc.Decodeb58(strings.Trim(string(msg), " \t\n\r"))
+		res := bch.Decodeb58(strings.Trim(string(msg), " \t\n\r"))
 		if *binary {
 			os.Stdout.Write(res)
 		} else {
 			fmt.Println(hex.EncodeToString(res))
 		}
 	} else {
-		fmt.Println(btc.Encodeb58(msg))
+		fmt.Println(bch.Encodeb58(msg))
 	}
 }

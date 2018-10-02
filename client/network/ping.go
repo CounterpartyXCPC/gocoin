@@ -85,7 +85,7 @@ func GetSortedConnections() (list SortedConnections, any_ping bool, segwit_cnt i
 		v.Mutex.Lock()
 		tlist[cnt].Conn = v
 		tlist[cnt].Ping = v.GetAveragePing()
-		tlist[cnt].BlockCount = len(v.blocksreceived)
+		tlist[cnt].BchBlockCount = len(v.blocksreceived)
 		tlist[cnt].TxsCount = v.X.TxsReceived
 		tlist[cnt].Special = v.X.IsSpecial
 		if v.X.VersionReceived == false || v.X.ConnectedAt.IsZero() {
@@ -118,18 +118,18 @@ func GetSortedConnections() (list SortedConnections, any_ping bool, segwit_cnt i
 				if best_idx < 0 {
 					best_idx = i
 					best_tcnt = v.TxsCount
-					best_bcnt = v.BlockCount
+					best_bcnt = v.BchBlockCount
 					best_ping = v.Ping
 				} else {
 					if ignore_bcnt {
 						bcnt = best_bcnt
 					} else {
-						bcnt = v.BlockCount
+						bcnt = v.BchBlockCount
 					}
 					if best_bcnt < bcnt ||
 						best_bcnt == bcnt && best_tcnt < v.TxsCount ||
 						best_bcnt == bcnt && best_tcnt == v.TxsCount && best_ping > v.Ping {
-						best_bcnt = v.BlockCount
+						best_bcnt = v.BchBlockCount
 						best_tcnt = v.TxsCount
 						best_ping = v.Ping
 						best_idx = i
@@ -177,7 +177,7 @@ func drop_worst_peer() bool {
 					if f != nil {
 						fmt.Fprintf(f, "%s: Drop incomming id:%d  blks:%d  txs:%d  ping:%d  mins:%d\n",
 							time.Now().Format("2006-01-02 15:04:05"),
-							v.Conn.ConnID, v.BlockCount, v.TxsCount, v.Ping, v.MinutesOnline)
+							v.Conn.ConnID, v.BchBlockCount, v.TxsCount, v.Ping, v.MinutesOnline)
 						f.Close()
 					}
 				}
@@ -192,7 +192,7 @@ func drop_worst_peer() bool {
 					if f != nil {
 						fmt.Fprintf(f, "%s: Drop outgoing id:%d  blks:%d  txs:%d  ping:%d  mins:%d\n",
 							time.Now().Format("2006-01-02 15:04:05"),
-							v.Conn.ConnID, v.BlockCount, v.TxsCount, v.Ping, v.MinutesOnline)
+							v.Conn.ConnID, v.BchBlockCount, v.TxsCount, v.Ping, v.MinutesOnline)
 						f.Close()
 					}
 				}

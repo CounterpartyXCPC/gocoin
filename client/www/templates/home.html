@@ -370,8 +370,8 @@ function refreshsysinfo() {
 			si_ecdsa_verify_cnt.innerText = si.Ecdsa_verify_cnt
 			si_avg_block_size.innerText = (si.Average_block_size/1000).toFixed(1) + ' kB'
 			si_avg_fee_spb.innerText = si.Average_fee.toFixed(0)
-			si_blocks_cached.innerText = si.Blocks_cached
-			si_blocks_to_get.innerText = si.BlocksToGet
+			si_blocks_cached.innerText = si.BchBlocks_cached
+			si_blocks_to_get.innerText = si.BchBlocksToGet
 			si_node_uptime.innerText = period2str(si.Node_uptime)
 			si_last_hdr_height.innerText = si.LastHeaderHeight
 			si_network_hashrate.innerText = bignum(si.NetworkHashRate) +'H/s'

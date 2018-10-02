@@ -11,7 +11,7 @@ import (
 )
 
 // https://blockchain.info/block/000000000000000000871f4f01a389bda59e568ead8d0fd45fc7cc1919d2666e?format=hex
-// https://webbtc.com/block/0000000000000000000cdc0d2a9b33c2d4b34b4d4fa8920f074338d0dc1164dc.bin
+// https://webbch.com/block/0000000000000000000cdc0d2a9b33c2d4b34b4d4fa8920f074338d0dc1164dc.bin
 // https://blockexplorer.com/api/rawblock/0000000000000000000cdc0d2a9b33c2d4b34b4d4fa8920f074338d0dc1164dc
 
 // Download (and re-assemble) raw block from blockexplorer.com
@@ -39,20 +39,20 @@ func GetBlockFromExplorer(hash *bch.Uint256) (rawtx []byte) {
 	return
 }
 
-// Download raw block from webbtc.com
+// Download raw block from webbch.com
 func GetBlockFromWebBTC(hash *bch.Uint256) (raw []byte) {
-	url := "https://webbtc.com/block/" + hash.String() + ".bin"
+	url := "https://webbch.com/block/" + hash.String() + ".bin"
 	r, er := http.Get(url)
 	if er == nil {
 		if r.StatusCode == 200 {
 			raw, _ = ioutil.ReadAll(r.Body)
 			r.Body.Close()
 		} else {
-			fmt.Println("webbtc.com StatusCode=", r.StatusCode)
+			fmt.Println("webbch.com StatusCode=", r.StatusCode)
 		}
 	}
 	if er != nil {
-		fmt.Println("webbtc.com:", er.Error())
+		fmt.Println("webbch.com:", er.Error())
 	}
 	return
 }
@@ -78,7 +78,7 @@ func GetBlockFromBlockchainInfo(hash *bch.Uint256) (rawtx []byte) {
 
 func IsBlockOK(raw []byte, hash *bch.Uint256) (bl *bch.BchBlock) {
 	var er error
-	bl, er = bch.BchNewBlock(raw)
+	bl, er = bch.NewBchBlock(raw)
 	if er != nil {
 		return
 	}

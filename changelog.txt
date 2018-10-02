@@ -1,12 +1,12 @@
 1.9.5:
 * Client: New config value "CFG.Net.ExternalIP" - force external IP (only v4) to be reported in "version" messages
 * Client: Do not try to save UTXO.db when chain is not synchronized, unless network has been idle for 10 minutes
-* Client: Improved the algorithm of setting "common.BlockChainSynchronized"
+* Client: Improved the algorithm of setting "common.BchBlockChainSynchronized"
 * Wallet: "-l -ltc -segwit" will now give addresses starting from M, not from 3 (see issue #41)
 * Client/WebUI: Suport for TLS connections with forced client-side authentication (https://hostname:4433/)
 * Client: Removed automatic conversion of old format unspent4 to the new UTXO.db
 * Client: If pong comes out but a block is still pending, timeout it and dont ask this peer for blocks again.
-* Client: "CFG.UTXOSaveSec" replaced with "CFG.UTXOSave.SecondsToTake" and "CFG.UTXOSave.BlocksToHold"
+* Client: "CFG.UTXOSaveSec" replaced with "CFG.UTXOSave.SecondsToTake" and "CFG.UTXOSave.BchBlocksToHold"
 * Tools/balio: added support for fetching bech32 encoded addresses (via blockchair.com)
 
 1.9.4 - 2018-04-11
@@ -59,7 +59,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * Wallet: New command line switch "-txfn <filename>" to control the name of the output transaction file
 * Client: Check nonce inside each version messages and disconnect the peer if already had it
 * Client: Redone protection os accessing values in "common" package, to prevent data race
-* Lib: "chain.BlockTreeEnd" is now only accessible through multi-thread protected methods LastBlock() and SetLast()
+* Lib: "chain.BchBlockTreeEnd" is now only accessible through multi-thread protected methods LastBlock() and SetLast()
 * Client: Added network.CompactBlocksMutex to prevent data race
 * Client/WebUI/MakeTx: For privacy, randomly modify the default SPB by up to +/- 10%
 * Client/WebUI/Network: Allows to edit "friends.txt" file
@@ -83,13 +83,13 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * Wallet: disallow uncompressed keys, for WPKH segwit address safety
 * Client: Ignore the value of MAX_GETDATA_FORWARD when there are no blocks in progress
 * MarshalText() method madded to "sys.SyncBool" and "sys.SyncInt" (fixes WebUI issue)
-* Got rid of btc.MAX_BLOCK_SIZE (replaced it with btc.MAX_BLOCK_WEIGHT)
+* Got rid of bch.MAX_BLOCK_SIZE (replaced it with bch.MAX_BLOCK_WEIGHT)
 * Lib: New "utils.GetUnspent()" function to fetch a balance from "blockexplorer.com" or "blockchain.info"
 * Tools/BalIO: Remade to use blockexplorer.com since blockr.io isn't working any more
 * Client/WebUI/Blocks: Show fee statistics in relation to transactions' weight, not the size
 * Client: NetRouteInv() was only routing txs to peers which don't use "feefilter"
 * Wallet: decode transaction also shows WTxID now
-* Lib: calculates weight of blocks and checks it against "btc.MAX_BLOCK_WEIGHT"
+* Lib: calculates weight of blocks and checks it against "bch.MAX_BLOCK_WEIGHT"
 
 1.9.2 - 2017-09-30
 * Minor performance improvements in "lib/secp256k1"
@@ -102,7 +102,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * Client: When loading a local transaciton, remove it from Rejected first
 * Client: Never send "inv" messages with MSG_WITNESS_TX type
 * Client/WebUI/Txs: Allow sorting Txs by SegWit compression factor
-* Client: the handler to chain.TrustedTxChecker also checks match on tx's WTxID now.
+* Client: the handler to bch_chain.TrustedTxChecker also checks match on tx's WTxID now.
 * Tools/bdb: new switch "-fixlen" to set up the uncompressed size of each block inside blockchain.new
 * Client: BlocksDB index file contains now also the uncompressed size of each block
 * Client/WebUI/Wallet: Export settings stores entire local storage
@@ -138,8 +138,8 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * Client/WebUI: Removed Segwit related statistics
 * Client/WebUI/Wallet: Show Segwit deposit addresses if segwit is active
 * Client: WebUI/Blocks shows new blocks' extended fee stats
-* Added support fro BIP91 in chain.PreCheckBlock() as well as on WebUI (mining info)
-* LIb: fixed panic in chain.NewChainExt() when called with nil options (used by importblocks tool)
+* Added support fro BIP91 in bch_chain.PreCheckBlock() as well as on WebUI (mining info)
+* LIb: fixed panic in bch_chain.NewChainExt() when called with nil options (used by importblocks tool)
 * Client: When calculating initial average block size, assume MAX_BLOCK_SIZE for the purged ones
 * Client: changed configuration related data
 * Client: Changed rules of choosing the "slowest" peer to drop
@@ -151,7 +151,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * Client: abort saving of UITXO.db before starting to precess a new block
 * Added some protection against nodes sending own IP instead of ours (bitcointalk.org/index.php?topic=1954151.0)
 * Node's TxsReceived stat only counts the last hour
-* "btc.Uint256IdxLen" and "utxo.UtxoIdxLen" set back to 8 bytes, to decrease memory usage
+* "bch.Uint256IdxLen" and "utxo.UtxoIdxLen" set back to 8 bytes, to decrease memory usage
 * Client: fixed the way best external IP is selected
 * WebUI/Txs: Limit memory pool fees graph to first 10 MB
 * WebUI: Do not display wallet name(s) in each tab's header (privacy)
@@ -178,7 +178,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * Client: the balance of all the addresses is fetched after the blockchain finishes loading. It saves memory and speeds up potential rescans
 
 1.8.1
-* Client: each call to common.BlockChain.DeleteBranch() also does DelB2G() recursively
+* Client: each call to common.BchBlockChain.DeleteBranch() also does DelB2G() recursively
 * WebUI: Added (switchable) sound notifications when a new block is mined
 * Client: Support for new config value "WebUI.ServerMode" - many users to share the same node
 * WebUI/Miners: Redone
@@ -220,7 +220,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 1.7.1 - 2016-08-22
 * Client: WebUI/MakeTX - display raw transaction after clicking no the ID.
 * Client: "common.CFG.AllBalances.MinValue" is only applied during init now (change it restart to apply)
-* Downloader: fix loosing the content of *btc.Block structure between PreCheckBlock() and PostCheckBlock()
+* Downloader: fix loosing the content of *bch.BchBlock structure between PreCheckBlock() and PostCheckBlock()
 * Client: shows text messages attached to transactions (the first push after OP_RETURN)
 * Downloader: fix for getting stuck at fetching headers if the top would happen to be orphaned
 * Client: WebUI - "balance.json" support "summary" (to not include list of unspent outputs)
@@ -313,7 +313,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * peersdb: MinPeersInDB changed from 256 to 512
 * Client: Added BIP100 stats to the mining UI
 * Wallet: Added support for Type-4 wallet, which is based on BIP-32 keys derivation (HD wallets)
-* Lib: Some changes to btc.WalletHD API
+* Lib: Some changes to bch.WalletHD API
 * WebUI: Real time UI refresh (without reloading the pages)
 * Client/WebUI: Fixed double bug that occurred when switching "Listening for incoming TCP connections" on/off
 * secp256k1: Force Low S values in ECDSA Sign function
@@ -326,7 +326,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * WebUI: Transactions tab has an option to only show "own" transactions
 * WebUI: Miners tab shows fee statistics
 * Fix: peers DB getting empty after disconnecting the network (keep at least 256 records)
-* Fix: BlockChain.BlockIndexAccess wasn't being unlocked when a panic from FindPathTo() was handled
+* Fix: BlockChain.BchBlockIndexAccess wasn't being unlocked when a panic from FindPathTo() was handled
 * Lib: reject old version blocks based on the super-majority principles
 * Lib: implemented BIT-0066
 
@@ -422,7 +422,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * goc - a new tool to control the node from a remote console, using a WebUI interface
 * peers - a new tool to display content of the peers database
 * base58 - a new tool to encode/decode base58 strings
-* Added "restore leading zeros" to btc.Decodeb58(), to reflect behaviour from the satoshi's code
+* Added "restore leading zeros" to bch.Decodeb58(), to reflect behaviour from the satoshi's code
 
 0.9.8 - 2014-04-22
 * Added locally served "Help" page to WebUI
@@ -510,7 +510,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * "wallet -d" prints number of (yet) unsigned inputs
 * "versigmsg" renamed to "btcversig" and some new features were added
 * Expire external IPs after one hour from last seen
-* Added new fields "Nonce", "TxCount", and "TxOffset" to "btc.Block" (set in "btc.NewBchBlock")
+* Added new fields "Nonce", "TxCount", and "TxOffset" to "bch.BchBlock" (set in "bch.NewBchBlock")
 
 0.8.5 - 2013-12-18
 * From now on every "payment.zip" contains also the unsigned raw transaction file ("tx2sign.txt")
@@ -523,7 +523,7 @@ NOTE: Use older wallet version (e.g. 1.9.3) if you had wallet type 2 or 4 alread
 * WebUI cosmetic here and there...
 * Transaction and EC signing parts moved from the wallet app to the btc package
 * Added "-raw <filename>" and "-d <filename>" command to the wallet (to sign, decode transaction file)
-* Fixed decoding of P2SH-type addresses in btc.NewAddrFromPkScript()
+* Fixed decoding of P2SH-type addresses in bch.NewAddrFromPkScript()
 * Added support for relay=0 received from peers (do not send tx invs to them)
 
 0.8.3 - 2013-11-28

@@ -3,7 +3,7 @@ package rpcapi
 import (
 	"encoding/hex"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	//"github.com/counterpartyxcpc/gocoin-cash/client/common"
 )
 
@@ -33,7 +33,7 @@ type InvalidAddressResponse struct {
 }
 
 func ValidateAddress(addr string) interface{} {
-	a, e := btc.NewAddrFromString(addr)
+	a, e := bch.NewAddrFromString(addr)
 	if e != nil {
 		return new(InvalidAddressResponse)
 	}

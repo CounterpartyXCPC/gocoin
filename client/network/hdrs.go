@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 )
 
@@ -43,10 +43,10 @@ func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 	common.CountSafe("HeaderNew")
 	fmt.Println("", bl.Hash.String(), " - NEW!")
 
-	common.BlockChain.BlockIndexAccess.Lock()
-	defer common.BlockChain.BlockIndexAccess.Unlock()
+	common.BchBlockChain.BchBlockIndexAccess.Lock()
+	defer common.BchBlockChain.BchBlockIndexAccess.Unlock()
 
-	if er, dos, _ := common.BlockChain.PreCheckBlock(bl); er != nil {
+	if er, dos, _ := common.BchBlockChain.PreCheckBlock(bl); er != nil {
 		common.CountSafe("PreCheckBlockFail")
 		//println("PreCheckBlock err", dos, er.Error())
 		if dos {
@@ -56,19 +56,19 @@ func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 		}
 	}
 
-	node := common.BlockChain.AcceptHeader(bl)
+	node := common.BchBlockChain.AcceptHeader(bl)
 	b2g = &OneBlockToGet{Started: c.LastMsgTime, Block: bl, BlockTreeNode: node, InProgress: 0}
 	AddB2G(b2g)
 	LastCommitedHeader = node
 
-	if common.LastTrustedBlockMatch(node.BlockHash) {
+	if common.LastTrustedBlockMatch(node.BchBlockHash) {
 		common.SetUint32(&common.LastTrustedBlockHeight, node.Height)
 		for node != nil {
 			node.Trusted = true
 			node = node.Parent
 		}
 	}
-	b2g.Block.Trusted = b2g.BlockTreeNode.Trusted
+	b2g.BchBlock.Trusted = b2g.BchBlockTreeNode.Trusted
 
 	return PH_STATUS_NEW, b2g
 }
@@ -79,7 +79,7 @@ func (c *OneConnection) HandleHeaders(pl []byte) (new_headers_got int) {
 	c.MutexSetBool(&c.X.GetHeadersInProgress, false)
 
 	b := bytes.NewReader(pl)
-	cnt, e := btc.ReadVLen(b)
+	cnt, e := bch.ReadVLen(b)
 	if e != nil {
 		println("HandleHeaders:", e.Error(), c.PeerAddr.Ip())
 		return
@@ -124,12 +124,12 @@ func (c *OneConnection) HandleHeaders(pl []byte) (new_headers_got int) {
 					}
 					new_headers_got++
 				}
-				if b2g.Block.Height > highest_block_found {
-					highest_block_found = b2g.Block.Height
+				if b2g.BchBlock.Height > highest_block_found {
+					highest_block_found = b2g.BchBlock.Height
 				}
-				if c.Node.Height < b2g.Block.Height {
+				if c.Node.Height < b2g.BchBlock.Height {
 					c.Mutex.Lock()
-					c.Node.Height = b2g.Block.Height
+					c.Node.Height = b2g.BchBlock.Height
 					c.Mutex.Unlock()
 				}
 				c.MutexSetBool(&c.X.GetBlocksDataNow, true)
@@ -170,7 +170,7 @@ func (c *OneConnection) GetHeaders(pl []byte) {
 		return
 	}
 
-	var best_block, last_block *bch_chain.BlockTreeNode
+	var best_block, last_block *bch_chain.BchBlockTreeNode
 
 	//common.Last.Mutex.Lock()
 	MutexRcv.Lock()
@@ -178,25 +178,25 @@ func (c *OneConnection) GetHeaders(pl []byte) {
 	MutexRcv.Unlock()
 	//common.Last.Mutex.Unlock()
 
-	common.BlockChain.BlockIndexAccess.Lock()
+	common.BchBlockChain.BchBlockIndexAccess.Lock()
 
 	//println("GetHeaders", len(h2get), hashstop.String())
 	if len(h2get) > 0 {
 		for i := range h2get {
-			if bl, ok := common.BlockChain.BlockIndex[h2get[i].BIdx()]; ok {
+			if bl, ok := common.BchBlockChain.BchBlockIndex[h2get[i].BIdx()]; ok {
 				if best_block == nil || bl.Height > best_block.Height {
-					//println(" ... bbl", i, bl.Height, bl.BlockHash.String())
+					//println(" ... bbl", i, bl.Height, bl.BchBlockHash.String())
 					best_block = bl
 				}
 			}
 		}
 	} else {
-		best_block = common.BlockChain.BlockIndex[hashstop.BIdx()]
+		best_block = common.BchBlockChain.BchBlockIndex[hashstop.BIdx()]
 	}
 
 	if best_block == nil {
 		common.CountSafe("GetHeadersBadBlock")
-		best_block = common.BlockChain.BlockTreeRoot
+		best_block = common.BchBlockChain.BchBlockTreeRoot
 	}
 
 	var resp []byte
@@ -208,11 +208,11 @@ func (c *OneConnection) GetHeaders(pl []byte) {
 			common.CountSafe("GetHeadersOrphBlk")
 		}
 
-		common.BlockChain.BlockIndexAccess.Unlock()
+		common.BchBlockChain.BchBlockIndexAccess.Unlock()
 
 		// send the response
 		out := new(bytes.Buffer)
-		btc.WriteVlen(out, uint64(cnt))
+		bch.WriteVlen(out, uint64(cnt))
 		out.Write(resp)
 		c.SendRawMsg("headers", out.Bytes())
 	}()
@@ -225,7 +225,7 @@ func (c *OneConnection) GetHeaders(pl []byte) {
 		if best_block == nil {
 			break
 		}
-		resp = append(resp, append(best_block.BlockHeader[:], 0)...) // 81st byte is always zero
+		resp = append(resp, append(best_block.BchBlockHeader[:], 0)...) // 81st byte is always zero
 		cnt++
 	}
 
@@ -238,7 +238,7 @@ func (c *OneConnection) sendGetHeaders() {
 	MutexRcv.Lock()
 	lb := LastCommitedHeader
 	MutexRcv.Unlock()
-	min_height := int(lb.Height) - chain.MovingCheckopintDepth
+	min_height := int(lb.Height) - bch_chain.MovingCheckopintDepth
 	if min_height < 0 {
 		min_height = 0
 	}
@@ -248,9 +248,9 @@ func (c *OneConnection) sendGetHeaders() {
 	var step int
 	step = 1
 	for cnt < 50 /*it should never get that far, but just in case...*/ {
-		blks.Write(lb.BlockHash.Hash[:])
+		blks.Write(lb.BchBlockHash.Hash[:])
 		cnt++
-		//println(" geth", cnt, "height", lb.Height, lb.BlockHash.String())
+		//println(" geth", cnt, "height", lb.Height, lb.BchBlockHash.String())
 		if int(lb.Height) <= min_height {
 			break
 		}
@@ -269,7 +269,7 @@ func (c *OneConnection) sendGetHeaders() {
 
 	bhdr := new(bytes.Buffer)
 	binary.Write(bhdr, binary.LittleEndian, common.Version)
-	btc.WriteVlen(bhdr, cnt)
+	bch.WriteVlen(bhdr, cnt)
 
 	c.SendRawMsg("getheaders", append(bhdr.Bytes(), blks.Bytes()...))
 	c.X.LastHeadersHeightAsk = lb.Height

@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 )
 
@@ -33,7 +33,7 @@ func main() {
 		return
 	}
 
-	ad, er := btc.NewAddrFromString(*addr)
+	ad, er := bch.NewAddrFromString(*addr)
 	if !*litecoin && ad != nil && ad.Version == ltc.AddrVerPubkey(false) {
 		*litecoin = true
 	}
@@ -43,7 +43,7 @@ func main() {
 		return
 	}
 
-	nv, btcsig, er := btc.ParseMessageSignature(*sign)
+	nv, btcsig, er := bch.ParseMessageSignature(*sign)
 	if er != nil {
 		println("ParseMessageSignature:", er.Error())
 		return
@@ -75,7 +75,7 @@ func main() {
 	if *litecoin {
 		ltc.HashFromMessage(msg, hash)
 	} else {
-		btc.HashFromMessage(msg, hash)
+		bch.HashFromMessage(msg, hash)
 	}
 
 	compressed := false
@@ -90,9 +90,9 @@ func main() {
 	pub := btcsig.RecoverPublicKey(hash[:], int(nv-27))
 	if pub != nil {
 		pk := pub.Bytes(compressed)
-		ok := btc.EcdsaVerify(pk, btcsig.Bytes(), hash)
+		ok := bch.EcdsaVerify(pk, btcsig.Bytes(), hash)
 		if ok {
-			sa := btc.NewAddrFromPubkey(pk, ad.Version)
+			sa := bch.NewAddrFromPubkey(pk, ad.Version)
 			if ad.Hash160 != sa.Hash160 {
 				fmt.Println("BAD signature for", ad.String())
 				if bytes.IndexByte(msg, '\r') != -1 {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 const MultiToSignOut = "multi2sign.txt"
@@ -24,7 +24,7 @@ func make_p2sh() {
 		return
 	}
 
-	ms, er := btc.NewMultiSigFromP2SH(d)
+	ms, er := bch.NewMultiSigFromP2SH(d)
 	if er != nil {
 		println("Decode P2SH:", er.Error())
 		return
@@ -37,7 +37,7 @@ func make_p2sh() {
 	for i := range tx.TxIn {
 		if *input < 0 || i == *input {
 			tx.TxIn[i].ScriptSig = sd
-			fmt.Println("Input number", i, " - hash to sign:", hex.EncodeToString(tx.SignatureHash(d, i, btc.SIGHASH_ALL)))
+			fmt.Println("Input number", i, " - hash to sign:", hex.EncodeToString(tx.SignatureHash(d, i, bch.SIGHASH_ALL)))
 		}
 	}
 	ioutil.WriteFile(MultiToSignOut, []byte(hex.EncodeToString(tx.Serialize())), 0666)
@@ -47,20 +47,20 @@ func make_p2sh() {
 // reorder signatures to meet order of the keys
 // remove signatuers made by the same keys
 // remove exessive signatures (keeps transaction size down)
-func multisig_reorder(tx *btc.Tx) (all_signed bool) {
+func multisig_reorder(tx *bch.Tx) (all_signed bool) {
 	all_signed = true
 	for i := range tx.TxIn {
-		ms, _ := btc.NewMultiSigFromScript(tx.TxIn[i].ScriptSig)
+		ms, _ := bch.NewMultiSigFromScript(tx.TxIn[i].ScriptSig)
 		if ms == nil {
 			continue
 		}
-		hash := tx.SignatureHash(ms.P2SH(), i, btc.SIGHASH_ALL)
+		hash := tx.SignatureHash(ms.P2SH(), i, bch.SIGHASH_ALL)
 
-		var sigs []*btc.Signature
+		var sigs []*bch.Signature
 		for ki := range ms.PublicKeys {
-			var sig *btc.Signature
+			var sig *bch.Signature
 			for si := range ms.Signatures {
-				if btc.EcdsaVerify(ms.PublicKeys[ki], ms.Signatures[si].Bytes(), hash) {
+				if bch.EcdsaVerify(ms.PublicKeys[ki], ms.Signatures[si].Bytes(), hash) {
 					//fmt.Println("Key number", ki, "has signature number", si)
 					sig = ms.Signatures[si]
 					break
@@ -111,20 +111,20 @@ func multisig_sign() {
 	}
 
 	for i := range tx.TxIn {
-		ms, er := btc.NewMultiSigFromScript(tx.TxIn[i].ScriptSig)
+		ms, er := bch.NewMultiSigFromScript(tx.TxIn[i].ScriptSig)
 		if er != nil {
 			println("WARNING: Input", i, "- not multisig:", er.Error())
 			continue
 		}
-		hash := tx.SignatureHash(ms.P2SH(), i, btc.SIGHASH_ALL)
+		hash := tx.SignatureHash(ms.P2SH(), i, bch.SIGHASH_ALL)
 		//fmt.Println("Input number", i, len(ms.Signatures), " - hash to sign:", hex.EncodeToString(hash))
 
-		r, s, e := btc.EcdsaSign(k.Key, hash)
+		r, s, e := bch.EcdsaSign(k.Key, hash)
 		if e != nil {
 			println(e.Error())
 			return
 		}
-		btcsig := &btc.Signature{HashType: 0x01}
+		btcsig := &bch.Signature{HashType: 0x01}
 		btcsig.R.Set(r)
 		btcsig.S.Set(s)
 

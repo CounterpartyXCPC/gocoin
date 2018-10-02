@@ -8,13 +8,13 @@ import (
 	"os"
 	"strings"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/ltc"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
 // Cache for txs from already loaded from balance/ folder
-var loadedTxs map[[32]byte]*btc.Tx = make(map[[32]byte]*btc.Tx)
+var loadedTxs map[[32]byte]*bch.Tx = make(map[[32]byte]*bch.Tx)
 
 // Read a line from stdin
 func getline() string {
@@ -122,10 +122,10 @@ check_pass:
 }
 
 // return the change addrress or nil if there will be no change
-func get_change_addr() (chng *btc.BtcAddr) {
+func get_change_addr() (chng *bch.BtcAddr) {
 	if *change != "" {
 		var e error
-		chng, e = btc.NewAddrFromString(*change)
+		chng, e = bch.NewAddrFromString(*change)
 		if e != nil {
 			println("Change address:", e.Error())
 			cleanExit(1)
@@ -148,13 +148,13 @@ func get_change_addr() (chng *btc.BtcAddr) {
 	return
 }
 
-func raw_tx_from_file(fn string) *btc.Tx {
+func raw_tx_from_file(fn string) *bch.Tx {
 	dat := sys.GetRawData(fn)
 	if dat == nil {
 		fmt.Println("Cannot fetch raw transaction data")
 		return nil
 	}
-	tx, txle := btc.NewTx(dat)
+	tx, txle := bch.NewTx(dat)
 	if tx != nil {
 		tx.SetHash(dat)
 		if txle != len(dat) {
@@ -165,7 +165,7 @@ func raw_tx_from_file(fn string) *btc.Tx {
 }
 
 // Get tx with given id from the balance folder, of from cache
-func tx_from_balance(txid *btc.Uint256, error_is_fatal bool) (tx *btc.Tx) {
+func tx_from_balance(txid *bch.Uint256, error_is_fatal bool) (tx *bch.Tx) {
 	if tx = loadedTxs[txid.Hash]; tx != nil {
 		return // we have it in cache already
 	}
@@ -173,9 +173,9 @@ func tx_from_balance(txid *btc.Uint256, error_is_fatal bool) (tx *btc.Tx) {
 	buf, er := ioutil.ReadFile(fn)
 	if er == nil && buf != nil {
 		var th [32]byte
-		btc.ShaHash(buf, th[:])
+		bch.ShaHash(buf, th[:])
 		if txid.Hash == th {
-			tx, _ = btc.NewTx(buf)
+			tx, _ = bch.NewTx(buf)
 			if error_is_fatal && tx == nil {
 				println("Transaction is corrupt:", txid.String())
 				cleanExit(1)
@@ -196,9 +196,9 @@ func tx_from_balance(txid *btc.Uint256, error_is_fatal bool) (tx *btc.Tx) {
 }
 
 // Look for specific TxPrevOut in the balance folder
-func getUO(pto *btc.TxPrevOut) *btc.TxOut {
+func getUO(pto *bch.TxPrevOut) *bch.TxOut {
 	if _, ok := loadedTxs[pto.Hash]; !ok {
-		loadedTxs[pto.Hash] = tx_from_balance(btc.NewUint256(pto.Hash[:]), true)
+		loadedTxs[pto.Hash] = tx_from_balance(bch.NewUint256(pto.Hash[:]), true)
 	}
 	return loadedTxs[pto.Hash].TxOut[pto.Vout]
 }
@@ -208,7 +208,7 @@ func ver_pubkey() byte {
 	if litecoin {
 		return ltc.AddrVerPubkey(testnet)
 	} else {
-		return btc.AddrVerPubkey(testnet)
+		return bch.AddrVerPubkey(testnet)
 	}
 }
 
@@ -217,7 +217,7 @@ func ver_script() byte {
 	if litecoin {
 		return ltc.AddrVerScript(testnet)
 	} else {
-		return btc.AddrVerScript(testnet)
+		return bch.AddrVerScript(testnet)
 	}
 }
 
@@ -227,18 +227,18 @@ func ver_secret() byte {
 }
 
 // get BtcAddr from pk_script
-func addr_from_pkscr(scr []byte) *btc.BtcAddr {
+func addr_from_pkscr(scr []byte) *bch.BtcAddr {
 	if litecoin {
 		return ltc.NewAddrFromPkScript(scr, testnet)
 	} else {
-		return btc.NewAddrFromPkScript(scr, testnet)
+		return bch.NewAddrFromPkScript(scr, testnet)
 	}
 }
 
 // make sure the version byte in the given address is what we expect
-func assert_address_version(a *btc.BtcAddr) {
+func assert_address_version(a *bch.BtcAddr) {
 	if a.SegwitProg != nil {
-		if a.SegwitProg.HRP != btc.GetSegwitHRP(testnet) {
+		if a.SegwitProg.HRP != bch.GetSegwitHRP(testnet) {
 			println("Sending address", a.String(), "has an incorrect HRP string", a.SegwitProg.HRP)
 			cleanExit(1)
 		}

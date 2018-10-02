@@ -106,8 +106,8 @@ var (
 			PingPeriodSec   uint // zero to not ping
 		}
 		UTXOSave struct {
-			SecondsToTake uint   // zero for as fast as possible, 600 for do it in 10 minutes
-			BlocksToHold  uint32 // zero for immediatelly, one for every other block...
+			SecondsToTake   uint   // zero for as fast as possible, 600 for do it in 10 minutes
+			BchBlocksToHold uint32 // zero for immediatelly, one for every other block...
 		}
 	}
 
@@ -172,7 +172,7 @@ func InitConfig() {
 	CFG.DropPeers.PingPeriodSec = 15   // seconds
 
 	CFG.UTXOSave.SecondsToTake = 300
-	CFG.UTXOSave.BlocksToHold = 6
+	CFG.UTXOSave.BchBlocksToHold = 6
 
 	CFG.LastTrustedBlock = "00000000000000000015e96e98a806907ca1848ee5eed88a81719aba58a681be" // block #537186
 
@@ -283,7 +283,7 @@ func Reset() {
 	ListenTCP = CFG.Net.ListenTCP
 
 	utxo.UTXO_WRITING_TIME_TARGET = time.Second * time.Duration(CFG.UTXOSave.SecondsToTake)
-	utxo.UTXO_SKIP_SAVE_BLOCKS = CFG.UTXOSave.BlocksToHold
+	utxo.UTXO_SKIP_SAVE_BLOCKS = CFG.UTXOSave.BchBlocksToHold
 
 	if CFG.UserAgent != "" {
 		UserAgent = CFG.UserAgent

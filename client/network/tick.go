@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 )
 
@@ -39,7 +39,7 @@ func (c *OneConnection) ExpireBlocksToGet(now *time.Time, curr_ping_cnt uint64) 
 		} else {
 			continue
 		}
-		c.X.BlocksExpired++
+		c.X.BchBlocksExpired++
 		delete(c.GetBlockInProgress, k)
 		if bip, ok := BlocksToGet[k]; ok {
 			bip.InProgress--
@@ -60,7 +60,7 @@ func (c *OneConnection) Maintanence(now time.Time) {
 	if len(c.blocksreceived) > 0 {
 		var i int
 		for i = 0; i < len(c.blocksreceived); i++ {
-			if c.blocksreceived[i].Add(common.GetDuration(&common.BlockExpireEvery)).After(now) {
+			if c.blocksreceived[i].Add(common.GetDuration(&common.BchBlockExpireEvery)).After(now) {
 				break
 			}
 			common.CountSafe("BlksRcvdExpired")
@@ -91,7 +91,7 @@ func (c *OneConnection) Tick(now time.Time) {
 		return
 	}
 
-	if common.GetBool(&common.BlockChainSynchronized) {
+	if common.GetBool(&common.BchBlockChainSynchronized) {
 		// See if to send "getmp" command
 		select {
 		case GetMPInProgressTicket <- true:
@@ -346,7 +346,7 @@ func ConnectFriends() {
 				friend_ids[ad.UniqID()] = true
 				continue
 			}
-			pk := btc.Decodeb58(ls[0])
+			pk := bch.Decodeb58(ls[0])
 			if len(pk) == 33 {
 				AuthPubkeys = append(AuthPubkeys, pk)
 				//println("Using pubkey:", hex.EncodeToString(pk))
@@ -502,12 +502,12 @@ func (c *OneConnection) SendFeeFilter() {
 func (c *OneConnection) SendAuth() {
 	rnd := make([]byte, 32)
 	copy(rnd, c.Node.Nonce[:])
-	r, s, er := btc.EcdsaSign(common.SecretKey, rnd)
+	r, s, er := bch.EcdsaSign(common.SecretKey, rnd)
 	if er != nil {
 		println(er.Error())
 		return
 	}
-	var sig btc.Signature
+	var sig bch.Signature
 	sig.R.Set(r)
 	sig.S.Set(s)
 	c.SendRawMsg("auth", sig.Bytes())
@@ -522,7 +522,7 @@ func (c *OneConnection) AuthRvcd(pl []byte) {
 	rnd := make([]byte, 32)
 	copy(rnd, nonce[:])
 	for _, pub := range AuthPubkeys {
-		if btc.EcdsaVerify(pub, pl, rnd) {
+		if bch.EcdsaVerify(pub, pl, rnd) {
 			c.X.Authorized = true
 			c.SendRawMsg("authack", nil)
 			return
@@ -649,8 +649,8 @@ func (c *OneConnection) Run() {
 						if (c.Node.Services & SERVICE_SEGWIT) == 0 {
 							// if the node does not support segwit, request compact blocks
 							// only if we have not achieved the segwit enforcement moment
-							if common.BlockChain.Consensus.Enforce_SEGWIT == 0 ||
-								common.Last.BlockHeight() < common.BlockChain.Consensus.Enforce_SEGWIT {
+							if common.BchBlockChain.Consensus.Enforce_SEGWIT == 0 ||
+								common.Last.BchBlockHeight() < common.BchBlockChain.Consensus.Enforce_SEGWIT {
 								c.SendRawMsg("sendcmpct", []byte{0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 							}
 						} else {

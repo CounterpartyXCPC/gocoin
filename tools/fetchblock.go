@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/counterpartyxcpc/gocoin-cash"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/utils"
 )
 
@@ -18,7 +18,7 @@ func main() {
 		return
 	}
 
-	hash := btc.NewUint256FromString(os.Args[1])
+	hash := bch.NewUint256FromString(os.Args[1])
 	bl := utils.GetBlockFromWeb(hash)
 	if bl == nil {
 		fmt.Println("Error fetching the block")

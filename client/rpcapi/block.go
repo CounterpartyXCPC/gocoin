@@ -11,11 +11,11 @@ import (
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type BlockSubmited struct {
-	*btc.Block
+	*bch.BchBlock
 	Error string
 	Done  sync.WaitGroup
 }
@@ -58,17 +58,17 @@ func SubmitBlock(cmd *RpcCommand, resp *RpcResponse, b []byte) {
 
 	bs := new(BlockSubmited)
 
-	bs.Block, er = bch.NewBchBlock(bd)
+	bs.BchBlock, er = bch.NewBchBlock(bd)
 	if er != nil {
 		resp.Error = RpcError{Code: -4, Message: er.Error()}
 		return
 	}
 
 	network.MutexRcv.Lock()
-	network.ReceivedBlocks[bs.Block.Hash.BIdx()] = &network.OneReceivedBlock{TmStart: time.Now()}
+	network.ReceivedBlocks[bs.BchBlock.Hash.BIdx()] = &network.OneReceivedBlock{TmStart: time.Now()}
 	network.MutexRcv.Unlock()
 
-	println("new block", bs.Block.Hash.String(), "len", len(bd), "- submitting...")
+	println("new block", bs.BchBlock.Hash.String(), "len", len(bd), "- submitting...")
 	bs.Done.Add(1)
 	RpcBlocks <- bs
 	bs.Done.Wait()
@@ -84,11 +84,11 @@ func SubmitBlock(cmd *RpcCommand, resp *RpcResponse, b []byte) {
 		println("submiting block result:", resp.Result.(string))
 
 		print("time_now:", time.Now().Unix())
-		print("  cur_block_ts:", bs.Block.BlockTime())
+		print("  cur_block_ts:", bs.BchBlock.BchBlockTime())
 		print("  last_given_now:", last_given_time)
 		print("  last_given_min:", last_given_mintime)
 		common.Last.Mutex.Lock()
-		print("  prev_block_ts:", common.Last.Block.Timestamp())
+		print("  prev_block_ts:", common.Last.BchBlock.Timestamp())
 		common.Last.Mutex.Unlock()
 		println()
 
@@ -102,7 +102,7 @@ func SubmitBlock(cmd *RpcCommand, resp *RpcResponse, b []byte) {
 		switch cmd.Params.(type) {
 		case string:
 			println("\007Block rejected by bitcoind:", resp.Result.(string))
-			ioutil.WriteFile(fmt.Sprint(bs.Block.Height, "-", bs.Block.Hash.String()), bd, 0777)
+			ioutil.WriteFile(fmt.Sprint(bs.BchBlock.Height, "-", bs.BchBlock.Hash.String()), bd, 0777)
 		default:
 			println("submiting block verified OK", bs.Error)
 		}

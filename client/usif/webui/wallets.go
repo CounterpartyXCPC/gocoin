@@ -17,7 +17,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/client/network"
 	"github.com/counterpartyxcpc/gocoin-cash/client/usif"
 	"github.com/counterpartyxcpc/gocoin-cash/client/wallet"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_utxo"
 )
 
@@ -33,8 +33,8 @@ func p_wal(w http.ResponseWriter, r *http.Request) {
 
 	var str string
 	common.Last.Mutex.Lock()
-	if common.BlockChain.Consensus.Enforce_SEGWIT != 0 &&
-		common.Last.Block.Height >= common.BlockChain.Consensus.Enforce_SEGWIT {
+	if common.BchBlockChain.Consensus.Enforce_SEGWIT != 0 &&
+		common.Last.BchBlock.Height >= common.BchBlockChain.Consensus.Enforce_SEGWIT {
 		str = "var segwit_active=true"
 	} else {
 		str = "var segwit_active=false"
@@ -47,14 +47,14 @@ func p_wal(w http.ResponseWriter, r *http.Request) {
 	write_html_tail(w)
 }
 
-func getaddrtype(aa *btc.BtcAddr) string {
+func getaddrtype(aa *bch.BtcAddr) string {
 	if aa.SegwitProg != nil && aa.SegwitProg.Version == 0 && len(aa.SegwitProg.Program) == 20 {
 		return "P2WPKH"
 	}
-	if aa.Version == btc.AddrVerPubkey(common.Testnet) {
+	if aa.Version == bch.AddrVerPubkey(common.Testnet) {
 		return "P2PKH"
 	}
-	if aa.Version == btc.AddrVerScript(common.Testnet) {
+	if aa.Version == bch.AddrVerScript(common.Testnet) {
 		return "P2SH"
 	}
 	return "unknown"
@@ -132,7 +132,7 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, a := range addrs {
-		aa, e := btc.NewAddrFromString(a)
+		aa, e := bch.NewAddrFromString(a)
 		if e != nil {
 			continue
 		}
@@ -151,7 +151,7 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 					newrec.SpendingCnt++
 				}
 				if !summary {
-					txid := btc.NewUint256(u.TxPrevOut.Hash[:])
+					txid := bch.NewUint256(u.TxPrevOut.Hash[:])
 					var rawtx string
 					if getrawtx {
 						dat, er := common.GetRawTx(uint32(u.MinedAt), txid)
@@ -160,7 +160,7 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 						}
 					}
 					newrec.Outs = append(newrec.Outs, OneOut{
-						TxId: btc.NewUint256(u.TxPrevOut.Hash[:]).String(), Vout: u.Vout,
+						TxId: bch.NewUint256(u.TxPrevOut.Hash[:]).String(), Vout: u.Vout,
 						Value: u.Value, Height: u.MinedAt, Coinbase: u.Coinbase,
 						Message: html.EscapeString(string(u.Message)), Addr: a, Spending: spending,
 						RawTx: rawtx, AddrType: getaddrtype(aa)})
@@ -175,12 +175,12 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 		}
 
 		/* For P2KH addr, we wlso check its segwit's P2SH-P2WPKH and Native P2WPKH */
-		if aa.SegwitProg == nil && aa.Version == btc.AddrVerPubkey(common.Testnet) {
+		if aa.SegwitProg == nil && aa.Version == bch.AddrVerPubkey(common.Testnet) {
 			p2kh := aa.Hash160
 
 			// P2SH SegWit if applicable
-			h160 := btc.Rimp160AfterSha256(append([]byte{0, 20}, p2kh[:]...))
-			aa = btc.NewAddrFromHash160(h160[:], btc.AddrVerScript(common.Testnet))
+			h160 := bch.Rimp160AfterSha256(append([]byte{0, 20}, p2kh[:]...))
+			aa = bch.NewAddrFromHash160(h160[:], bch.AddrVerScript(common.Testnet))
 			newrec.SegWitAddr = aa.String()
 			unsp = wallet.GetAllUnspent(aa)
 			if len(unsp) > 0 {
@@ -197,7 +197,7 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 						newrec.SpendingCnt++
 					}
 					if !summary {
-						txid := btc.NewUint256(u.TxPrevOut.Hash[:])
+						txid := bch.NewUint256(u.TxPrevOut.Hash[:])
 						var rawtx string
 						if getrawtx {
 							dat, er := common.GetRawTx(uint32(u.MinedAt), txid)
@@ -218,7 +218,7 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// Native SegWit if applicable
-			aa = btc.NewAddrFromPkScript(append([]byte{0, 20}, p2kh[:]...), common.Testnet)
+			aa = bch.NewAddrFromPkScript(append([]byte{0, 20}, p2kh[:]...), common.Testnet)
 			newrec.SegWitNativeAddr = aa.String()
 			unsp = wallet.GetAllUnspent(aa)
 			if len(unsp) > 0 {
@@ -235,7 +235,7 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 						newrec.SpendingCnt++
 					}
 					if !summary {
-						txid := btc.NewUint256(u.TxPrevOut.Hash[:])
+						txid := bch.NewUint256(u.TxPrevOut.Hash[:])
 						var rawtx string
 						if getrawtx {
 							dat, er := common.GetRawTx(uint32(u.MinedAt), txid)
@@ -268,7 +268,7 @@ func json_balance(w http.ResponseWriter, r *http.Request) {
 					newrec.PendingValue += to.Value
 					newrec.PendingCnt++
 					if !summary {
-						po := &btc.TxPrevOut{Hash: t2s.Hash.Hash, Vout: uint32(vo)}
+						po := &bch.TxPrevOut{Hash: t2s.Hash.Hash, Vout: uint32(vo)}
 						_, spending := network.SpentOutputs[po.UIdx()]
 						newrec.PendingOuts = append(newrec.PendingOuts, OneOut{
 							TxId: t2s.Hash.String(), Vout: uint32(vo),
@@ -322,7 +322,7 @@ func dl_balance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type one_unsp_rec struct {
-		btc.TxPrevOut
+		bch.TxPrevOut
 		Value    uint64
 		Addr     string
 		MinedAt  uint32
@@ -338,7 +338,7 @@ func dl_balance(w http.ResponseWriter, r *http.Request) {
 	lck.In.Wait()
 
 	for idx, a := range addrs {
-		aa, e := btc.NewAddrFromString(a)
+		aa, e := bch.NewAddrFromString(a)
 		aa.Extra.Label = labels[idx]
 		if e == nil {
 			newrecs := wallet.GetAllUnspent(aa)
@@ -347,19 +347,19 @@ func dl_balance(w http.ResponseWriter, r *http.Request) {
 			}
 
 			/* Segwit P2WPKH: */
-			if aa.SegwitProg == nil && aa.Version == btc.AddrVerPubkey(common.Testnet) {
+			if aa.SegwitProg == nil && aa.Version == bch.AddrVerPubkey(common.Testnet) {
 				p2kh := aa.Hash160
 
 				// P2SH SegWit if applicable
-				h160 := btc.Rimp160AfterSha256(append([]byte{0, 20}, aa.Hash160[:]...))
-				aa = btc.NewAddrFromHash160(h160[:], btc.AddrVerScript(common.Testnet))
+				h160 := bch.Rimp160AfterSha256(append([]byte{0, 20}, aa.Hash160[:]...))
+				aa = bch.NewAddrFromHash160(h160[:], bch.AddrVerScript(common.Testnet))
 				newrecs = wallet.GetAllUnspent(aa)
 				if len(newrecs) > 0 {
 					thisbal = append(thisbal, newrecs...)
 				}
 
 				// Native SegWit if applicable
-				aa = btc.NewAddrFromPkScript(append([]byte{0, 20}, p2kh[:]...), common.Testnet)
+				aa = bch.NewAddrFromPkScript(append([]byte{0, 20}, p2kh[:]...), common.Testnet)
 				newrecs = wallet.GetAllUnspent(aa)
 				if len(newrecs) > 0 {
 					thisbal = append(thisbal, newrecs...)
@@ -379,7 +379,7 @@ func dl_balance(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		was_tx[thisbal[i].TxPrevOut.Hash] = true
-		txid := btc.NewUint256(thisbal[i].TxPrevOut.Hash[:])
+		txid := bch.NewUint256(thisbal[i].TxPrevOut.Hash[:])
 		fz, _ := zi.Create("balance/" + txid.String() + ".tx")
 		if dat, er := common.GetRawTx(thisbal[i].MinedAt, txid); er == nil {
 			fz.Write(dat)

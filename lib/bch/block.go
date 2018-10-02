@@ -85,7 +85,7 @@ type BchBlockExtraInfo struct {
 	Height      uint32
 }
 
-func BchNewBlock(data []byte) (bl *BchBlock, er error) {
+func NewBchBlock(data []byte) (bl *BchBlock, er error) {
 	if data == nil {
 		er = errors.New("nil pointer")
 		return

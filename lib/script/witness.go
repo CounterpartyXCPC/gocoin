@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type witness_ctx struct {
@@ -17,7 +17,7 @@ func (w *witness_ctx) IsNull() bool {
 	return w.stack.size() == 0
 }
 
-func VerifyWitnessProgram(witness *witness_ctx, amount uint64, tx *btc.Tx, inp int, witversion int, program []byte, flags uint32) bool {
+func VerifyWitnessProgram(witness *witness_ctx, amount uint64, tx *bch.Tx, inp int, witversion int, program []byte, flags uint32) bool {
 	var stack scrStack
 	var scriptPubKey []byte
 
@@ -87,7 +87,7 @@ func VerifyWitnessProgram(witness *witness_ctx, amount uint64, tx *btc.Tx, inp i
 	}
 	// Disallow stack item size > MAX_SCRIPT_ELEMENT_SIZE in witness stack
 	for i := 0; i < stack.size(); i++ {
-		if len(stack.at(i)) > btc.MAX_SCRIPT_ELEMENT_SIZE {
+		if len(stack.at(i)) > bch.MAX_SCRIPT_ELEMENT_SIZE {
 			if DBG_ERR {
 				fmt.Println("SCRIPT_ERR_PUSH_SIZE")
 			}

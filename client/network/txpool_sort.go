@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 var (
@@ -57,7 +57,7 @@ func GetSortedMempool() (result []*OneTxToSend) {
 		var cnt_ok int
 		for idx, inp := range tx.TxIn {
 			if tx.MemInputs[idx] {
-				txk := btc.BIdx(inp.Input.Hash[:])
+				txk := bch.BIdx(inp.Input.Hash[:])
 				if _, ok := already_in[txk]; ok {
 				} else {
 					yes = true
@@ -285,7 +285,7 @@ func MempoolCheck() (dupa bool) {
 				dupa = true
 			}
 
-			_, ok = TransactionsToSend[btc.BIdx(inp.Input.Hash[:])]
+			_, ok = TransactionsToSend[bch.BIdx(inp.Input.Hash[:])]
 
 			if t2s.MemInputs == nil {
 				if ok {
@@ -307,8 +307,8 @@ func MempoolCheck() (dupa bool) {
 				}
 			}
 
-			if _, ok := TransactionsToSend[btc.BIdx(inp.Input.Hash[:])]; !ok {
-				if unsp := common.BlockChain.Unspent.UnspentGet(&inp.Input); unsp == nil {
+			if _, ok := TransactionsToSend[bch.BIdx(inp.Input.Hash[:])]; !ok {
+				if unsp := common.BchBlockChain.Unspent.UnspentGet(&inp.Input); unsp == nil {
 					fmt.Println("Mempool tx", t2s.Hash.String(), "has no input", i)
 					dupa = true
 				}
@@ -348,7 +348,7 @@ func MempoolCheck() (dupa bool) {
 
 // Get all first level children of the tx
 func (tx *OneTxToSend) GetChildren() (result []*OneTxToSend) {
-	var po btc.TxPrevOut
+	var po bch.TxPrevOut
 	po.Hash = tx.Hash.Hash
 
 	res := make(map[*OneTxToSend]bool)
@@ -403,7 +403,7 @@ func (tx *OneTxToSend) GetAllParents() (result []*OneTxToSend) {
 		if tx.MemInputCnt > 0 {
 			for idx := range tx.TxIn {
 				if tx.MemInputs[idx] {
-					do_one(TransactionsToSend[btc.BIdx(tx.TxIn[idx].Input.Hash[:])])
+					do_one(TransactionsToSend[bch.BIdx(tx.TxIn[idx].Input.Hash[:])])
 				}
 			}
 		}

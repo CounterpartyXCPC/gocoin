@@ -8,11 +8,11 @@ import (
 	"io/ioutil"
 	"testing"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type oneinp struct {
-	txid  *btc.Uint256
+	txid  *bch.Uint256
 	vout  int
 	pkscr string
 	value uint64
@@ -42,7 +42,7 @@ func parserec(vv []interface{}) (ret *testvector) {
 	for i, u := range vv[0].([]interface{}) {
 		switch uu := u.(type) {
 		case []interface{}:
-			txid := btc.NewUint256FromString(uu[0].(string))
+			txid := bch.NewUint256FromString(uu[0].(string))
 			newrec := oneinp{txid: txid, vout: int(uu[1].(float64)), pkscr: uu[2].(string)}
 			if len(uu) > 3 {
 				newrec.value = uint64(uu[3].(float64))
@@ -65,7 +65,7 @@ func parserec(vv []interface{}) (ret *testvector) {
 
 // Some tests from the satoshi's json files are not applicable
 // ... for our architectre so lets just fake them.
-func skip_broken_tests(tx *btc.Tx) bool {
+func skip_broken_tests(tx *bch.Tx) bool {
 	// No inputs
 	if len(tx.TxIn) == 0 {
 		return true
@@ -73,7 +73,7 @@ func skip_broken_tests(tx *btc.Tx) bool {
 
 	// Negative output
 	for i := range tx.TxOut {
-		if tx.TxOut[i].Value > btc.MAX_MONEY {
+		if tx.TxOut[i].Value > bch.MAX_MONEY {
 			return true
 		}
 	}
@@ -112,7 +112,7 @@ func execute_test_tx(t *testing.T, tv *testvector) bool {
 		t.Error(er.Error())
 		return false
 	}
-	tx, _ := btc.NewTx(rd)
+	tx, _ := bch.NewTx(rd)
 	if tx == nil {
 		t.Error("Canot decode tx")
 		return false
@@ -146,7 +146,7 @@ func execute_test_tx(t *testing.T, tv *testvector) bool {
 			continue
 		}
 
-		pk, er := btc.DecodeScript(tv.inps[j].pkscr)
+		pk, er := bch.DecodeScript(tv.inps[j].pkscr)
 		if er != nil {
 			t.Error(er.Error())
 			continue
@@ -258,7 +258,7 @@ func TestSighash(t *testing.T) {
 	for i := range arr {
 		if len(arr[i]) == 5 {
 			tmp, _ := hex.DecodeString(arr[i][0].(string))
-			tx, _ := btc.NewTx(tmp)
+			tx, _ := bch.NewTx(tmp)
 			if tx == nil {
 				t.Error("Cannot decode tx from text number", i)
 				continue
@@ -267,7 +267,7 @@ func TestSighash(t *testing.T) {
 			iidx, _ := arr[i][2].(json.Number).Int64()
 			htype, _ := arr[i][3].(json.Number).Int64()
 			got := tx.SignatureHash(tmp, int(iidx), int32(htype))
-			exp := btc.NewUint256FromString(arr[i][4].(string))
+			exp := bch.NewUint256FromString(arr[i][4].(string))
 			if !bytes.Equal(exp.Hash[:], got) {
 				t.Error("SignatureHash mismatch at index", i)
 			}

@@ -5,12 +5,12 @@ import (
 	"os"
 	"strings"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 // Resolved while parsing "-send" parameter
 type oneSendTo struct {
-	addr   *btc.BtcAddr
+	addr   *bch.BtcAddr
 	amount uint64
 }
 
@@ -31,14 +31,14 @@ func parse_spend() {
 			cleanExit(1)
 		}
 
-		a, e := btc.NewAddrFromString(tmp[0])
+		a, e := bch.NewAddrFromString(tmp[0])
 		if e != nil {
 			println("NewAddrFromString:", e.Error())
 			cleanExit(1)
 		}
 		assert_address_version(a)
 
-		am, er := btc.StringToSatoshis(tmp[1])
+		am, er := bch.StringToSatoshis(tmp[1])
 		if er != nil {
 			println("Incorrect amount: ", tmp[1], er.Error())
 			cleanExit(1)
@@ -74,14 +74,14 @@ func parse_batch() {
 				continue // Just a comment-line
 			}
 
-			a, e := btc.NewAddrFromString(tmp[0])
+			a, e := bch.NewAddrFromString(tmp[0])
 			if e != nil {
 				println("NewAddrFromString:", e.Error())
 				cleanExit(1)
 			}
 			assert_address_version(a)
 
-			am, e := btc.StringToSatoshis(tmp[1])
+			am, e := bch.StringToSatoshis(tmp[1])
 			if e != nil {
 				println("StringToSatoshis:", e.Error())
 				cleanExit(1)

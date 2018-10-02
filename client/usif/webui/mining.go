@@ -12,7 +12,7 @@ import (
 	"net/http"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 type omv struct {
@@ -62,14 +62,14 @@ func json_blkver(w http.ResponseWriter, r *http.Request) {
 	w.Header()["Content-Type"] = []string{"application/json"}
 
 	common.Last.Mutex.Lock()
-	end := common.Last.Block
+	end := common.Last.BchBlock
 	common.Last.Mutex.Unlock()
 
 	w.Write([]byte("["))
 	if end != nil {
-		max_cnt := 2 * 2016 //common.BlockChain.Consensus.Window
+		max_cnt := 2 * 2016 //common.BchBlockChain.Consensus.Window
 		for {
-			w.Write([]byte(fmt.Sprint("[", end.Height, ",", binary.LittleEndian.Uint32(end.BlockHeader[0:4]), "]")))
+			w.Write([]byte(fmt.Sprint("[", end.Height, ",", binary.LittleEndian.Uint32(end.BchBlockHeader[0:4]), "]")))
 			end = end.Parent
 			if end == nil || max_cnt <= 1 {
 				break
@@ -111,7 +111,7 @@ func json_miners(w http.ResponseWriter, r *http.Request) {
 	var om omv
 	cnt := uint(0)
 	common.Last.Mutex.Lock()
-	end := common.Last.Block
+	end := common.Last.BchBlock
 	common.Last.Mutex.Unlock()
 	var lastts int64
 	var diff float64
@@ -126,7 +126,7 @@ func json_miners(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		lastts = int64(end.Timestamp())
-		bl, _, e := common.BlockChain.Blocks.BlockGet(end.BlockHash)
+		bl, _, e := common.BchBlockChain.BchBlocks.BchBlockGet(end.BchBlockHash)
 		if e != nil {
 			break
 		}
@@ -136,9 +136,9 @@ func json_miners(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		cbasetx, _ := btc.NewTx(bl[block.TxOffset:])
+		cbasetx, _ := bch.NewTx(bl[block.TxOffset:])
 
-		diff += btc.GetDifficulty(end.Bits())
+		diff += bch.GetDifficulty(end.Bits())
 		miner, mid := common.TxMiner(cbasetx)
 		om = m[miner]
 		om.cnt++
@@ -150,7 +150,7 @@ func json_miners(w http.ResponseWriter, r *http.Request) {
 		for o := range cbasetx.TxOut {
 			rew += cbasetx.TxOut[o].Value
 		}
-		fees := rew - btc.GetBlockReward(end.Height)
+		fees := rew - bch.GetBlockReward(end.Height)
 		if int64(fees) > 0 { // solution for a possibility of a miner not claiming the reward (see block #501726)
 			om.fees += fees
 		}
@@ -189,7 +189,7 @@ func json_miners(w http.ResponseWriter, r *http.Request) {
 	hrate := bph / 6 * diff * 7158278.826667
 
 	stats.MiningStatHours = common.CFG.Stat.MiningHrs
-	stats.BlockCount = cnt
+	stats.BchBlockCount = cnt
 	stats.FirstBlockTime = lastts
 	stats.AvgBlocksPerHour = bph
 	stats.AvgDifficulty = diff
@@ -200,7 +200,7 @@ func json_miners(w http.ResponseWriter, r *http.Request) {
 	for i := range srt {
 		stats.Miners[i].Unknown = srt[i].unknown_miner
 		stats.Miners[i].Name = srt[i].name
-		stats.Miners[i].Blocks = srt[i].cnt
+		stats.Miners[i].BchBlocks = srt[i].cnt
 		stats.Miners[i].TotalFees = srt[i].fees
 		stats.Miners[i].TotalBytes = srt[i].bts
 		//stats.Miners[i].BUcnt = srt[i].ebad_cnt

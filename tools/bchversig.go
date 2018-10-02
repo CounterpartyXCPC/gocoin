@@ -131,7 +131,7 @@ func main() {
 	if *litecoin {
 		ltc.HashFromMessage(msg, hash)
 	} else {
-		btc.HashFromMessage(msg, hash)
+		bch.HashFromMessage(msg, hash)
 	}
 
 	compressed := false

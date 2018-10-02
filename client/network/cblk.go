@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/bch_chain"
 	"github.com/dchest/siphash"
 )
@@ -37,33 +37,33 @@ func ShortIDToU64(d []byte) uint64 {
 func (col *CmpctBlockCollector) Assemble() []byte {
 	bdat := new(bytes.Buffer)
 	bdat.Write(col.Header)
-	btc.WriteVlen(bdat, uint64(len(col.Txs)))
+	bch.WriteVlen(bdat, uint64(len(col.Txs)))
 	for _, txd := range col.Txs {
 		bdat.Write(txd.([]byte))
 	}
 	return bdat.Bytes()
 }
 
-func GetchBlockForBIP152(hash *btc.Uint256) (crec *bch_chain.BlckCachRec) {
+func GetchBlockForBIP152(hash *bch.Uint256) (crec *bch_chain.BlckCachRec) {
 	CompactBlocksMutex.Lock()
 	defer CompactBlocksMutex.Unlock()
 
-	crec, _, _ = common.BlockChain.Blocks.BlockGetExt(hash)
+	crec, _, _ = common.BchBlockChain.BchBlocks.BchBlockGetExt(hash)
 	if crec == nil {
 		//fmt.Println("BlockGetExt failed for", hash.String(), er.Error())
 		return
 	}
 
-	if crec.Block == nil {
-		crec.Block, _ = bch.NewBchBlock(crec.Data)
-		if crec.Block == nil {
+	if crec.BchBlock == nil {
+		crec.BchBlock, _ = bch.NewBchBlock(crec.Data)
+		if crec.BchBlock == nil {
 			fmt.Println("GetchBlockForBIP152: bch.NewBchBlock() failed for", hash.String())
 			return
 		}
 	}
 
-	if len(crec.Block.Txs) == 0 {
-		if crec.Block.BuildTxList() != nil {
+	if len(crec.BchBlock.Txs) == 0 {
+		if crec.BchBlock.BuildTxList() != nil {
 			fmt.Println("GetchBlockForBIP152: bl.BuildTxList() failed for", hash.String())
 			return
 		}
@@ -81,7 +81,7 @@ func GetchBlockForBIP152(hash *btc.Uint256) (crec *bch_chain.BlckCachRec) {
 	return
 }
 
-func (c *OneConnection) SendCmpctBlk(hash *btc.Uint256) bool {
+func (c *OneConnection) SendCmpctBlk(hash *bch.Uint256) bool {
 	crec := GetchBlockForBIP152(hash)
 	if crec == nil {
 		//fmt.Println(c.ConnID, "cmpctblock not sent:", c.Node.Agent, hash.String())
@@ -94,14 +94,14 @@ func (c *OneConnection) SendCmpctBlk(hash *btc.Uint256) bool {
 	msg := new(bytes.Buffer)
 	msg.Write(crec.Data[:80])
 	msg.Write(crec.BIP152[:8])
-	btc.WriteVlen(msg, uint64(len(crec.Block.Txs)-1)) // all except coinbase
-	for i := 1; i < len(crec.Block.Txs); i++ {
+	bch.WriteVlen(msg, uint64(len(crec.BchBlock.Txs)-1)) // all except coinbase
+	for i := 1; i < len(crec.BchBlock.Txs); i++ {
 		var lsb [8]byte
-		var hasz *btc.Uint256
+		var hasz *bch.Uint256
 		if c.Node.SendCmpctVer == 2 {
-			hasz = crec.Block.Txs[i].WTxID()
+			hasz = crec.BchBlock.Txs[i].WTxID()
 		} else {
-			hasz = &crec.Block.Txs[i].Hash
+			hasz = &crec.BchBlock.Txs[i].Hash
 		}
 		binary.LittleEndian.PutUint64(lsb[:], siphash.Hash(k0, k1, hasz.Hash[:]))
 		msg.Write(lsb[:6])
@@ -109,9 +109,9 @@ func (c *OneConnection) SendCmpctBlk(hash *btc.Uint256) bool {
 	msg.Write([]byte{1}) // one preffiled tx
 	msg.Write([]byte{0}) // coinbase - index 0
 	if c.Node.SendCmpctVer == 2 {
-		msg.Write(crec.Block.Txs[0].Raw) // coinbase - index 0
+		msg.Write(crec.BchBlock.Txs[0].Raw) // coinbase - index 0
 	} else {
-		crec.Block.Txs[0].WriteSerialized(msg) // coinbase - index 0
+		crec.BchBlock.Txs[0].WriteSerialized(msg) // coinbase - index 0
 	}
 	c.SendRawMsg("cmpctblock", msg.Bytes())
 	return true
@@ -123,7 +123,7 @@ func (c *OneConnection) ProcessGetBlockTxn(pl []byte) {
 		c.DoS("GetBlockTxnShort")
 		return
 	}
-	hash := btc.NewUint256(pl[:32])
+	hash := bch.NewUint256(pl[:32])
 	crec := GetchBlockForBIP152(hash)
 	if crec == nil {
 		fmt.Println(c.ConnID, "GetBlockTxn aborting for", hash.String())
@@ -131,7 +131,7 @@ func (c *OneConnection) ProcessGetBlockTxn(pl []byte) {
 	}
 
 	req := bytes.NewReader(pl[32:])
-	indexes_length, _ := btc.ReadVLen(req)
+	indexes_length, _ := bch.ReadVLen(req)
 	if indexes_length == 0 {
 		println(c.ConnID, "GetBlockTxnEmpty")
 		c.DoS("GetBlockTxnEmpty")
@@ -142,25 +142,25 @@ func (c *OneConnection) ProcessGetBlockTxn(pl []byte) {
 	msg := new(bytes.Buffer)
 
 	msg.Write(hash.Hash[:])
-	btc.WriteVlen(msg, indexes_length)
+	bch.WriteVlen(msg, indexes_length)
 
 	for {
-		idx, er := btc.ReadVLen(req)
+		idx, er := bch.ReadVLen(req)
 		if er != nil {
 			println(c.ConnID, "GetBlockTxnERR")
 			c.DoS("GetBlockTxnERR")
 			return
 		}
 		idx += exp_idx
-		if int(idx) >= len(crec.Block.Txs) {
+		if int(idx) >= len(crec.BchBlock.Txs) {
 			println(c.ConnID, "GetBlockTxnIdx+")
 			c.DoS("GetBlockTxnIdx+")
 			return
 		}
 		if c.Node.SendCmpctVer == 2 {
-			msg.Write(crec.Block.Txs[idx].Raw) // coinbase - index 0
+			msg.Write(crec.BchBlock.Txs[idx].Raw) // coinbase - index 0
 		} else {
-			crec.Block.Txs[idx].WriteSerialized(msg) // coinbase - index 0
+			crec.BchBlock.Txs[idx].WriteSerialized(msg) // coinbase - index 0
 		}
 		if indexes_length == 1 {
 			break
@@ -172,7 +172,7 @@ func (c *OneConnection) ProcessGetBlockTxn(pl []byte) {
 	c.SendRawMsg("blocktxn", msg.Bytes())
 }
 
-func delB2G_callback(hash *btc.Uint256) {
+func delB2G_callback(hash *bch.Uint256) {
 	DelB2G(hash.BIdx())
 }
 
@@ -206,10 +206,10 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		b2g.SendInvs = true
 	}
 
-	if common.BlockChain.Consensus.Enforce_SEGWIT != 0 && c.Node.SendCmpctVer < 2 {
-		if b2g.Block.Height >= common.BlockChain.Consensus.Enforce_SEGWIT {
+	if common.BchBlockChain.Consensus.Enforce_SEGWIT != 0 && c.Node.SendCmpctVer < 2 {
+		if b2g.BchBlock.Height >= common.BchBlockChain.Consensus.Enforce_SEGWIT {
 			common.CountSafe("CmpctBlockIgnore")
-			println("Ignore compact block", b2g.Block.Height, "from non-segwit node", c.ConnID)
+			println("Ignore compact block", b2g.BchBlock.Height, "from non-segwit node", c.ConnID)
 			if (c.Node.Services & SERVICE_SEGWIT) != 0 {
 				// it only makes sense to ask this node for block's data, if it supports segwit
 				c.MutexSetBool(&c.X.GetBlocksDataNow, true)
@@ -219,9 +219,9 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 	}
 
 	// if we got here, we shall download this block
-	if c.Node.Height < b2g.Block.Height {
+	if c.Node.Height < b2g.BchBlock.Height {
 		c.Mutex.Lock()
-		c.Node.Height = b2g.Block.Height
+		c.Node.Height = b2g.BchBlock.Height
 		c.Mutex.Unlock()
 	}
 
@@ -234,10 +234,10 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 	var n, idx, shortidscnt, shortidx_idx, prefilledcnt int
 
 	col := new(CmpctBlockCollector)
-	col.Header = b2g.Block.Raw[:80]
+	col.Header = b2g.BchBlock.Raw[:80]
 
 	offs := 88
-	shortidscnt, n = btc.VLen(pl[offs:])
+	shortidscnt, n = bch.VLen(pl[offs:])
 	if shortidscnt < 0 || n > 3 {
 		println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "cmpctblock error B", hex.EncodeToString(pl))
 		c.DoS("CmpctBlkErrB")
@@ -256,7 +256,7 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		offs += 6
 	}
 
-	prefilledcnt, n = btc.VLen(pl[offs:])
+	prefilledcnt, n = bch.VLen(pl[offs:])
 	if prefilledcnt < 0 || n > 3 {
 		println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "cmpctblock error C", hex.EncodeToString(pl))
 		c.DoS("CmpctBlkErrC")
@@ -268,7 +268,7 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 
 	exp := 0
 	for i := 0; i < int(prefilledcnt); i++ {
-		idx, n = btc.VLen(pl[offs:])
+		idx, n = bch.VLen(pl[offs:])
 		if idx < 0 || n > 3 {
 			println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "cmpctblock error D", hex.EncodeToString(pl))
 			c.DoS("CmpctBlkErrD")
@@ -276,7 +276,7 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		}
 		idx += exp
 		offs += n
-		n = btc.TxSize(pl[offs:])
+		n = bch.TxSize(pl[offs:])
 		if n == 0 {
 			println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "cmpctblock error E", hex.EncodeToString(pl))
 			c.DoS("CmpctBlkErrE")
@@ -299,7 +299,7 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 	TxMutex.Lock()
 
 	for _, v := range TransactionsToSend {
-		var hash2take *btc.Uint256
+		var hash2take *bch.Uint256
 		if c.Node.SendCmpctVer == 2 {
 			hash2take = v.Tx.WTxID()
 		} else {
@@ -321,7 +321,7 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		if v.Tx == nil {
 			continue
 		}
-		var hash2take *btc.Uint256
+		var hash2take *bch.Uint256
 		if c.Node.SendCmpctVer == 2 {
 			hash2take = v.WTxID()
 		} else {
@@ -347,8 +347,8 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 	col.Missing = missing
 	if missing > 0 {
 		msg = new(bytes.Buffer)
-		msg.Write(b2g.Block.Hash.Hash[:])
-		btc.WriteVlen(msg, uint64(missing))
+		msg.Write(b2g.BchBlock.Hash.Hash[:])
+		bch.WriteVlen(msg, uint64(missing))
 		exp = 0
 		col.Sid2idx = make(map[uint64]int, missing)
 	}
@@ -365,7 +365,7 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 					col.Txs[n] = sid
 					col.Sid2idx[sid] = n
 					if missing > 0 {
-						btc.WriteVlen(msg, uint64(n-exp))
+						bch.WriteVlen(msg, uint64(n-exp))
 						exp = n + 1
 					}
 				}
@@ -379,27 +379,27 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 
 	if missing == 0 {
 		//sta := time.Now()
-		b2g.Block.UpdateContent(col.Assemble())
+		b2g.BchBlock.UpdateContent(col.Assemble())
 		//sto := time.Now()
-		bidx := b2g.Block.Hash.BIdx()
-		er := common.BlockChain.PostCheckBlock(b2g.Block)
+		bidx := b2g.BchBlock.Hash.BIdx()
+		er := common.BchBlockChain.PostCheckBlock(b2g.BchBlock)
 		if er != nil {
 			println(c.ConnID, "Corrupt CmpctBlkA")
-			ioutil.WriteFile(b2g.Hash.String()+".bin", b2g.Block.Raw, 0700)
+			ioutil.WriteFile(b2g.Hash.String()+".bin", b2g.BchBlock.Raw, 0700)
 
-			if b2g.Block.MerkleRootMatch() {
+			if b2g.BchBlock.MerkleRootMatch() {
 				println("It was a wrongly mined one - clean it up")
 				DelB2G(bidx) //remove it from BlocksToGet
-				if b2g.BlockTreeNode == LastCommitedHeader {
+				if b2g.BchBlockTreeNode == LastCommitedHeader {
 					LastCommitedHeader = LastCommitedHeader.Parent
 				}
-				common.BlockChain.DeleteBranch(b2g.BlockTreeNode, delB2G_callback)
+				common.BchBlockChain.DeleteBranch(b2g.BchBlockTreeNode, delB2G_callback)
 			}
 
 			//c.DoS("BadCmpctBlockA")
 			return
 		}
-		//fmt.Println(c.ConnID, "Instatnt PostCheckBlock OK #", b2g.Block.Height, sto.Sub(sta), time.Now().Sub(sta))
+		//fmt.Println(c.ConnID, "Instatnt PostCheckBlock OK #", b2g.BchBlock.Height, sto.Sub(sta), time.Now().Sub(sta))
 		c.Mutex.Lock()
 		c.counters["NewCBlock"]++
 		c.blocksreceived = append(c.blocksreceived, time.Now())
@@ -408,16 +408,16 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		ReceivedBlocks[bidx] = orb
 		DelB2G(bidx) //remove it from BlocksToGet if no more pending downloads
 		if c.X.Authorized {
-			b2g.Block.Trusted = true
+			b2g.BchBlock.Trusted = true
 		}
-		NetBlocks <- &BlockRcvd{Conn: c, Block: b2g.Block, BlockTreeNode: b2g.BlockTreeNode, OneReceivedBlock: orb}
+		NetBlocks <- &BlockRcvd{Conn: c, Block: b2g.BchBlock, BlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
 	} else {
 		if b2g.TmPreproc.IsZero() { // do not overwrite TmPreproc if already set
 			b2g.TmPreproc = time.Now()
 		}
 		b2g.InProgress++
 		c.Mutex.Lock()
-		c.GetBlockInProgress[b2g.Block.Hash.BIdx()] = &oneBlockDl{hash: b2g.Block.Hash, start: time.Now(), col: col, SentAtPingCnt: c.X.PingSentCnt}
+		c.GetBlockInProgress[b2g.BchBlock.Hash.BIdx()] = &oneBlockDl{hash: b2g.BchBlock.Hash, start: time.Now(), col: col, SentAtPingCnt: c.X.PingSentCnt}
 		c.Mutex.Unlock()
 		c.SendRawMsg("getblocktxn", msg.Bytes())
 		//fmt.Println(c.ConnID, "Send getblocktxn for", col.Missing, "/", shortidscnt, "missing txs.  ", msg.Len(), "bytes")
@@ -430,8 +430,8 @@ func (c *OneConnection) ProcessBlockTxn(pl []byte) {
 		c.DoS("BlkTxnErrLen")
 		return
 	}
-	hash := btc.NewUint256(pl[:32])
-	le, n := btc.VLen(pl[32:])
+	hash := bch.NewUint256(pl[:32])
+	le, n := bch.VLen(pl[32:])
 	if le < 0 || n > 3 {
 		println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "blocktxn error B", hex.EncodeToString(pl))
 		c.DoS("BlkTxnErrCnt")
@@ -478,25 +478,25 @@ func (c *OneConnection) ProcessBlockTxn(pl []byte) {
 	}
 	//b2g.InProgress--
 
-	//fmt.Println(c.ConnID, "BlockTxn size", len(pl), "-", le, "new txs for block #", b2g.Block.Height)
+	//fmt.Println(c.ConnID, "BlockTxn size", len(pl), "-", le, "new txs for block #", b2g.BchBlock.Height)
 
 	offs := 32 + n
 	for offs < len(pl) {
-		n = btc.TxSize(pl[offs:])
+		n = bch.TxSize(pl[offs:])
 		if n == 0 {
 			println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "blocktxn corrupt TX")
 			c.DoS("BlkTxnErrTx")
 			return
 		}
 		raw_tx := pl[offs : offs+n]
-		var tx_hash btc.Uint256
+		var tx_hash bch.Uint256
 		tx_hash.Calc(raw_tx)
 		if common.GetBool(&common.CFG.TXPool.Debug) {
 			if f, _ := os.OpenFile("missing_txs.txt", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0660); f != nil {
-				_tx, _ := btc.NewTx(raw_tx)
+				_tx, _ := bch.NewTx(raw_tx)
 				_tx.SetHash(raw_tx)
 				fmt.Fprintf(f, "%s: Tx %s was missing in bock %d\n",
-					time.Now().Format("2006-01-02 15:04:05"), _tx.Hash.String(), b2g.Block.Height)
+					time.Now().Format("2006-01-02 15:04:05"), _tx.Hash.String(), b2g.BchBlock.Height)
 				f.Close()
 			}
 		}
@@ -515,27 +515,27 @@ func (c *OneConnection) ProcessBlockTxn(pl []byte) {
 	//println(c.ConnID, "Received the rest of compact block version", c.Node.SendCmpctVer)
 
 	//sta := time.Now()
-	b2g.Block.UpdateContent(col.Assemble())
+	b2g.BchBlock.UpdateContent(col.Assemble())
 	//sto := time.Now()
-	er := common.BlockChain.PostCheckBlock(b2g.Block)
+	er := common.BchBlockChain.PostCheckBlock(b2g.BchBlock)
 	if er != nil {
 		println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "Corrupt CmpctBlkB")
 		//c.DoS("BadCmpctBlockB")
-		ioutil.WriteFile(b2g.Hash.String()+".bin", b2g.Block.Raw, 0700)
+		ioutil.WriteFile(b2g.Hash.String()+".bin", b2g.BchBlock.Raw, 0700)
 
-		if b2g.Block.MerkleRootMatch() {
+		if b2g.BchBlock.MerkleRootMatch() {
 			println("It was a wrongly mined one - clean it up")
 			DelB2G(idx) //remove it from BlocksToGet
-			if b2g.BlockTreeNode == LastCommitedHeader {
+			if b2g.BchBlockTreeNode == LastCommitedHeader {
 				LastCommitedHeader = LastCommitedHeader.Parent
 			}
-			common.BlockChain.DeleteBranch(b2g.BlockTreeNode, delB2G_callback)
+			common.BchBlockChain.DeleteBranch(b2g.BchBlockTreeNode, delB2G_callback)
 		}
 
 		return
 	}
 	DelB2G(idx)
-	//fmt.Println(c.ConnID, "PostCheckBlock OK #", b2g.Block.Height, sto.Sub(sta), time.Now().Sub(sta))
+	//fmt.Println(c.ConnID, "PostCheckBlock OK #", b2g.BchBlock.Height, sto.Sub(sta), time.Now().Sub(sta))
 	c.Mutex.Lock()
 	c.counters["NewTBlock"]++
 	c.blocksreceived = append(c.blocksreceived, time.Now())
@@ -544,7 +544,7 @@ func (c *OneConnection) ProcessBlockTxn(pl []byte) {
 		TmDownload: c.LastMsgTime, TxMissing: col.Missing, FromConID: c.ConnID, DoInvs: b2g.SendInvs}
 	ReceivedBlocks[idx] = orb
 	if c.X.Authorized {
-		b2g.Block.Trusted = true
+		b2g.BchBlock.Trusted = true
 	}
-	NetBlocks <- &BlockRcvd{Conn: c, Block: b2g.Block, BlockTreeNode: b2g.BlockTreeNode, OneReceivedBlock: orb}
+	NetBlocks <- &BlockRcvd{Conn: c, Block: b2g.BchBlock, BlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
 }

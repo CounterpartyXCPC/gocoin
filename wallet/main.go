@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
-	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 	"github.com/counterpartyxcpc/gocoin-cash"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
 var (
@@ -96,7 +96,7 @@ func main() {
 	}
 
 	// convert string fee to uint64
-	if val, e := btc.StringToSatoshis(fee); e != nil {
+	if val, e := bch.StringToSatoshis(fee); e != nil {
 		println("Incorrect fee value", fee)
 		os.Exit(1)
 	} else {

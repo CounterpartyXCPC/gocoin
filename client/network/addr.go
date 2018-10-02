@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/qdb"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
@@ -108,7 +108,7 @@ func (c *OneConnection) SendAddr() {
 	maxtime := uint32(time.Now().Unix() + 3600)
 	if len(pers) > 0 {
 		buf := new(bytes.Buffer)
-		btc.WriteVlen(buf, uint64(len(pers)))
+		bch.WriteVlen(buf, uint64(len(pers)))
 		for i := range pers {
 			if pers[i].Time > maxtime {
 				println("addr", i, "time in future", pers[i].Time, maxtime, "should not happen")
@@ -124,7 +124,7 @@ func (c *OneConnection) SendAddr() {
 func (c *OneConnection) SendOwnAddr() {
 	if ExternalAddrLen() > 0 {
 		buf := new(bytes.Buffer)
-		btc.WriteVlen(buf, uint64(1))
+		bch.WriteVlen(buf, uint64(1))
 		binary.Write(buf, binary.LittleEndian, uint32(time.Now().Unix()))
 		buf.Write(BestExternalAddr())
 		c.SendRawMsg("addr", buf.Bytes())
@@ -134,7 +134,7 @@ func (c *OneConnection) SendOwnAddr() {
 // Parese network's "addr" message
 func (c *OneConnection) ParseAddr(pl []byte) {
 	b := bytes.NewBuffer(pl)
-	cnt, _ := btc.ReadVLen(b)
+	cnt, _ := bch.ReadVLen(b)
 	for i := 0; i < int(cnt); i++ {
 		var buf [30]byte
 		n, e := b.Read(buf[:])

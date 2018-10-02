@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/peersdb"
 )
 
@@ -214,10 +214,10 @@ type OneConnection struct {
 	GetMP chan bool
 }
 
-type BIDX [btc.Uint256IdxLen]byte
+type BIDX [bch.Uint256IdxLen]byte
 
 type oneBlockDl struct {
-	hash          *btc.Uint256
+	hash          *bch.Uint256
 	start         time.Time
 	col           *CmpctBlockCollector
 	SentAtPingCnt uint64
@@ -280,7 +280,7 @@ func (v *OneConnection) GetStats(res *ConnInfo) {
 	res.NetworkNodeStruct = v.Node
 	res.ConnectionStatus = v.X
 	res.BytesToSend = v.BytesToSent()
-	res.BlocksInProgress = len(v.GetBlockInProgress)
+	res.BchBlocksInProgress = len(v.GetBlockInProgress)
 	res.InvsToSend = len(v.PendingInvs)
 	res.AveragePing = v.GetAveragePing()
 
@@ -290,7 +290,7 @@ func (v *OneConnection) GetStats(res *ConnInfo) {
 	}
 
 	res.InvsDone = len(v.InvDone.History)
-	res.BlocksReceived = len(v.blocksreceived)
+	res.BchBlocksReceived = len(v.blocksreceived)
 	res.GetMPInProgress = len(v.GetMP) != 0
 
 	v.Mutex.Unlock()
@@ -324,7 +324,7 @@ func (c *OneConnection) SendRawMsg(cmd string, pl []byte) (e error) {
 		copy(sbuf[4:16], cmd)
 		binary.LittleEndian.PutUint32(sbuf[16:20], uint32(len(pl)))
 
-		sh := btc.Sha2Sum(pl[:])
+		sh := bch.Sha2Sum(pl[:])
 		copy(sbuf[20:24], sh[:4])
 
 		c.append_to_send_buffer(sbuf[:])
@@ -503,7 +503,7 @@ func (c *OneConnection) FetchMessage() (ret *BCmsg, timeout_or_data bool) {
 		}
 	}
 
-	sh := btc.Sha2Sum(c.recv.dat)
+	sh := bch.Sha2Sum(c.recv.dat)
 	if !bytes.Equal(c.recv.hdr[20:24], sh[:4]) {
 		//println(c.PeerAddr.Ip(), "Msg checksum error")
 		c.DoS("MsgBadChksum")

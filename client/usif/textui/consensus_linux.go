@@ -59,7 +59,7 @@ import (
 	"unsafe"
 
 	"github.com/counterpartyxcpc/gocoin-cash/client/common"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
@@ -70,7 +70,7 @@ var (
 	mut             sync.Mutex
 )
 
-func check_consensus(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags uint32, result bool) {
+func check_consensus(pkScr []byte, amount uint64, i int, tx *bch.Tx, ver_flags uint32, result bool) {
 	var tmp []byte
 	if len(pkScr) != 0 {
 		tmp = make([]byte, len(pkScr))
@@ -109,7 +109,7 @@ func check_consensus(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags u
 	}(tmp, tx_raw, amount, i, ver_flags, result)
 }
 
-func verify_script_with_amount(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags uint32) (result bool) {
+func verify_script_with_amount(pkScr []byte, amount uint64, i int, tx *bch.Tx, ver_flags uint32) (result bool) {
 	txTo := tx.Raw
 	if txTo == nil {
 		txTo = tx.Serialize()

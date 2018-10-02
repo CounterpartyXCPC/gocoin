@@ -2,7 +2,7 @@ package utxo
 
 import (
 	//"encoding/binary"
-	btc "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
+	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
 /*
@@ -57,11 +57,11 @@ func NewUtxoRecStatic(key UtxoKeyType, dat []byte) *UtxoRec {
 	copy(sta_rec.TxID[:UtxoIdxLen], key[:])
 	copy(sta_rec.TxID[UtxoIdxLen:], dat[:off])
 
-	u64, n = btc.VULe(dat[off:])
+	u64, n = bch.VULe(dat[off:])
 	off += n
 	sta_rec.InBlock = uint32(u64)
 
-	u64, n = btc.VULe(dat[off:])
+	u64, n = bch.VULe(dat[off:])
 	off += n
 
 	sta_rec.Coinbase = (u64 & 1) != 0
@@ -76,17 +76,17 @@ func NewUtxoRecStatic(key UtxoKeyType, dat []byte) *UtxoRec {
 	}
 
 	for off < len(dat) {
-		idx, n = btc.VULe(dat[off:])
+		idx, n = bch.VULe(dat[off:])
 		off += n
 
 		sta_rec.Outs[idx] = &rec_pool[rec_idx]
 		rec_idx++
 
-		u64, n = btc.VULe(dat[off:])
+		u64, n = bch.VULe(dat[off:])
 		off += n
 		sta_rec.Outs[idx].Value = uint64(u64)
 
-		i, n = btc.VLen(dat[off:])
+		i, n = bch.VLen(dat[off:])
 		off += n
 
 		sta_rec.Outs[idx].PKScr = dat[off : off+i]
@@ -105,26 +105,26 @@ func NewUtxoRec(key UtxoKeyType, dat []byte) *UtxoRec {
 	copy(rec.TxID[:UtxoIdxLen], key[:])
 	copy(rec.TxID[UtxoIdxLen:], dat[:off])
 
-	u64, n = btc.VULe(dat[off:])
+	u64, n = bch.VULe(dat[off:])
 	off += n
 	rec.InBlock = uint32(u64)
 
-	u64, n = btc.VULe(dat[off:])
+	u64, n = bch.VULe(dat[off:])
 	off += n
 
 	rec.Coinbase = (u64 & 1) != 0
 	rec.Outs = make([]*UtxoTxOut, u64>>1)
 
 	for off < len(dat) {
-		idx, n = btc.VULe(dat[off:])
+		idx, n = bch.VULe(dat[off:])
 		off += n
 		rec.Outs[idx] = new(UtxoTxOut)
 
-		u64, n = btc.VULe(dat[off:])
+		u64, n = bch.VULe(dat[off:])
 		off += n
 		rec.Outs[idx].Value = uint64(u64)
 
-		i, n = btc.VLen(dat[off:])
+		i, n = bch.VLen(dat[off:])
 		off += n
 
 		rec.Outs[idx].PKScr = dat[off : off+i]
@@ -133,18 +133,18 @@ func NewUtxoRec(key UtxoKeyType, dat []byte) *UtxoRec {
 	return &rec
 }
 
-func OneUtxoRec(key UtxoKeyType, dat []byte, vout uint32) *btc.TxOut {
+func OneUtxoRec(key UtxoKeyType, dat []byte, vout uint32) *bch.TxOut {
 	var off, n, i int
 	var u64, idx uint64
-	var res btc.TxOut
+	var res bch.TxOut
 
 	off = 32 - UtxoIdxLen
 
-	u64, n = btc.VULe(dat[off:])
+	u64, n = bch.VULe(dat[off:])
 	off += n
-	res.BlockHeight = uint32(u64)
+	res.BchBlockHeight = uint32(u64)
 
-	u64, n = btc.VULe(dat[off:])
+	u64, n = bch.VULe(dat[off:])
 	off += n
 
 	res.VoutCount = uint32(u64 >> 1)
@@ -154,16 +154,16 @@ func OneUtxoRec(key UtxoKeyType, dat []byte, vout uint32) *btc.TxOut {
 	res.WasCoinbase = (u64 & 1) != 0
 
 	for off < len(dat) {
-		idx, n = btc.VULe(dat[off:])
+		idx, n = bch.VULe(dat[off:])
 		if uint32(idx) > vout {
 			return nil
 		}
 		off += n
 
-		u64, n = btc.VULe(dat[off:])
+		u64, n = bch.VULe(dat[off:])
 		off += n
 
-		i, n = btc.VLen(dat[off:])
+		i, n = bch.VLen(dat[off:])
 		off += n
 
 		if uint32(idx) == vout {
@@ -227,13 +227,13 @@ func (rec *UtxoRec) Serialize(full bool) (buf []byte) {
 		copy(buf[:of], rec.TxID[UtxoIdxLen:])
 	}
 
-	of += btc.PutULe(buf[of:], uint64(rec.InBlock))
-	of += btc.PutULe(buf[of:], outcnt)
+	of += bch.PutULe(buf[of:], uint64(rec.InBlock))
+	of += bch.PutULe(buf[of:], outcnt)
 	for i := range rec.Outs {
 		if rec.Outs[i] != nil {
-			of += btc.PutULe(buf[of:], uint64(i))
-			of += btc.PutULe(buf[of:], rec.Outs[i].Value)
-			of += btc.PutULe(buf[of:], uint64(len(rec.Outs[i].PKScr)))
+			of += bch.PutULe(buf[of:], uint64(i))
+			of += bch.PutULe(buf[of:], rec.Outs[i].Value)
+			of += bch.PutULe(buf[of:], uint64(len(rec.Outs[i].PKScr)))
 			copy(buf[of:], rec.Outs[i].PKScr)
 			of += len(rec.Outs[i].PKScr)
 		}
@@ -245,7 +245,7 @@ func (rec *UtxoRec) Bytes() []byte {
 	return rec.Serialize(false)
 }
 
-func (r *UtxoRec) ToUnspent(idx uint32, ad *btc.BtcAddr) (nr *OneUnspentTx) {
+func (r *UtxoRec) ToUnspent(idx uint32, ad *bch.BtcAddr) (nr *OneUnspentTx) {
 	nr = new(OneUnspentTx)
 	nr.TxPrevOut.Hash = r.TxID
 	nr.TxPrevOut.Vout = idx
