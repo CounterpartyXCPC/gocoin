@@ -49,10 +49,6 @@
 
 // =====================================================================
 
-// Package main manages Counterparty Cash (XCPC) nodes. As XCPC transactions are executed
-// or queried, the state is maintain in the local LevelDB databstore. Signed RAW transactions
-// are parsed to gocoin-cash for transmission to the Bitcoin Cash blockchain.
-
 package common
 
 import (
