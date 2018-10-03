@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Gocoin FetchBlock version", gocoin.Version)
+	fmt.Println("Gocoin FetchBlock version", gocoincash.Version)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Specify block hash on the command line (MSB).")

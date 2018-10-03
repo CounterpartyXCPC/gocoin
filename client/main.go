@@ -1,3 +1,58 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:		main.go
+// Description:	Bictoin Cash main Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
+// Package main manages Counterparty Cash (XCPC) nodes. As XCPC transactions are executed
+// or queried, the state is maintain in the local LevelDB databstore. Signed RAW transactions
+// are parsed to gocoin-cash for transmission to the Bitcoin Cash blockchain.
+
 package main
 
 import (
@@ -266,10 +321,58 @@ func HandleRpcBlock(msg *rpcapi.BchBlockSubmited) {
 func main() {
 	var ptr *byte
 	if unsafe.Sizeof(ptr) < 8 {
-		fmt.Println("WARNING: Gocoin client shall be build for 64-bit arch. It will likely crash now.")
+		fmt.Println("WARNING: Gocoin-cash client shall be build for 64-bit arch. It will likely crash now.")
 	}
 
-	fmt.Println("Gocoin client version", gocoin.Version)
+	fmt.Println(" ")
+	fmt.Println("// ======================================================================")
+	fmt.Println("")
+	fmt.Println("//      cccccccccc          pppppppppp")
+	fmt.Println("//    cccccccccccccc      pppppppppppppp")
+	fmt.Println("//  ccccccccccccccc    ppppppppppppppppppp")
+	fmt.Println("// cccccc       cc    ppppppp        pppppp")
+	fmt.Println("// cccccc          pppppppp          pppppp")
+	fmt.Println("// cccccc        ccccpppp            pppppp")
+	fmt.Println("// cccccccc    cccccccc    pppp    ppppppp")
+	fmt.Println("//  ccccccccccccccccc     ppppppppppppppp")
+	fmt.Println("//     cccccccccccc      pppppppppppppp")
+	fmt.Println("//       cccccccc        pppppppppppp")
+	fmt.Println("//                       pppppp")
+	fmt.Println("//                       pppppp")
+	fmt.Println("")
+	fmt.Println("// ======================================================================")
+	fmt.Println("// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.")
+	fmt.Println("// All Rights Reserved. All work owned by CCA is herby released")
+	fmt.Println("// under Creative Commons Zero (0) License.")
+	fmt.Println("")
+	fmt.Println("// Some rights of 3rd party, derivative and included works remain the")
+	fmt.Println("// property of thier respective owners. All marks, brands and logos of")
+	fmt.Println("// member groups remain the exclusive property of their owners and no")
+	fmt.Println("// right or endorsement is conferred by reference to thier organization")
+	fmt.Println("// or brand(s) by CCA.")
+	fmt.Println("")
+	fmt.Println("// Credits:")
+	fmt.Println("")
+	fmt.Println("// Julian Smith, Direction, Development")
+	fmt.Println("// Arsen Yeremin, Development")
+	fmt.Println("// Sumanth Kumar, Development")
+	fmt.Println("// Clayton Wong, Development")
+	fmt.Println("// Liming Jiang, Development")
+	fmt.Println("// Piotr Narewski, Gocoin Founder")
+	fmt.Println("")
+	fmt.Println("// Includes reference work of Shuai Qi \"qshuai\" (https://github.com/qshuai)")
+	fmt.Println("")
+	fmt.Println("// Includes reference work of btsuite:")
+	fmt.Println("")
+	fmt.Println("// Copyright (c) 2013-2017 The btcsuite developers")
+	fmt.Println("// Copyright (c) 2018 The bcext developers")
+	fmt.Println("// Use of this source code is governed by an ISC")
+	fmt.Println("// license that can be found in the LICENSE file.")
+	fmt.Println("")
+	fmt.Println("// + Other contributors")
+	fmt.Println(" ")
+	fmt.Println("== Welcome to Gocoin-cash client version ==", gocoincash.Version)
+
 	runtime.GOMAXPROCS(runtime.NumCPU()) // It seems that Go does not do it by default
 
 	// Disable Ctrl+C

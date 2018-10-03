@@ -288,7 +288,7 @@ func Reset() {
 	if CFG.UserAgent != "" {
 		UserAgent = CFG.UserAgent
 	} else {
-		UserAgent = "/Gocoin:" + gocoin.Version + "/"
+		UserAgent = "/Gocoin-cash:" + gocoincash.Version + "/"
 	}
 
 	if CFG.Memory.MaxDataFileMB != 0 && CFG.Memory.MaxDataFileMB < 8 {

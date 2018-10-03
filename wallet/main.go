@@ -80,7 +80,7 @@ func cleanExit(code int) {
 
 func main() {
 	// Print the logo to stderr
-	println("Gocoin Wallet version", gocoin.Version)
+	println("Gocoin Wallet version", gocoincash.Version)
 	println("This program comes with ABSOLUTELY NO WARRANTY")
 	println()
 

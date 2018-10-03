@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Gocoin FetchTx version", gocoin.Version)
+	fmt.Println("Gocoin FetchTx version", gocoincash.Version)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Specify transaction id on the command line (MSB).")
