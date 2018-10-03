@@ -5,21 +5,21 @@ the original work of of Gocoin (https://github.com/piotrnar/gocoin) by Piotr Nar
 
 The software architecture is focused on maximum performance of the node and cold storage security of the wallet.
 
-**Client**
+**Bitcoin Cash (BCH) Client**
 
-The client (p2p node) is an application independent from the wallet.
-It keeps the entire UTXO set in RAM, providing the best block processing performance on the market.
+The BCH client (p2p node) is an application independent from the wallet.
+
+It keeps the entire BCH UTXO set in RAM, providing the best block processing performance on the market.
 
 In it's original form, With a decent machine and a fast connection (e.g. 4 vCPUs from Google Cloud or 
 Amazon AWS), the node would sync the entire bitcoin block chain in less than 4 hours (as of chain 
-height ~512000) for the Bitcoin core bch_chain.
+height ~512000) for the Bitcoin core (BTC) chain.
 
-Benchmarks for the Bitcoin BCH chain to follow.
+Benchmarks for the Bitcoin BCH chain are to follow. <Pending first #tagged build realease>
 
-**Wallet**
+** Bitcoin Cash Wallet / Merchant and XCPC Trading API **
 
-The wallet is designed to be used offline.
-It is deterministic and password seeded.
+The wallet is designed to be used offline. It is deterministic and password seeded.
 As long as you remember the password, you do not need any backups ever.
 
 # Requirements
@@ -87,12 +87,13 @@ Repeat the `go build` for each source file of the tool you want to build.
 
 Windows or Linux (amd64) binaries can be downloaded from
 
-(T.B.A) @todo, No binaries yet released (Fri Jun 15, 2018)
+(T.B.A) @todo, No binaries yet released (Oct 3, 2018)
 
 Please note that the binaries are usually not up to date.
 We strongly encourage everyone to build the binaries.
 
 # Development
+
 Although it is an open source project, we will accept merge and any pull requests, however we need to
 have contributors assign copyright to the CCA so we may continue to operate within the bounds of our
 limited software license agreement to the original project. The reason is that Piotr Narewsk retains 
@@ -100,6 +101,7 @@ certain rights as the original author of this software and excersises an interes
 licensing. The CCA accepts these terms without issue and supports the author's rights in this regard.
 
 # Support
+
 The official web page of the project is served at <a href="http://Gocoin-cash.com">Gocoin-cash.com</a>
 where you can find extended documentation, including a **User Manual**.
 
