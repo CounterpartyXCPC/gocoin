@@ -1,6 +1,6 @@
 # About Gocoin-cash
 
-**Gocoin-cash** is a full **Bitcoin Cash** (https://www.bitcoincash.org) solution written in Go language [golang](http://golang.org) and is based on 
+**Gocoin-cash** is a full **Bitcoin Cash** (https://www.bitcoincash.org) solution written in Go language ([Golang](http://golang.org)) and is based on 
 the original work of of Gocoin (https://github.com/piotrnar/gocoin) by Piotr Narewski.
 
 The software architecture is focused on maximum performance of the node and cold storage security of the wallet.
