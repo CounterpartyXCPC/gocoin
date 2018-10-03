@@ -14,13 +14,13 @@ import (
 	bch "github.com/counterpartyxcpc/gocoin-cash/lib/bch"
 )
 
-type BlockSubmited struct {
+type BchBlockSubmited struct {
 	*bch.BchBlock
 	Error string
 	Done  sync.WaitGroup
 }
 
-var RpcBlocks chan *BlockSubmited = make(chan *BlockSubmited, 1)
+var RpcBlocks chan *BchBlockSubmited = make(chan *BchBlockSubmited, 1)
 
 func SubmitBlock(cmd *RpcCommand, resp *RpcResponse, b []byte) {
 	var bd []byte
@@ -56,7 +56,7 @@ func SubmitBlock(cmd *RpcCommand, resp *RpcResponse, b []byte) {
 		return
 	}
 
-	bs := new(BlockSubmited)
+	bs := new(BchBlockSubmited)
 
 	bs.BchBlock, er = bch.NewBchBlock(bd)
 	if er != nil {

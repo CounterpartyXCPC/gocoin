@@ -15,9 +15,9 @@ const (
 )
 
 var (
-	BlockFeesMutex sync.Mutex
-	BlockFees      map[uint32][][3]uint64 = make(map[uint32][][3]uint64) // [0]=Weight  [1]-Fee  [2]-Group
-	BlockFeesDirty bool                                                  // it true, clean up old data
+	BchBlockFeesMutex sync.Mutex
+	BchBlockFees      map[uint32][][3]uint64 = make(map[uint32][][3]uint64) // [0]=Weight  [1]-Fee  [2]-Group
+	BchBlockFeesDirty bool                                                  // it true, clean up old data
 )
 
 func ProcessBlockFees(height uint32, bl *bch.BchBlock) {
@@ -47,10 +47,10 @@ func ProcessBlockFees(height uint32, bl *bch.BchBlock) {
 		}
 	}
 
-	BlockFeesMutex.Lock()
-	BlockFees[height] = fees
-	BlockFeesDirty = true
-	BlockFeesMutex.Unlock()
+	BchBlockFeesMutex.Lock()
+	BchBlockFees[height] = fees
+	BchBlockFeesDirty = true
+	BchBlockFeesMutex.Unlock()
 }
 
 func ExpireBlockFees() {
@@ -64,16 +64,16 @@ func ExpireBlockFees() {
 	}
 	height -= 144
 
-	BlockFeesMutex.Lock()
-	if BlockFeesDirty {
-		for k := range BlockFees {
+	BchBlockFeesMutex.Lock()
+	if BchBlockFeesDirty {
+		for k := range BchBlockFees {
 			if k < height {
-				delete(BlockFees, k)
+				delete(BchBlockFees, k)
 			}
 		}
-		BlockFeesDirty = false
+		BchBlockFeesDirty = false
 	}
-	BlockFeesMutex.Unlock()
+	BchBlockFeesMutex.Unlock()
 }
 
 func SaveBlockFees() {
@@ -85,7 +85,7 @@ func SaveBlockFees() {
 
 	ExpireBlockFees()
 	buf := bufio.NewWriter(f)
-	er = gob.NewEncoder(buf).Encode(BlockFees)
+	er = gob.NewEncoder(buf).Encode(BchBlockFees)
 
 	if er != nil {
 		println("SaveBlockFees:", er.Error())
@@ -104,7 +104,7 @@ func LoadBlockFees() {
 	}
 
 	buf := bufio.NewReader(f)
-	er = gob.NewDecoder(buf).Decode(&BlockFees)
+	er = gob.NewDecoder(buf).Decode(&BchBlockFees)
 	if er != nil {
 		println("LoadBlockFees:", er.Error())
 	}

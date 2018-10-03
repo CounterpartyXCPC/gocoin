@@ -1,3 +1,54 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:		vars.go
+// Description:	Bictoin Cash network Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package network
 
 import (
@@ -22,7 +73,7 @@ type OneReceivedBlock struct {
 	DoInvs         bool
 }
 
-type BlockRcvd struct {
+type BchBlockRcvd struct {
 	Conn *OneConnection
 	*bch.BchBlock
 	*bch_chain.BchBlockTreeNode
@@ -47,16 +98,16 @@ type OneBlockToGet struct {
 
 var (
 	ReceivedBlocks           map[BIDX]*OneReceivedBlock = make(map[BIDX]*OneReceivedBlock, 400e3)
-	BlocksToGet              map[BIDX]*OneBlockToGet    = make(map[BIDX]*OneBlockToGet)
+	BchBlocksToGet           map[BIDX]*OneBlockToGet    = make(map[BIDX]*OneBlockToGet)
 	IndexToBlocksToGet       map[uint32][]BIDX          = make(map[uint32][]BIDX)
 	LowestIndexToBlocksToGet uint32
 	LastCommitedHeader       *bch_chain.BchBlockTreeNode
 	MutexRcv                 sync.Mutex
 
-	NetBlocks chan *BlockRcvd = make(chan *BlockRcvd, MAX_BLOCKS_FORWARD_CNT+10)
-	NetTxs    chan *TxRcvd    = make(chan *TxRcvd, 2000)
+	NetBlocks chan *BchBlockRcvd = make(chan *BchBlockRcvd, MAX_BLOCKS_FORWARD_CNT+10)
+	NetTxs    chan *TxRcvd       = make(chan *TxRcvd, 2000)
 
-	CachedBlocks    []*BlockRcvd
+	CachedBlocks    []*BchBlockRcvd
 	CachedBlocksLen sys.SyncInt
 
 	DiscardedBlocks map[BIDX]bool = make(map[BIDX]bool)
@@ -66,7 +117,7 @@ var (
 
 func AddB2G(b2g *OneBlockToGet) {
 	bidx := b2g.BchBlock.Hash.BIdx()
-	BlocksToGet[bidx] = b2g
+	BchBlocksToGet[bidx] = b2g
 	bh := b2g.BchBlockTreeNode.Height
 	IndexToBlocksToGet[bh] = append(IndexToBlocksToGet[bh], bidx)
 	if LowestIndexToBlocksToGet == 0 || bh < LowestIndexToBlocksToGet {
@@ -84,7 +135,7 @@ func AddB2G(b2g *OneBlockToGet) {
 }
 
 func DelB2G(idx BIDX) {
-	b2g := BlocksToGet[idx]
+	b2g := BchBlocksToGet[idx]
 	if b2g == nil {
 		println("DelB2G - not found")
 		return
@@ -121,5 +172,5 @@ func DelB2G(idx BIDX) {
 		}
 	}
 
-	delete(BlocksToGet, idx)
+	delete(BchBlocksToGet, idx)
 }

@@ -389,7 +389,7 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 
 			if b2g.BchBlock.MerkleRootMatch() {
 				println("It was a wrongly mined one - clean it up")
-				DelB2G(bidx) //remove it from BlocksToGet
+				DelB2G(bidx) //remove it from BchBlocksToGet
 				if b2g.BchBlockTreeNode == LastCommitedHeader {
 					LastCommitedHeader = LastCommitedHeader.Parent
 				}
@@ -406,11 +406,11 @@ func (c *OneConnection) ProcessCmpctBlock(pl []byte) {
 		c.Mutex.Unlock()
 		orb := &OneReceivedBlock{TmStart: b2g.Started, TmPreproc: time.Now(), FromConID: c.ConnID, DoInvs: b2g.SendInvs}
 		ReceivedBlocks[bidx] = orb
-		DelB2G(bidx) //remove it from BlocksToGet if no more pending downloads
+		DelB2G(bidx) //remove it from BchBlocksToGet if no more pending downloads
 		if c.X.Authorized {
 			b2g.BchBlock.Trusted = true
 		}
-		NetBlocks <- &BlockRcvd{Conn: c, BchBlock: b2g.BchBlock, BchBlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
+		NetBlocks <- &BchBlockRcvd{Conn: c, BchBlock: b2g.BchBlock, BchBlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
 	} else {
 		if b2g.TmPreproc.IsZero() { // do not overwrite TmPreproc if already set
 			b2g.TmPreproc = time.Now()
@@ -471,9 +471,9 @@ func (c *OneConnection) ProcessBlockTxn(pl []byte) {
 		return
 	}
 
-	b2g := BlocksToGet[idx]
+	b2g := BchBlocksToGet[idx]
 	if b2g == nil {
-		panic("BlockTxn: Block missing from BlocksToGet")
+		panic("BlockTxn: Block missing from BchBlocksToGet")
 		return
 	}
 	//b2g.InProgress--
@@ -525,7 +525,7 @@ func (c *OneConnection) ProcessBlockTxn(pl []byte) {
 
 		if b2g.BchBlock.MerkleRootMatch() {
 			println("It was a wrongly mined one - clean it up")
-			DelB2G(idx) //remove it from BlocksToGet
+			DelB2G(idx) //remove it from BchBlocksToGet
 			if b2g.BchBlockTreeNode == LastCommitedHeader {
 				LastCommitedHeader = LastCommitedHeader.Parent
 			}
@@ -546,5 +546,5 @@ func (c *OneConnection) ProcessBlockTxn(pl []byte) {
 	if c.X.Authorized {
 		b2g.BchBlock.Trusted = true
 	}
-	NetBlocks <- &BlockRcvd{Conn: c, BchBlock: b2g.BchBlock, BchBlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
+	NetBlocks <- &BchBlockRcvd{Conn: c, BchBlock: b2g.BchBlock, BchBlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb}
 }

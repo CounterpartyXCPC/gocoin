@@ -49,9 +49,9 @@ var (
 
 	allBalMinVal uint64
 
-	DropSlowestEvery time.Duration
-	BlockExpireEvery time.Duration
-	PingPeerEvery    time.Duration
+	DropSlowestEvery    time.Duration
+	BchBlockExpireEvery time.Duration
+	PingPeerEvery       time.Duration
 
 	UserAgent string
 
@@ -69,7 +69,7 @@ var (
 	WalletProgress uint32 // 0 for not / 1000 for max
 	WalletOnIn     uint32
 
-	BlockChainSynchronized bool
+	BchBlockChainSynchronized bool
 
 	lastTrustedBlock       *bch.Uint256
 	LastTrustedBlockHeight uint32
@@ -187,7 +187,7 @@ func GetRawTx(BchBlockHeight uint32, txid *bch.Uint256) (data []byte, er error) 
 
 func WalletPendingTick() (res bool) {
 	mutex_cfg.Lock()
-	if WalletOnIn > 0 && BlockChainSynchronized {
+	if WalletOnIn > 0 && BchBlockChainSynchronized {
 		WalletOnIn--
 		res = WalletOnIn == 0
 	}
@@ -224,7 +224,7 @@ func LastTrustedBlockMatch(h *bch.Uint256) (res bool) {
 
 func AcceptTx() (res bool) {
 	mutex_cfg.Lock()
-	res = CFG.TXPool.Enabled && BlockChainSynchronized
+	res = CFG.TXPool.Enabled && BchBlockChainSynchronized
 	mutex_cfg.Unlock()
 	return
 }

@@ -53,7 +53,7 @@ func host_init() {
 			select {
 			case s := <-common.KillChan:
 				fmt.Println(s)
-				chain.AbortNow = true
+				bch_chain.AbortNow = true
 			case <-__exit:
 				__done <- true
 				return
@@ -79,14 +79,14 @@ func host_init() {
 		fmt.Println("Using native secp256k1 lib for EC_Verify (consider installing a speedup)")
 	}
 
-	ext := &chain.NewChanOpts{
+	ext := &bch_chain.NewChanOpts{
 		UTXOVolatileMode: common.FLAG.VolatileUTXO,
 		UndoBlocks:       common.FLAG.UndoBlocks,
 		BchBlockMinedCB:  blockMined}
 
 	sta := time.Now()
 	common.BchBlockChain = bch_chain.NewChainExt(common.GocoinCashHomeDir, common.GenesisBlock, common.FLAG.Rescan, ext,
-		&chain.BchBlockDBOpts{
+		&bch_chain.BchBlockDBOpts{
 			MaxCachedBlocks: int(common.CFG.Memory.MaxCachedBlks),
 			MaxDataFileSize: uint64(common.CFG.Memory.MaxDataFileMB) << 20,
 			DataFilesKeep:   common.CFG.Memory.DataFilesKeep})

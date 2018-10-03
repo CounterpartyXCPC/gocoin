@@ -79,7 +79,7 @@ func (c *OneConnection) ProcessInv(pl []byte) {
 			} else {
 				if !blockReceived(bhash) {
 					MutexRcv.Lock()
-					if b2g, ok := BlocksToGet[bhash.BIdx()]; ok {
+					if b2g, ok := BchBlocksToGet[bhash.BIdx()]; ok {
 						if c.Node.Height < b2g.BchBlock.Height {
 							c.Node.Height = b2g.BchBlock.Height
 						}

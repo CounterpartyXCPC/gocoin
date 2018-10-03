@@ -170,7 +170,7 @@ func (ch *Chain) ParseTillBlock(end *BchBlockTreeNode) {
 	}
 }
 
-func (n *BchBlockTreeNode) BlockVersion() uint32 {
+func (n *BchBlockTreeNode) BchBlockVersion() uint32 {
 	return binary.LittleEndian.Uint32(n.BchBlockHeader[0:4])
 }
 

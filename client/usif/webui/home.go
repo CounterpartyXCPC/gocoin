@@ -55,19 +55,19 @@ func json_status(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var out struct {
-		Height                 uint32
-		Hash                   string
-		Timestamp              uint32
-		Received               int64
-		Time_now               int64
-		Diff                   float64
-		Median                 uint32
-		Version                uint32
-		MinValue               uint64
-		WalletON               bool
-		LastTrustedBlockHeight uint32
-		LastHeaderHeight       uint32
-		BlockChainSynchronized bool
+		Height                    uint32
+		Hash                      string
+		Timestamp                 uint32
+		Received                  int64
+		Time_now                  int64
+		Diff                      float64
+		Median                    uint32
+		Version                   uint32
+		MinValue                  uint64
+		WalletON                  bool
+		LastTrustedBlockHeight    uint32
+		LastHeaderHeight          uint32
+		BchBlockChainSynchronized bool
 	}
 	common.Last.Mutex.Lock()
 	out.Height = common.Last.BchBlock.Height
@@ -102,8 +102,8 @@ func json_system(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var out struct {
-		Blocks_cached      int
-		BlocksToGet        int
+		BchBlocks_cached   int
+		BchBlocksToGet     int
 		Known_peers        int
 		Node_uptime        uint64
 		Net_block_qsize    int

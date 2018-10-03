@@ -67,7 +67,7 @@ func (c *OneConnection) GetAveragePing() int {
 type SortedConnections []struct {
 	Conn          *OneConnection
 	Ping          int
-	BlockCount    int
+	BchBlockCount int
 	TxsCount      int
 	MinutesOnline int
 	Special       bool

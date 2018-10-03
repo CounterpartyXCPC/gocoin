@@ -89,14 +89,14 @@ func json_miners(w http.ResponseWriter, r *http.Request) {
 	type one_miner_row struct {
 		Unknown               bool
 		Name                  string
-		Blocks                int
+		BchBlocks             int
 		TotalFees, TotalBytes uint64
 		//BUcnt, NYAcnt int
 	}
 
 	type the_mining_stats struct {
 		MiningStatHours  uint
-		BlockCount       uint
+		BchBlockCount    uint
 		FirstBlockTime   int64
 		AvgBlocksPerHour float64
 		AvgDifficulty    float64

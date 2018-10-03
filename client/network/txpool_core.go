@@ -65,7 +65,7 @@ type OneTxToSend struct {
 	Spent               []uint64 // Which records in SpentOutputs this TX added
 	Volume, Fee         uint64
 	*bch.Tx
-	Blocked     byte   // if non-zero, it gives you the reason why this tx nas not been routed
+	BchBlocked  byte   // if non-zero, it gives you the reason why this tx nas not been routed
 	MemInputs   []bool // transaction is spending inputs from other unconfirmed tx(s)
 	MemInputCnt int
 	SigopsCost  uint64
@@ -661,5 +661,5 @@ func SubmitLocalTx(tx *bch.Tx, rawtx []byte) bool {
 }
 
 func init() {
-	chain.TrustedTxChecker = txChecker
+	bch_chain.TrustedTxChecker = txChecker
 }

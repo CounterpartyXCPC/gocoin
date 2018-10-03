@@ -179,8 +179,8 @@ type ConnectionStatus struct {
 
 	LastMinFeePerKByte uint64
 
-	PingSentCnt   uint64
-	BlocksExpired uint64
+	PingSentCnt      uint64
+	BchBlocksExpired uint64
 }
 
 type ConnInfo struct {
@@ -732,9 +732,9 @@ func GetMP(conid uint32) {
 	fmt.Println("GetMP: There is no such an active connection", conid)
 }
 
-func BlocksToGetCnt() (res int) {
+func BchBlocksToGetCnt() (res int) {
 	MutexRcv.Lock()
-	res = len(BlocksToGet)
+	res = len(BchBlocksToGet)
 	MutexRcv.Unlock()
 	return
 }

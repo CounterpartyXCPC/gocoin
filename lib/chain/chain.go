@@ -46,7 +46,7 @@ type NewChanOpts struct {
 	UTXOVolatileMode bool
 	UndoBlocks       uint // undo this many blocks when opening the chain
 	UTXOCallbacks    utxo.CallbackFunctions
-	BlockMinedCB     func(*bch.BchBlock) // used to remove mined txs from memory pool
+	BchBlockMinedCB  func(*bch.BchBlock) // used to remove mined txs from memory pool
 }
 
 // This is the very first function one should call in order to use this package

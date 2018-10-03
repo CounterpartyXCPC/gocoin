@@ -64,7 +64,7 @@ import (
 var AbortNow bool // set it to true to abort any activity
 
 type Chain struct {
-	BchBlocks *BlockDB        // blockchain.dat and blockchain.idx
+	BchBlocks *BchBlockDB     // blockchain.dat and blockchain.idx
 	Unspent   *utxo.UnspentDB // unspent folder
 
 	BchBlockTreeRoot *BchBlockTreeNode
@@ -129,7 +129,7 @@ type NewChanOpts struct {
 }
 
 // This is the very first function one should call in order to use this package
-func NewChainExt(dbrootdir string, genesis *bch.Uint256, rescan bool, opts *NewChanOpts, bdbopts *BlockDBOpts) (ch *Chain) {
+func NewChainExt(dbrootdir string, genesis *bch.Uint256, rescan bool, opts *NewChanOpts, bdbopts *BchBlockDBOpts) (ch *Chain) {
 	ch = new(Chain)
 	ch.Genesis = genesis
 

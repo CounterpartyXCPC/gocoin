@@ -125,7 +125,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 	}
 
 	// remove from BlocksToGet:
-	b2g := BlocksToGet[idx]
+	b2g := BchBlocksToGet[idx]
 	if b2g == nil {
 		//println("Block", hash.String(), " from", conn.PeerAddr.Ip(), conn.Node.Agent, " was not expected")
 
@@ -198,9 +198,9 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 	conn.Mutex.Unlock()
 
 	ReceivedBlocks[idx] = orb
-	DelB2G(idx) //remove it from BlocksToGet if no more pending downloads
+	DelB2G(idx) //remove it from BchBlocksToGet if no more pending downloads
 
-	store_on_disk := len(BlocksToGet) > 10 && common.GetBool(&common.CFG.Memory.CacheOnDisk) && len(b2g.BchBlock.Raw) > 16*1024
+	store_on_disk := len(BchBlocksToGet) > 10 && common.GetBool(&common.CFG.Memory.CacheOnDisk) && len(b2g.BchBlock.Raw) > 16*1024
 	MutexRcv.Unlock()
 
 	var bei *bch.BchBlockExtraInfo
@@ -215,7 +215,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 		}
 	}
 
-	NetBlocks <- &BlockRcvd{Conn: conn, Block: b2g.BchBlock, BlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb, BlockExtraInfo: bei}
+	NetBlocks <- &BchBlockRcvd{Conn: conn, BchBlock: b2g.BchBlock, BchBlockTreeNode: b2g.BchBlockTreeNode, OneReceivedBlock: orb, BchBlockExtraInfo: bei}
 }
 
 // Read VLen followed by the number of locators
@@ -260,7 +260,7 @@ func parseLocatorsPayload(pl []byte) (h2get []*bch.Uint256, hashstop *bch.Uint25
 
 // Call it with locked MutexRcv
 func getBlockToFetch(max_height uint32, cnt_in_progress, avg_block_size uint) (lowest_found *OneBlockToGet) {
-	for _, v := range BlocksToGet {
+	for _, v := range BchBlocksToGet {
 		if v.InProgress == cnt_in_progress && v.BchBlock.Height <= max_height &&
 			(lowest_found == nil || v.BchBlock.Height < lowest_found.BchBlock.Height) {
 			lowest_found = v
@@ -275,7 +275,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	MutexRcv.Lock()
 	defer MutexRcv.Unlock()
 
-	if LowestIndexToBlocksToGet == 0 || len(BlocksToGet) == 0 {
+	if LowestIndexToBlocksToGet == 0 || len(BchBlocksToGet) == 0 {
 		c.IncCnt("FetchNoBlocksToGet", 1)
 		// wake up in one minute, just in case
 		c.nextGetData = time.Now().Add(60 * time.Second)
@@ -318,7 +318,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	// We can issue getdata for this peer
-	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
+	// Let's look for the lowest height block in BchBlocksToGet that isn't being downloaded yet
 
 	common.Last.Mutex.Lock()
 	max_height := common.Last.BchBlock.Height + uint32(MAX_BLOCKS_FORWARD_SIZ/avg_block_size)
@@ -355,7 +355,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		for bh := LowestIndexToBlocksToGet; bh <= max_height; bh++ {
 			if idxlst, ok := IndexToBlocksToGet[bh]; ok {
 				for _, idx := range idxlst {
-					v := BlocksToGet[idx]
+					v := BchBlocksToGet[idx]
 					if v.InProgress == cnt_in_progress && (lowest_found == nil || v.BchBlock.Height < lowest_found.BchBlock.Height) {
 						c.Mutex.Lock()
 						if _, ok := c.GetBlockInProgress[idx]; !ok {

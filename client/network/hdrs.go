@@ -34,7 +34,7 @@ func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 		return PH_STATUS_OLD, nil
 	}
 
-	if b2g, ok = BlocksToGet[bl.Hash.BIdx()]; ok {
+	if b2g, ok = BchBlocksToGet[bl.Hash.BIdx()]; ok {
 		common.CountSafe("HeaderFresh")
 		//fmt.Println(c.PeerAddr.Ip(), "block", bl.Hash.String(), " not new but get it")
 		return PH_STATUS_FRESH, b2g
@@ -57,7 +57,7 @@ func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 	}
 
 	node := common.BchBlockChain.AcceptHeader(bl)
-	b2g = &OneBlockToGet{Started: c.LastMsgTime, Block: bl, BlockTreeNode: node, InProgress: 0}
+	b2g = &OneBlockToGet{Started: c.LastMsgTime, BchBlock: bl, BchBlockTreeNode: node, InProgress: 0}
 	AddB2G(b2g)
 	LastCommitedHeader = node
 

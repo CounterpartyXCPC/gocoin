@@ -100,7 +100,7 @@ func tx_mined(tx *bch.Tx) (wtg *OneWaitingList) {
 }
 
 // Removes all the block's tx from the mempool
-func BlockMined(bl *bch.BchBlock) {
+func BchBlockMined(bl *bch.BchBlock) {
 	wtgs := make([]*OneWaitingList, len(bl.Txs)-1)
 	var wtg_cnt int
 	TxMutex.Lock()

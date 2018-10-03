@@ -168,7 +168,7 @@ type BlckCachRec struct {
 }
 
 // BlockDBOpts is un bch_blockdb.go from blockdb.go origin.
-type BlockDBOpts struct {
+type BchBlockDBOpts struct {
 	MaxCachedBlocks int
 	MaxDataFileSize uint64
 	DataFilesKeep   uint32
@@ -182,7 +182,7 @@ type oneB2W struct {
 	txcount uint32
 }
 
-type BlockDB struct {
+type BchBlockDB struct {
 	dirname            string
 	blockIndex         map[[bch.Uint256IdxLen]byte]*oneBl
 	blockdata          *os.File
@@ -201,8 +201,8 @@ type BlockDB struct {
 	data_files_keep    uint32
 }
 
-func NewBlockDBExt(dir string, opts *BlockDBOpts) (db *BlockDB) {
-	db = new(BlockDB)
+func NewBlockDBExt(dir string, opts *BchBlockDBOpts) (db *BchBlockDB) {
+	db = new(BchBlockDB)
 	db.dirname = dir
 	if db.dirname != "" && db.dirname[len(db.dirname)-1] != '/' && db.dirname[len(db.dirname)-1] != '\\' {
 		db.dirname += "/"
@@ -225,12 +225,12 @@ func NewBlockDBExt(dir string, opts *BlockDBOpts) (db *BlockDB) {
 	return
 }
 
-func NewBlockDB(dir string) (db *BlockDB) {
-	return NewBlockDBExt(dir, &BlockDBOpts{MaxCachedBlocks: 500})
+func NewBlockDB(dir string) (db *BchBlockDB) {
+	return NewBlockDBExt(dir, &BchBlockDBOpts{MaxCachedBlocks: 500})
 }
 
 // Make sure to call with the mutex locked
-func (db *BlockDB) addToCache(h *bch.Uint256, bl []byte, str *bch.BchBlock) (crec *BlckCachRec) {
+func (db *BchBlockDB) addToCache(h *bch.Uint256, bl []byte, str *bch.BchBlock) (crec *BlckCachRec) {
 	if db.cache == nil {
 		return
 	}
@@ -266,7 +266,7 @@ func (db *BlockDB) addToCache(h *bch.Uint256, bl []byte, str *bch.BchBlock) (cre
 	return
 }
 
-func (db *BlockDB) GetStats() (s string) {
+func (db *BchBlockDB) GetStats() (s string) {
 	db.mutex.Lock()
 	s += fmt.Sprintf("BlockDB: %d blocks, %d/%d in cache.  ToWriteCnt:%d (%dKB)\n",
 		len(db.blockIndex), len(db.cache), db.max_cached_blocks, len(db.blocksToWrite), db.datToWrite>>10)
@@ -281,7 +281,7 @@ func hash2idx(h []byte) (idx [bch.Uint256IdxLen]byte) {
 
 // @todo >> Insert BCH chain data here.
 
-func (db *BlockDB) BchBlockAdd(height uint32, bl *bch.BchBlock) (e error) {
+func (db *BchBlockDB) BchBlockAdd(height uint32, bl *bch.BchBlock) (e error) {
 	var trust_it bool
 	var flush bool
 
@@ -323,7 +323,7 @@ func (db *BlockDB) BchBlockAdd(height uint32, bl *bch.BchBlock) (e error) {
 	return
 }
 
-func (db *BlockDB) writeAll() (sync bool) {
+func (db *BchBlockDB) writeAll() (sync bool) {
 	//sta := time.Now()
 	for db.writeOne() {
 		sync = true
@@ -336,7 +336,7 @@ func (db *BlockDB) writeAll() (sync bool) {
 	return
 }
 
-func (db *BlockDB) writeOne() (written bool) {
+func (db *BchBlockDB) writeOne() (written bool) {
 	var fl [136]byte
 	var rec *oneBl
 	var b2w oneB2W
@@ -417,7 +417,7 @@ func (db *BlockDB) writeOne() (written bool) {
 	return
 }
 
-func (db *BlockDB) BchBlockInvalid(hash []byte) {
+func (db *BchBlockDB) BchBlockInvalid(hash []byte) {
 	idx := bch.NewUint256(hash).BIdx()
 	db.mutex.Lock()
 	cur, ok := db.blockIndex[idx]
@@ -443,7 +443,7 @@ func (db *BlockDB) BchBlockInvalid(hash []byte) {
 	db.mutex.Unlock()
 }
 
-func (db *BlockDB) BchBlockTrusted(hash []byte) {
+func (db *BchBlockDB) BchBlockTrusted(hash []byte) {
 	idx := bch.NewUint256(hash).BIdx()
 	db.mutex.Lock()
 	cur, ok := db.blockIndex[idx]
@@ -459,7 +459,7 @@ func (db *BlockDB) BchBlockTrusted(hash []byte) {
 	db.mutex.Unlock()
 }
 
-func (db *BlockDB) setBlockFlag(cur *oneBl, fl byte) {
+func (db *BchBlockDB) setBlockFlag(cur *oneBl, fl byte) {
 	var b [1]byte
 	cur.trusted = true
 	db.disk_access.Lock()
@@ -471,13 +471,13 @@ func (db *BlockDB) setBlockFlag(cur *oneBl, fl byte) {
 	db.disk_access.Unlock()
 }
 
-func (db *BlockDB) Idle() {
+func (db *BchBlockDB) Idle() {
 	if db.writeAll() {
 		//println(" * block(s) stored from idle")
 	}
 }
 
-func (db *BlockDB) Close() {
+func (db *BchBlockDB) Close() {
 	if db.writeAll() {
 		//println(" * block(s) stored from close")
 	}
@@ -485,7 +485,7 @@ func (db *BlockDB) Close() {
 	db.blockindx.Close()
 }
 
-func (db *BlockDB) BchBlockGetInternal(hash *bch.Uint256, do_not_cache bool) (cacherec *BlckCachRec, trusted bool, e error) {
+func (db *BchBlockDB) BchBlockGetInternal(hash *bch.Uint256, do_not_cache bool) (cacherec *BlckCachRec, trusted bool, e error) {
 	db.mutex.Lock()
 	rec, ok := db.blockIndex[hash.BIdx()]
 	if !ok {
@@ -573,11 +573,11 @@ func (db *BlockDB) BchBlockGetInternal(hash *bch.Uint256, do_not_cache bool) (ca
 	return
 }
 
-func (db *BlockDB) BchBlockGetExt(hash *bch.Uint256) (cacherec *BlckCachRec, trusted bool, e error) {
+func (db *BchBlockDB) BchBlockGetExt(hash *bch.Uint256) (cacherec *BlckCachRec, trusted bool, e error) {
 	return db.BchBlockGetInternal(hash, false)
 }
 
-func (db *BlockDB) BchBlockGet(hash *bch.Uint256) (bl []byte, trusted bool, e error) {
+func (db *BchBlockDB) BchBlockGet(hash *bch.Uint256) (bl []byte, trusted bool, e error) {
 	var rec *BlckCachRec
 	rec, trusted, e = db.BchBlockGetInternal(hash, false)
 	if rec != nil {
@@ -586,7 +586,7 @@ func (db *BlockDB) BchBlockGet(hash *bch.Uint256) (bl []byte, trusted bool, e er
 	return
 }
 
-func (db *BlockDB) BchBlockLength(hash *bch.Uint256, decode_if_needed bool) (length uint32, e error) {
+func (db *BchBlockDB) BchBlockLength(hash *bch.Uint256, decode_if_needed bool) (length uint32, e error) {
 	db.mutex.Lock()
 	rec, ok := db.blockIndex[hash.BIdx()]
 
@@ -615,7 +615,7 @@ func (db *BlockDB) BchBlockLength(hash *bch.Uint256, decode_if_needed bool) (len
 	return
 }
 
-func (db *BlockDB) dat_fname(idx uint32, archive bool) string {
+func (db *BchBlockDB) dat_fname(idx uint32, archive bool) string {
 	dir := db.dirname
 	if archive {
 		dir += "oldat" + string(os.PathSeparator)
@@ -626,7 +626,7 @@ func (db *BlockDB) dat_fname(idx uint32, archive bool) string {
 	return dir + fmt.Sprintf("blockchain-%08x.dat", idx)
 }
 
-func (db *BlockDB) LoadBlockIndex(ch *Chain, walk func(ch *Chain, hash, hdr []byte, height, blen, txs uint32)) (e error) {
+func (db *BchBlockDB) LoadBlockIndex(ch *Chain, walk func(ch *Chain, hash, hdr []byte, height, blen, txs uint32)) (e error) {
 	var b [136]byte
 	var bh, txs uint32
 	db.blockindx.Seek(0, os.SEEK_SET)

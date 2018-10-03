@@ -41,7 +41,7 @@ func (c *OneConnection) ExpireBlocksToGet(now *time.Time, curr_ping_cnt uint64) 
 		}
 		c.X.BchBlocksExpired++
 		delete(c.GetBlockInProgress, k)
-		if bip, ok := BlocksToGet[k]; ok {
+		if bip, ok := BchBlocksToGet[k]; ok {
 			bip.InProgress--
 		}
 	}
@@ -796,7 +796,7 @@ func (c *OneConnection) Run() {
 	c.Mutex.Lock()
 	MutexRcv.Lock()
 	for k := range c.GetBlockInProgress {
-		if rec, ok := BlocksToGet[k]; ok {
+		if rec, ok := BchBlocksToGet[k]; ok {
 			rec.InProgress--
 		} else {
 			//println("ERROR! Block", bip.hash.String(), "in progress, but not in BlocksToGet")
