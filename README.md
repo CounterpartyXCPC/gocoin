@@ -70,10 +70,10 @@ Note that source files get installed within your GOPATH folder.
 # Building
 
 ## Client node
-Go to the `client/` folder and execute `go build` there.
+Go to the `cd $GOPATH/src/github.com/counterpartyxcpc/gocoin-cash/client/` folder and execute `go build` there.
 
 ## Wallet
-Go to the `wallet/` folder and execute `go build` there.
+Go to the `cd $GOPATH/src/github.com/counterpartyxcpc/gocoin-cash/wallet/` folder and execute `go build` there.
 
 ## Tools
 Go to the `tools/` folder and execute:

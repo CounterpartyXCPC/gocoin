@@ -61,7 +61,7 @@ script:
   # - ./pre-commit
   # - go test -cpu=1,2 -v -tags integration ./...
 
-  - cd client
+  - cd $GOPATH/src/github.com/counterpartyxcpc/gocoin-cash/client/
   - go build
-  - cd ./wallet
+  - cd $GOPATH/src/github.com/counterpartyxcpc/gocoin-cash/wallet/
   - go build
