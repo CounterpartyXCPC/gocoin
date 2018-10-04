@@ -1,9 +1,59 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:        ec.go
+// Description: Bictoin Cash Cash secp256k1 Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package secp256k1
 
 import (
-	//"encoding/hex"
+//"encoding/hex"
 )
-
 
 func ecdsa_verify(pubkey, sig, msg []byte) int {
 	var m Number
@@ -15,7 +65,7 @@ func ecdsa_verify(pubkey, sig, msg []byte) int {
 		return -1
 	}
 
-	if s.ParseBytes(sig)<0 {
+	if s.ParseBytes(sig) < 0 {
 		return -2
 	}
 
@@ -26,9 +76,8 @@ func ecdsa_verify(pubkey, sig, msg []byte) int {
 }
 
 func Verify(k, s, m []byte) bool {
-	return ecdsa_verify(k, s, m)==1
+	return ecdsa_verify(k, s, m) == 1
 }
-
 
 func DecompressPoint(X []byte, off bool, Y []byte) {
 	var rx, ry, c, x2, x3 Field
@@ -47,16 +96,15 @@ func DecompressPoint(X []byte, off bool, Y []byte) {
 	return
 }
 
-
 func RecoverPublicKey(r, s, h []byte, recid int, pubkey *XY) bool {
 	var sig Signature
 	var msg Number
 	sig.R.SetBytes(r)
-	if sig.R.Sign()<=0 || sig.R.Cmp(&TheCurve.Order.Int)>=0 {
+	if sig.R.Sign() <= 0 || sig.R.Cmp(&TheCurve.Order.Int) >= 0 {
 		return false
 	}
 	sig.S.SetBytes(s)
-	if sig.S.Sign()<=0 || sig.S.Cmp(&TheCurve.Order.Int)>=0 {
+	if sig.S.Sign() <= 0 || sig.S.Cmp(&TheCurve.Order.Int) >= 0 {
 		return false
 	}
 	msg.SetBytes(h)
@@ -65,7 +113,6 @@ func RecoverPublicKey(r, s, h []byte, recid int, pubkey *XY) bool {
 	}
 	return true
 }
-
 
 // Standard EC multiplacation k(xy)
 // xy - is the standarized public key format (33 or 65 bytes long)
@@ -97,7 +144,6 @@ func BaseMultiply(k, out []byte) bool {
 	pk.GetPublicKey(out)
 	return true
 }
-
 
 // out = G*k + xy
 func BaseMultiplyAdd(xy, k, out []byte) bool {

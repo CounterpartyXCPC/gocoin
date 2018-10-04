@@ -1,14 +1,65 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:        sig_test.go
+// Description: Bictoin Cash Cash secp256k1 Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package secp256k1
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"strconv"
 	"testing"
-	"encoding/hex"
-	"crypto/rand"
 )
 
 func TestSigRecover(t *testing.T) {
-	var vs = [][6]string {
+	var vs = [][6]string{
 		{
 			"6028b9e3a31c9e725fcbd7d5d16736aaaafcc9bf157dfb4be62bcbcf0969d488",
 			"036d4a36fa235b8f9f815aa6f5457a607f956a71a035bf0970d8578bf218bb5a",
@@ -85,7 +136,6 @@ func TestSigVerify(t *testing.T) {
 	}
 }
 
-
 func TestSigSign(t *testing.T) {
 	var sec, msg, non Number
 	var sig Signature
@@ -107,7 +157,7 @@ func TestSigSign(t *testing.T) {
 		}
 	}
 	non.SetHex("98f9d784ba6c5c77bb7323d044c0fc9f2b27baa0a5b0718fe88596cc56681980")
-	if sig.R.Cmp(&non.Int)!=0 {
+	if sig.R.Cmp(&non.Int) != 0 {
 		t.Error("R failed", sig.R.String())
 	}
 	if FORCE_LOW_S {
@@ -115,11 +165,10 @@ func TestSigSign(t *testing.T) {
 	} else {
 		non.SetHex("E3599D551029336A745B9FB01566624D870780F363356CEE1425ED67D1294480")
 	}
-	if sig.S.Cmp(&non.Int)!=0 {
+	if sig.S.Cmp(&non.Int) != 0 {
 		t.Error("S failed", sig.S.String())
 	}
 }
-
 
 func BenchmarkVerify(b *testing.B) {
 	var msg Number
@@ -138,7 +187,6 @@ func BenchmarkVerify(b *testing.B) {
 	}
 }
 
-
 func BenchmarkPrv2Pub(b *testing.B) {
 	var prv [32]byte
 	var pub [33]byte
@@ -148,7 +196,6 @@ func BenchmarkPrv2Pub(b *testing.B) {
 		BaseMultiply(prv[:], pub[:])
 	}
 }
-
 
 func BenchmarkSign(b *testing.B) {
 	var sec, msg, non Number

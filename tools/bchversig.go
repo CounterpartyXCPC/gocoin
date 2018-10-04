@@ -24,8 +24,8 @@
 // right or endorsement is conferred by reference to thier organization
 // or brand(s) by CCA.
 
-// File:		cashaddrr.go
-// Description:	Bictoin Cash Cash Adress Package
+// File:		bchversig.go
+// Description:	Bictoin Cash Cash main Package
 
 // Credits:
 

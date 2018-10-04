@@ -1,3 +1,54 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:        sipasec.go
+// Description: Bictoin Cash Cash sipasec Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package sipasec
 
 /*
@@ -8,7 +59,7 @@ package sipasec
 static secp256k1_context *ctx;
 
 static void secp256k1_start() {
-	ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+    ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
 }
 
 static int ecdsa_signature_parse_der_lax(const secp256k1_context* ctx, secp256k1_ecdsa_signature* sig, const unsigned char *input, size_t inputlen) {
@@ -141,35 +192,34 @@ static int ecdsa_signature_parse_der_lax(const secp256k1_context* ctx, secp256k1
 
 
 static int secp256k1_verify(unsigned char *msg, unsigned char *sig, int siglen, unsigned char *pk, int pklen) {
-	int result;
+    int result;
     secp256k1_pubkey pubkey;
-	secp256k1_ecdsa_signature _sig;
+    secp256k1_ecdsa_signature _sig;
 
-	if (!secp256k1_ec_pubkey_parse(ctx, &pubkey, pk, pklen)) {
-		return -1;
-	}
-	if (!ecdsa_signature_parse_der_lax(ctx, &_sig, sig, siglen)) {
-		return -1;
-	}
+    if (!secp256k1_ec_pubkey_parse(ctx, &pubkey, pk, pklen)) {
+        return -1;
+    }
+    if (!ecdsa_signature_parse_der_lax(ctx, &_sig, sig, siglen)) {
+        return -1;
+    }
 
-	secp256k1_ecdsa_signature_normalize(ctx, &_sig, &_sig);
-	result = secp256k1_ecdsa_verify(ctx, &_sig, msg, &pubkey);
+    secp256k1_ecdsa_signature_normalize(ctx, &_sig, &_sig);
+    result = secp256k1_ecdsa_verify(ctx, &_sig, msg, &pubkey);
 
-	return result;
+    return result;
 }
 
 */
 import "C"
 import "unsafe"
 
-
 // Verify ECDSA signature
 func EC_Verify(pkey, sign, hash []byte) int {
-	return int(C.secp256k1_verify((*C.uchar)(unsafe.Pointer(&hash[0])),
-		(*C.uchar)(unsafe.Pointer(&sign[0])), C.int(len(sign)),
-		(*C.uchar)(unsafe.Pointer(&pkey[0])), C.int(len(pkey))))
+    return int(C.secp256k1_verify((*C.uchar)(unsafe.Pointer(&hash[0])),
+        (*C.uchar)(unsafe.Pointer(&sign[0])), C.int(len(sign)),
+        (*C.uchar)(unsafe.Pointer(&pkey[0])), C.int(len(pkey))))
 }
 
 func init() {
-	C.secp256k1_start()
+    C.secp256k1_start()
 }

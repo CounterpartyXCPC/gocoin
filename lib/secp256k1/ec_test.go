@@ -1,8 +1,59 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:        ec_test.go
+// Description: Bictoin Cash Cash secp256k1 Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package secp256k1
 
 import (
-	"testing"
 	"encoding/hex"
+	"testing"
 )
 
 var ta = [][3]string{
@@ -61,30 +112,29 @@ func TestVerify1(t *testing.T) {
 		hasz, _ := hex.DecodeString(ta[i][2])
 
 		res := ecdsa_verify(pkey, sign, hasz)
-		if res!=1 {
+		if res != 1 {
 			t.Fatal("Verify failed at", i)
 		}
 
 		hasz[0]++
 		res = ecdsa_verify(pkey, sign, hasz)
-		if res!=0 {
+		if res != 0 {
 			t.Error("Verify not failed while it should", i)
 		}
 		res = ecdsa_verify(pkey[:1], sign, hasz)
-		if res>=0 {
+		if res >= 0 {
 			t.Error("Negative result expected", res, i)
 		}
 		res = ecdsa_verify(pkey, sign[:1], hasz)
-		if res>=0 {
+		if res >= 0 {
 			t.Error("Yet negative result expected", res, i)
 		}
 		res = ecdsa_verify(pkey, sign, hasz[:1])
-		if res!=0 {
+		if res != 0 {
 			t.Error("Zero expected", res, i)
 		}
 	}
 }
-
 
 func BenchmarkVerifyUncompressed(b *testing.B) {
 	key, _ := hex.DecodeString("040eaebcd1df2df853d66ce0e1b0fda07f67d1cabefde98514aad795b86a6ea66dbeb26b67d7a00e2447baeccc8a4cef7cd3cad67376ac1c5785aeebb4f6441c16")
@@ -105,7 +155,6 @@ func BenchmarkVerifyCompressed(b *testing.B) {
 		ecdsa_verify(key_compr, sig, msg)
 	}
 }
-
 
 func TestECmult(t *testing.T) {
 	var u1, u2 Number
@@ -132,28 +181,28 @@ func TestECmult(t *testing.T) {
 
 type wnafvec struct {
 	inp string
-	w uint
+	w   uint
 	exp []int
 }
 
 func TestWNAF(t *testing.T) {
 	var wnaf [129]int
-	var testvcs = []wnafvec {
+	var testvcs = []wnafvec{
 		{
 			"3271156f58b59bd7aa542ca6972c1910", WINDOW_A,
-			[]int{0,0,0,0,-15,0,0,0,0,13,0,0,0,0,0,0,0,0,11,0,0,0,0,0,-9,0,0,0,0,-11,0,0,0,0,0,-11,0,0,0,0,13,0,0,0,0,1,0,0,0,0,-11,0,0,0,0,-11,0,0,0,0,-5,0,0,0,0,0,0,-5,0,0,0,0,0,0,7,0,0,0,0,11,0,0,0,0,11,0,0,0,0,0,0,11,0,0,0,0,15,0,0,0,0,11,0,0,0,0,5,0,0,0,0,0,-15,0,0,0,0,0,0,5,0,0,0,0,3},
+			[]int{0, 0, 0, 0, -15, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, -9, 0, 0, 0, 0, -11, 0, 0, 0, 0, 0, -11, 0, 0, 0, 0, 13, 0, 0, 0, 0, 1, 0, 0, 0, 0, -11, 0, 0, 0, 0, -11, 0, 0, 0, 0, -5, 0, 0, 0, 0, 0, 0, -5, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 11, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 15, 0, 0, 0, 0, 11, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, -15, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 3},
 		},
 		{
 			"0a8a5afcb465a43b8277801311860430", WINDOW_A,
-			[]int{0,0,0,0,3,0,0,0,0,0,1,0,0,0,0,0,0,3,0,0,0,0,0,3,0,0,0,0,-15,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,0,7,0,0,0,0,1,0,0,0,0,0,-9,0,0,0,0,0,0,-15,0,0,0,0,-11,0,0,0,0,0,-13,0,0,0,0,0,9,0,0,0,0,11,0,0,0,0,0,-1,0,0,0,0,0,-5,0,0,0,0,-13,0,0,0,0,3,0,0,0,0,-11,0,0,0,0,1},
+			[]int{0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, -15, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, -9, 0, 0, 0, 0, 0, 0, -15, 0, 0, 0, 0, -11, 0, 0, 0, 0, 0, -13, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -5, 0, 0, 0, 0, -13, 0, 0, 0, 0, 3, 0, 0, 0, 0, -11, 0, 0, 0, 0, 1},
 		},
 		{
 			"b1a74471baaf1a3a8b9005821491c4b4", WINDOW_G,
-			[]int{0,0,-3795,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2633,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,705,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-5959,0,0,0,0,0,0,0,0,0,0,0,0,0,1679,0,0,0,0,0,0,0,0,0,0,0,0,0,-1361,0,0,0,0,0,0,0,0,0,0,0,0,0,4551,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1693,0,0,0,0,0,0,0,0,0,0,0,0,0,11},
+			[]int{0, 0, -3795, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2633, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 705, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -5959, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1679, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1361, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4551, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1693, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11},
 		},
 		{
 			"b618eba71ec03638693405c75fc1c9ab", WINDOW_G,
-			[]int{2475,0,0,0,0,0,0,0,0,0,0,0,0,0,-249,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-4549,0,0,0,0,0,0,0,0,0,0,0,0,0,-6527,0,0,0,0,0,0,0,0,0,0,0,0,0,7221,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-8165,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6369,0,0,0,0,0,0,0,0,0,0,0,0,0,-7249,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1457},
+			[]int{2475, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -249, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -4549, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -6527, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7221, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -8165, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -6369, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -7249, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1457},
 		},
 	}
 	for idx := range testvcs {
@@ -164,13 +213,12 @@ func TestWNAF(t *testing.T) {
 			t.Error("Bad bits at idx", idx)
 		}
 		for i := range testvcs[idx].exp {
-			if wnaf[i]!=testvcs[idx].exp[i] {
+			if wnaf[i] != testvcs[idx].exp[i] {
 				t.Error("Bad val at idx", idx, i)
 			}
 		}
 	}
 }
-
 
 func TestPrecompileGej(t *testing.T) {
 	var exp, a XYZ
@@ -182,7 +230,7 @@ func TestPrecompileGej(t *testing.T) {
 	exp.Y.SetHex("0cc6f63793a207751d507aa4be629f0776441e4873548095bd6d39d34ce8a9d7")
 	exp.Z.SetHex("122927e4908740d51df1f03dc921c00fef68c542e7f28aa270862619cf971815")
 	pre := a.precomp(WINDOW_A)
-	if len(pre)!=8 {
+	if len(pre) != 8 {
 		t.Error("Bad result length")
 	}
 	if !pre[7].Equals(&exp) {
@@ -196,7 +244,7 @@ func TestPrecompileGej(t *testing.T) {
 	exp.Y.SetHex("0cc6f63793a207751d507aa4be629f0776441e4873548095bd6d39d34ce8a9d7")
 	exp.Z.SetHex("49f0fb9f1840e7a58d485c6cc394e597e521bf7d4598be2b367c27326949e507")
 	pre = a.precomp(WINDOW_A)
-	if len(pre)!=8 {
+	if len(pre) != 8 {
 		t.Error("Bad result length")
 	}
 	if !pre[7].Equals(&exp) {
@@ -204,9 +252,8 @@ func TestPrecompileGej(t *testing.T) {
 	}
 }
 
-
 func TestMultGen(t *testing.T) {
-	var nonce  Number
+	var nonce Number
 	var ex, ey, ez Field
 	var r XYZ
 	nonce.SetHex("9E3CD9AB0F32911BFDE39AD155F527192CE5ED1F51447D63C4F154C118DA598E")

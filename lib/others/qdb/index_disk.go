@@ -1,15 +1,65 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:        index_disk.go
+// Description: Bictoin Cash Cash qdb Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package qdb
 
 import (
-	"os"
-	"io"
 	"fmt"
+	"io"
+	"os"
 	//"bytes"
 	"bufio"
-	"io/ioutil"
 	"encoding/binary"
+	"io/ioutil"
 )
-
 
 // Opens file and checks the ffffffff-sequence-FINI marker at the end
 func read_and_check_file(fn string) (seq uint32, data []byte) {
@@ -36,12 +86,12 @@ func read_and_check_file(fn string) (seq uint32, data []byte) {
 		return
 	}
 
-	if string(d[le-4:le])!="FINI" {
+	if string(d[le-4:le]) != "FINI" {
 		println(fn, "no FINI")
 		return
 	}
 
-	if binary.LittleEndian.Uint32(d[le-12:le-8])!=0xFFFFFFFF {
+	if binary.LittleEndian.Uint32(d[le-12:le-8]) != 0xFFFFFFFF {
 		println(fn, "no FFFFFFFF")
 		return
 	}
@@ -56,42 +106,40 @@ func read_and_check_file(fn string) (seq uint32, data []byte) {
 	return
 }
 
-
 func (idx *QdbIndex) loadneweridx() []byte {
-	s0, d0 := read_and_check_file(idx.IdxFilePath+"0")
-	s1, d1 := read_and_check_file(idx.IdxFilePath+"1")
+	s0, d0 := read_and_check_file(idx.IdxFilePath + "0")
+	s1, d1 := read_and_check_file(idx.IdxFilePath + "1")
 
 	if d0 == nil && d1 == nil {
 		//println(idx.IdxFilePath, "- no valid file")
 		return nil
 	}
 
-	if d0!=nil && d1!=nil {
+	if d0 != nil && d1 != nil {
 		// Both files are valid - take the one with higher sequence
-		if int32(s0 - s1) >= 0 {
-			os.Remove(idx.IdxFilePath+"1")
+		if int32(s0-s1) >= 0 {
+			os.Remove(idx.IdxFilePath + "1")
 			idx.DatfileIndex = 0
 			idx.VersionSequence = s0
 			return d0
 		} else {
-			os.Remove(idx.IdxFilePath+"0")
+			os.Remove(idx.IdxFilePath + "0")
 			idx.DatfileIndex = 1
 			idx.VersionSequence = s1
 			return d1
 		}
-	} else if d0==nil {
-		os.Remove(idx.IdxFilePath+"0")
+	} else if d0 == nil {
+		os.Remove(idx.IdxFilePath + "0")
 		idx.DatfileIndex = 1
 		idx.VersionSequence = s1
 		return d1
 	} else {
-		os.Remove(idx.IdxFilePath+"1")
+		os.Remove(idx.IdxFilePath + "1")
 		idx.DatfileIndex = 0
 		idx.VersionSequence = s0
 		return d0
 	}
 }
-
 
 func (idx *QdbIndex) loaddat(used map[uint32]bool) {
 	d := idx.loadneweridx()
@@ -99,50 +147,49 @@ func (idx *QdbIndex) loaddat(used map[uint32]bool) {
 		return
 	}
 
-	for pos:=4; pos+24<=len(d)-12; pos+=24 {
-		key := KeyType(binary.LittleEndian.Uint64(d[pos:pos+8]))
-		fpos := binary.LittleEndian.Uint32(d[pos+8:pos+12])
-		flen := binary.LittleEndian.Uint32(d[pos+12:pos+16])
-		fseq := binary.LittleEndian.Uint32(d[pos+16:pos+20])
-		flgz := binary.LittleEndian.Uint32(d[pos+20:pos+24])
-		idx.memput(key, &oneIdx{datpos:fpos, datlen:flen, DataSeq:fseq, flags:flgz})
+	for pos := 4; pos+24 <= len(d)-12; pos += 24 {
+		key := KeyType(binary.LittleEndian.Uint64(d[pos : pos+8]))
+		fpos := binary.LittleEndian.Uint32(d[pos+8 : pos+12])
+		flen := binary.LittleEndian.Uint32(d[pos+12 : pos+16])
+		fseq := binary.LittleEndian.Uint32(d[pos+16 : pos+20])
+		flgz := binary.LittleEndian.Uint32(d[pos+20 : pos+24])
+		idx.memput(key, &oneIdx{datpos: fpos, datlen: flen, DataSeq: fseq, flags: flgz})
 		used[fseq] = true
 	}
 	return
 }
 
-
 func (idx *QdbIndex) loadlog(used map[uint32]bool) {
 	idx.file, _ = os.OpenFile(idx.IdxFilePath+"log", os.O_RDWR, 0660)
-	if idx.file==nil {
+	if idx.file == nil {
 		return
 	}
 
 	var iseq uint32
 	binary.Read(idx.file, binary.LittleEndian, &iseq)
-	if iseq!=idx.VersionSequence {
+	if iseq != idx.VersionSequence {
 		println("incorrect seq in the log file", iseq, idx.VersionSequence)
 		idx.file.Close()
 		idx.file = nil
-		os.Remove(idx.IdxFilePath+"log")
+		os.Remove(idx.IdxFilePath + "log")
 		return
 	}
 
 	d, _ := ioutil.ReadAll(idx.file)
-	for pos:=0; pos+12<=len(d); {
-		key := KeyType(binary.LittleEndian.Uint64(d[pos:pos+8]))
-		fpos := binary.LittleEndian.Uint32(d[pos+8:pos+12])
+	for pos := 0; pos+12 <= len(d); {
+		key := KeyType(binary.LittleEndian.Uint64(d[pos : pos+8]))
+		fpos := binary.LittleEndian.Uint32(d[pos+8 : pos+12])
 		pos += 12
-		if fpos!=0 {
-			if pos+12>len(d) {
+		if fpos != 0 {
+			if pos+12 > len(d) {
 				println("Unexpected END of file")
 				break
 			}
-			flen := binary.LittleEndian.Uint32(d[pos:pos+4])
-			fseq := binary.LittleEndian.Uint32(d[pos+4:pos+8])
-			flgz := binary.LittleEndian.Uint32(d[pos+8:pos+12])
+			flen := binary.LittleEndian.Uint32(d[pos : pos+4])
+			fseq := binary.LittleEndian.Uint32(d[pos+4 : pos+8])
+			flgz := binary.LittleEndian.Uint32(d[pos+8 : pos+12])
 			pos += 12
-			idx.memput(key, &oneIdx{datpos:fpos, datlen:flen, DataSeq:fseq, flags:flgz})
+			idx.memput(key, &oneIdx{datpos: fpos, datlen: flen, DataSeq: fseq, flags: flgz})
 			used[fseq] = true
 		} else {
 			idx.memdel(key)
@@ -152,15 +199,13 @@ func (idx *QdbIndex) loadlog(used map[uint32]bool) {
 	return
 }
 
-
 func (idx *QdbIndex) checklogfile() {
 	if idx.file == nil {
-		idx.file, _ = os.Create(idx.IdxFilePath+"log")
+		idx.file, _ = os.Create(idx.IdxFilePath + "log")
 		binary.Write(idx.file, binary.LittleEndian, uint32(idx.VersionSequence))
 	}
 	return
 }
-
 
 func (idx *QdbIndex) addtolog(wr io.Writer, k KeyType, rec *oneIdx) {
 	if wr == nil {
@@ -174,19 +219,17 @@ func (idx *QdbIndex) addtolog(wr io.Writer, k KeyType, rec *oneIdx) {
 	binary.Write(wr, binary.LittleEndian, rec.flags)
 }
 
-
 func (idx *QdbIndex) deltolog(wr io.Writer, k KeyType) {
 	if wr == nil {
 		idx.checklogfile()
 		wr = idx.file
 	}
 	binary.Write(wr, binary.LittleEndian, k)
-	wr.Write([]byte{0,0,0,0})
+	wr.Write([]byte{0, 0, 0, 0})
 }
 
-
 func (idx *QdbIndex) writedatfile() {
-	idx.DatfileIndex = 1-idx.DatfileIndex
+	idx.DatfileIndex = 1 - idx.DatfileIndex
 	idx.VersionSequence++
 
 	//f := new(bytes.Buffer)
@@ -201,7 +244,7 @@ func (idx *QdbIndex) writedatfile() {
 		binary.Write(f, binary.LittleEndian, rec.flags)
 		return true
 	})
-	f.Write([]byte{0xff,0xff,0xff,0xff})
+	f.Write([]byte{0xff, 0xff, 0xff, 0xff})
 	binary.Write(f, binary.LittleEndian, idx.VersionSequence)
 	f.Write([]byte("FINI"))
 
@@ -210,14 +253,13 @@ func (idx *QdbIndex) writedatfile() {
 	ff.Close()
 
 	// now delete the previous log
-	if idx.file!=nil {
+	if idx.file != nil {
 		idx.file.Close()
 		idx.file = nil
 	}
-	os.Remove(idx.IdxFilePath+"log")
+	os.Remove(idx.IdxFilePath + "log")
 	os.Remove(fmt.Sprint(idx.IdxFilePath, 1-idx.DatfileIndex))
 }
-
 
 func (idx *QdbIndex) writebuf(d []byte) {
 	idx.checklogfile()

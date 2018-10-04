@@ -24,7 +24,7 @@
 // right or endorsement is conferred by reference to thier organization
 // or brand(s) by CCA.
 
-// File:		network.go
+// File:		core.go
 // Description:	Bictoin Cash network Package
 
 // Credits:

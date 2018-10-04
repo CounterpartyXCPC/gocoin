@@ -1,8 +1,59 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:        stack.go
+// Description: Bictoin Cash Cash script Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package script
 
 import (
-	"fmt"
 	"encoding/hex"
+	"fmt"
 )
 
 const nMaxNumSize = 4
@@ -33,25 +84,25 @@ func (s *scrStack) pushBool(v bool) {
 func (s *scrStack) pushInt(val int64) {
 	var negative bool
 
-	if val<0 {
+	if val < 0 {
 		negative = true
 		val = -val
 	}
 	var d []byte
 
-	if val!=0 {
-		for val!=0 {
+	if val != 0 {
+		for val != 0 {
 			d = append(d, byte(val))
 			val >>= 8
 		}
 
 		if negative {
-			if (d[len(d)-1]&0x80) != 0 {
+			if (d[len(d)-1] & 0x80) != 0 {
 				d = append(d, 0x80)
 			} else {
 				d[len(d)-1] |= 0x80
 			}
-		} else if (d[len(d)-1]&0x80) != 0 {
+		} else if (d[len(d)-1] & 0x80) != 0 {
 			d = append(d, 0x00)
 		}
 	}
@@ -59,24 +110,23 @@ func (s *scrStack) pushInt(val int64) {
 	s.data = append(s.data, d)
 }
 
-
 func bts2int(d []byte) (res int64) {
 	if len(d) > nMaxNumSize {
 		panic("Int on the stack is too long")
 		// Make sure this panic is captured in evalScript (cause the script to fail, not crash)
 	}
 
-	if len(d)==0 {
+	if len(d) == 0 {
 		return
 	}
 
 	var i int
-	for i<len(d)-1 {
+	for i < len(d)-1 {
 		res |= int64(d[i]) << uint(i*8)
 		i++
 	}
 
-	if (d[i]&0x80)!=0 {
+	if (d[i] & 0x80) != 0 {
 		res |= int64(d[i]&0x7f) << uint(i*8)
 		res = -res
 	} else {
@@ -86,14 +136,13 @@ func bts2int(d []byte) (res int64) {
 	return
 }
 
-
 func bts2int_ext(d []byte, max_bytes int, forcemin bool) (res int64) {
 	if len(d) > max_bytes {
 		panic("bts2int_ext: Int on the stack is too long")
 		// Make sure this panic is captured in evalScript (cause the script to fail, not crash)
 	}
 
-	if len(d)==0 {
+	if len(d) == 0 {
 		return
 	}
 
@@ -102,12 +151,12 @@ func bts2int_ext(d []byte, max_bytes int, forcemin bool) (res int64) {
 	}
 
 	var i int
-	for i<len(d)-1 {
+	for i < len(d)-1 {
 		res |= int64(d[i]) << uint(i*8)
 		i++
 	}
 
-	if (d[i]&0x80)!=0 {
+	if (d[i] & 0x80) != 0 {
 		res |= int64(d[i]&0x7f) << uint(i*8)
 		res = -res
 	} else {
@@ -117,24 +166,22 @@ func bts2int_ext(d []byte, max_bytes int, forcemin bool) (res int64) {
 	return
 }
 
-
 func bts2bool(d []byte) bool {
-	if len(d)==0 {
+	if len(d) == 0 {
 		return false
 	}
-	for i:=0; i<len(d)-1; i++ {
-		if d[i]!=0 {
+	for i := 0; i < len(d)-1; i++ {
+		if d[i] != 0 {
 			return true
 		}
 	}
-	return (d[len(d)-1]&0x7f) != 0 // -0 (0x80) is also false (I hope..)
+	return (d[len(d)-1] & 0x7f) != 0 // -0 (0x80) is also false (I hope..)
 }
-
 
 func is_minimal(d []byte) bool {
 	// Check that the number is encoded with the minimum possible
 	// number of bytes.
-	if len(d)>0 {
+	if len(d) > 0 {
 		// If the most-significant-byte - excluding the sign bit - is zero
 		// then we're not minimal. Note how this test also rejects the
 		// negative-zero encoding, 0x80.
@@ -144,7 +191,7 @@ func is_minimal(d []byte) bool {
 			// it would conflict with the sign bit. An example of this case
 			// is +-255, which encode to 0xff00 and 0xff80 respectively.
 			// (big-endian).
-			if len(d)<=1 || (d[len(d)-2]&0x80) == 0 {
+			if len(d) <= 1 || (d[len(d)-2]&0x80) == 0 {
 				return false
 			}
 		}
@@ -186,7 +233,7 @@ func (s *scrStack) topBool(idx int) bool {
 
 func (s *scrStack) pop() (d []byte) {
 	l := len(s.data)
-	if l==0 {
+	if l == 0 {
 		panic("stack is empty")
 	}
 	d = s.data[l-1]

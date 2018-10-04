@@ -1,18 +1,69 @@
+// ======================================================================
+
+//      cccccccccc          pppppppppp
+//    cccccccccccccc      pppppppppppppp
+//  ccccccccccccccc    ppppppppppppppppppp
+// cccccc       cc    ppppppp        pppppp
+// cccccc          pppppppp          pppppp
+// cccccc        ccccpppp            pppppp
+// cccccccc    cccccccc    pppp    ppppppp
+//  ccccccccccccccccc     ppppppppppppppp
+//     cccccccccccc      pppppppppppppp
+//       cccccccc        pppppppppppp
+//                       pppppp
+//                       pppppp
+
+// ======================================================================
+// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.
+// All Rights Reserved. All work owned by CCA is herby released
+// under Creative Commons Zero (0) License.
+
+// Some rights of 3rd party, derivative and included works remain the
+// property of thier respective owners. All marks, brands and logos of
+// member groups remain the exclusive property of their owners and no
+// right or endorsement is conferred by reference to thier organization
+// or brand(s) by CCA.
+
+// File:        db_test.go
+// Description: Bictoin Cash Cash qdb Package
+
+// Credits:
+
+// Julian Smith, Direction, Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+// Piotr Narewski, Gocoin Founder
+
+// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// + Other contributors
+
+// =====================================================================
+
 package qdb
 
 import (
-	"os"
-	"fmt"
-	"time"
 	"bytes"
-	"testing"
-	mr "math/rand"
 	cr "crypto/rand"
 	"encoding/hex"
+	"fmt"
+	mr "math/rand"
+	"os"
+	"testing"
+	"time"
 )
 
 const (
-	dbname = "test"
+	dbname   = "test"
 	oneRound = 10000
 	delRound = 1000
 )
@@ -22,11 +73,9 @@ func getRecSize() int {
 	//return mr.Intn(4096)
 }
 
-
 func kim(v []byte) bool {
-	return (mr.Int63()&1)==0
+	return (mr.Int63() & 1) == 0
 }
-
 
 func dumpidx(db *DB) {
 	println("index")
@@ -34,7 +83,6 @@ func dumpidx(db *DB) {
 		println(k2s(k), v.datpos, v.datlen)
 	}
 }
-
 
 func TestDatabase(t *testing.T) {
 	var key KeyType
@@ -52,7 +100,7 @@ func TestDatabase(t *testing.T) {
 	}
 
 	// Add oneRound random records
-	for i:=0; i<oneRound; i++ {
+	for i := 0; i < oneRound; i++ {
 		vlen := getRecSize()
 		val = make([]byte, vlen)
 		key = KeyType(mr.Int63())
@@ -67,7 +115,7 @@ func TestDatabase(t *testing.T) {
 		t.Error("Cannot reopen db")
 		return
 	}
-	if db.Count()!=oneRound {
+	if db.Count() != oneRound {
 		t.Error("Bad count", db.Count(), oneRound)
 		return
 	}
@@ -97,7 +145,7 @@ func TestDatabase(t *testing.T) {
 		t.Error("Wrong number of records", db.Count())
 	}
 	db.NoSync()
-	for i:=0; i<oneRound; i++ {
+	for i := 0; i < oneRound; i++ {
 		vlen := getRecSize()
 		val = make([]byte, vlen)
 		key = KeyType(mr.Int63())
@@ -147,9 +195,9 @@ func TestDatabase(t *testing.T) {
 	}
 
 	var keys []KeyType
-	db.Browse(func (key KeyType, v []byte) uint32 {
+	db.Browse(func(key KeyType, v []byte) uint32 {
 		keys = append(keys, key)
-		if len(keys)<delRound {
+		if len(keys) < delRound {
 			return 0
 		} else {
 			return BR_ABORT

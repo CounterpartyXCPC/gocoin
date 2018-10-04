@@ -25,7 +25,7 @@
 // or brand(s) by CCA.
 
 // File:		bch_const.go
-// Description:	Bictoin Cash Chain Package
+// Description:	Bictoin Cash bch_chain Package
 
 // Credits:
 

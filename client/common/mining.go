@@ -25,7 +25,7 @@
 // or brand(s) by CCA.
 
 // File:		mining.go
-// Description:	Bictoin Cash Mining Package (Yes! You can mine too)
+// Description:	Bictoin Cash common Package (Mining. Yes! You can mine too)
 
 // Credits:
 
