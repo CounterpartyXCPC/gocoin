@@ -24,8 +24,8 @@
 ## right or endorsement is conferred by reference to thier organization
 ## or brand(s) by CCA.
 
-## File:    cashaddrr.go
-## Description: Bictoin Cash Cash Adress Package
+## File:    .travis.yml
+## Description: Gocoin-cash Travis CI Config
 
 ## Credits:
 
@@ -58,8 +58,8 @@ before_install:
   - go get -v github.com/golang/lint/golint
 
 script:
-  - ./pre-commit
-  - go test -cpu=1,2 -v -tags integration ./...
+  # - ./pre-commit
+  # - go test -cpu=1,2 -v -tags integration ./...
 
   - cd client
   - go build
