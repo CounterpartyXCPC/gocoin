@@ -58,10 +58,10 @@ before_install:
   - go get -v github.com/golang/lint/golint
 
 script:
-  # - ./pre-commit
-  # - go test -cpu=1,2 -v -tags integration ./...
+  - ./pre-commit
+  - go test -cpu=1,2 -v -tags integration ./...
 
-  # - cd client
-  # - cd ./wallet
-  # - cd ./tools
-  # - go build btcversig.go
+  - cd client
+  - go build
+  - cd ./wallet
+  - go build
