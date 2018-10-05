@@ -51,9 +51,8 @@
 
 language: go
 
-go:
-  - 1.11.x
-
+go: "1.11"
+ 
 before_install: go get github.com/golang/lint/golint
 
 script:
