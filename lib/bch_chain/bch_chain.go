@@ -107,12 +107,15 @@ type Chain struct {
 
 	Consensus struct {
 		Window, EnforceUpgrade, RejectBlock uint
-		MaxPOWBits                          uint32 //
+		MaxPOWBits                          uint32
 		MaxPOWValue                         *big.Int
 		GensisTimestamp                     uint32
 		Enforce_CSV                         uint32 // if non zero CVS verifications will be enforced from this block onwards
-		Enforce_SEGWIT                      uint32 // if non zero CVS verifications will be enforced from this block onwards
-		Enforce_UAHF                        uint32 // if non zero CVS verifications will be enforced from this block onwards
+		Enforce_SEGWIT                      uint32 // if non zero SEGWIT verifications will be enforced from this block onwards
+		Enforce_UAHF                        uint32 // if non zero UAHF verifications will be enforced from this block onwards
+		Enforce_DAA                         uint32 // if non zero DAA verifications will be enforced from this block onwards
+		Enforce_MagneticAnomaly             uint32
+		Enforce_GreatWall                   uint32
 		BIP9_Treshold                       uint32 // It is not really used at this moment, but maybe one day...
 		BIP34Height                         uint32
 		BIP65Height                         uint32
@@ -145,22 +148,66 @@ func NewChainExt(dbrootdir string, genesis *bch.Uint256, rescan bool, opts *NewC
 	ch.Consensus.MaxPOWValue, _ = new(big.Int).SetString("00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 16)
 
 	if ch.testnet() {
-		ch.Consensus.BIP34Height = 21111
-		ch.Consensus.BIP65Height = 581885
-		ch.Consensus.BIP66Height = 330776
-		ch.Consensus.Enforce_CSV = 770112
-		ch.Consensus.Enforce_SEGWIT = 834624
-		ch.Consensus.Enforce_UAHF = 1155875
-		ch.Consensus.BIP9_Treshold = 1512
+		// August 27, 2012 (Testnet) Introduction of Consensus Block and TX Versioning Mechanism
+		ch.Consensus.BIP34Height = 21111 // 0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8
+		// October 31, 2015 (Testnet) Introduction of n-block/n-time-based locked transactions
+		ch.Consensus.BIP65Height = 581885 // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
+		// April 13, 2015 (Testnet) Introduction of strict ECDSA validation by Distinguished Encoding Rules (DER)
+		ch.Consensus.BIP66Height = 330776 // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
+		// April 16, 2016 (Testnet) Introduction of CSV Check Sequence Verify, Relative n-(time/block)lock, 111 block median time inclusion.
+		ch.Consensus.Enforce_CSV = 770112 // 00000000025e930139bac5c6c31a403776da130831ab85be56578f3fa75369bb
+		// ** @todo THIS NEEDS TO BE REMOVED (BTC Only. Not active on BCH)
+		ch.Consensus.Enforce_SEGWIT = 834624 // 00000000002b980fcd729daaa248fd9316a5200e9b367f4ff2c42453e84201ca
+		// August 1, 2017 (Testnet) User Activated Hard Fork (UAHF) Active. Next Block (1155876) is First Bitcoin Cash Block on Test Network
+		ch.Consensus.Enforce_UAHF = 1155875 // 00000000f17c850672894b9a75b63a1e72830bbd5f4c8889b5c1a80e7faef138
+		ch.Consensus.Enforce_DAA = 1188697  // 0000000000170ed0918077bde7b4d36cc4c91be69fa09211f748240dabe047fb
+		// Nov 15, 2018 Upcoming Bitcoin Cash scheduled hard fork
+		ch.Consensus.Enforce_MagneticAnomaly = 1542300000 // 0000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxtbd
+		// Wed, 15 May 2019 12:00:00 UTC hard fork
+		ch.Consensus.Enforce_GreatWall = 1557921600 // 0000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxtbd
+		ch.Consensus.BIP9_Treshold = 1512           // 00000000f57741182427e6ae2cc67e296ddc428d35a445a35e63a3228eb2c59f
 	} else {
-		ch.Consensus.BIP34Height = 227931
-		ch.Consensus.BIP65Height = 388381
-		ch.Consensus.BIP66Height = 363725
-		ch.Consensus.Enforce_CSV = 419328
+		// March 25, 2013 (BIP34) Introduction of Consensus Block and TX Versioning Mechanism
+		// 		Gavin Andresen <gavinandresen@gmail.com>
+		ch.Consensus.BIP34Height = 227931 // 000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8
+		// December 15, 2015 (BIP65) Introduction of n-block/n-time-based locked transactions
+		// 		Peter Todd <pete@petertodd.org>
+		ch.Consensus.BIP65Height = 388381 // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
+		// July 4, 2015 (BIP66) Introduction of strict ECDSA validation by Distinguished Encoding Rules (DER)
+		// 		Pieter Wuille <pieter.wuille@gmail.com>
+		ch.Consensus.BIP66Height = 363725 // 00000000000000000379eaa19dce8c9b722d46ae6a57c2f1a988119488b50931
+		// July 5, 2016 (CSV) See Enforce_CSV [BIP68, BIP112, BIP113] notes below:
+		// 	1. (BIP68) Introduction of relative n-block/n-time-based locked transactions
+		// 		Mark Friedenbach <mark@friedenbach.org>
+		// 		BtcDrak <btcdrak@gmail.com>
+		// 		Nicolas Dorier <nicolas.dorier@gmail.com>
+		//		kinoshitajona <kinoshitajona@gmail.com>
+		// 	2. (BIP112) Introduction of opcode CHECKSEQUENCEVERIFY (aka 'CSV')
+		// 		BtcDrak <btcdrak@gmail.com>
+		// 		Mark Friedenbach <mark@friedenbach.org>
+		// 		Eric Lombrozo <elombrozo@gmail.com>
+		// 	3. (BIP113) Introduction of past 11 block timestamp median as method of time-lock transaction block inclusion eligibility
+		// 		Thomas Kerin <me@thomaskerin.io>
+		// 		Mark Friedenbach <mark@friedenbach.org>
+		ch.Consensus.Enforce_CSV = 419328 // 000000000000000004a1b34462cb8aeebd5799177f7a29cf28f2d1961716b5b5
+		// ** @todo THIS NEEDS TO BE REMOVED (BTC Only. Not active on BCH)
 		ch.Consensus.Enforce_SEGWIT = 481824
-		ch.Consensus.Enforce_UAHF = 834624
-		ch.Consensus.BIP91Height = 477120
-		ch.Consensus.BIP9_Treshold = 1916
+		// August 1, 2017 (BCH) User Activated Hard Fork (UAHF) Active. Next Block (478559) is First Bitcoin Cash Block on Main Network
+		ch.Consensus.Enforce_UAHF = 478558 // 0000000000000000011865af4122fe3b144e2cbeea86142e8ff2fb4107352d43
+		// November 13, 2017 (DAA) Difficulty Adjustment Algorithm to replace Emergency Difficulty Adjustment (EDA)
+		ch.Consensus.Enforce_DAA = 504031 // 0000000000000000011ebf65b60d0a3de80b8175be709d653b4c1a1beeb6ab9c
+		// Nov 15, 2018 Upcoming Bitcoin Cash scheduled hard fork
+		ch.Consensus.Enforce_MagneticAnomaly = 1542300000 // 0000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxtbd
+		// Wed, 15 May 2019 12:00:00 UTC hard fork
+		ch.Consensus.Enforce_GreatWall = 1557921600 // 0000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxtbd
+		// July 23, 2017 (Mainnet) Introduce reduced Segwit threshold by Miner Activated Soft Fork (MAST) James Hilliard <james.hilliard1@gmail.com>
+		ch.Consensus.BIP91Height = 477120 // 0000000000000000015411ca4b35f7b48ecab015b14de5627b647e262ba0ec40
+		// January 26, 2009 (Mainnet) Introduction of mechanism for parallel "soft fork" deployment and orderly bit-flag space re-use
+		// 		Pieter Wuille <pieter.wuille@gmail.com>
+		// 		Peter Todd <pete@petertodd.org>
+		// 		Greg Maxwell <greg@xiph.org>
+		// 		Rusty Russell <rusty@rustcorp.com.au>
+		ch.Consensus.BIP9_Treshold = 1916 // 00000000800cca5d11742408e3965a84424269df7cecca5896649b1521d22297
 	}
 
 	ch.BchBlocks = NewBlockDBExt(dbrootdir, bdbopts)
