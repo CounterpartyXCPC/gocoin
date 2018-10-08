@@ -53,13 +53,25 @@ language: go
 
 go: "1.11"
  
-before_install: go get github.com/golang/lint/golint
+# Skip the install step. Don't `go get` dependencies. Only build with the code
+# in vendor/
+install: true
+
+# Don't email me the results of the test runs.
+notifications:
+  email: false
+
+before_install: go get -u golang.org/x/lint/golint
 
 script:
+  
+  - golint ./...      # run a bunch of code checkers/linters in parallel
+  - go test -v -race ./...  # Run all the tests with the race detector enabled
+
   # - ./pre-commit
   # - go test -cpu=1,2 -v -tags integration ./...
 
-  - cd $GOPATH/src/github.com/counterpartyxcpc/gocoin-cash/client/
-  - go build
-  - cd $GOPATH/src/github.com/counterpartyxcpc/gocoin-cash/wallet/
-  - go build
+  # - cd $GOPATH/src/github.com/counterpartyxcpc/gocoin-cash/client/
+  # - go build
+  # - cd $GOPATH/src/github.com/counterpartyxcpc/gocoin-cash/wallet/
+  # - go build

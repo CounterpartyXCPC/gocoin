@@ -81,12 +81,14 @@ var (
 	}
 
 	CFG struct { // Options that can come from either command line or common file
-		Testnet          bool
-		ConnectOnly      string
-		Datadir          string
-		TextUI_Enabled   bool
-		UserAgent        string
-		LastTrustedBlock string
+		Testnet                    bool
+		ConnectOnly                string
+		Datadir                    string
+		TextUI_Enabled             bool
+		UserAgent                  string
+		LastTrustedBlock           string
+		LastTrustedBchBlock        string
+		LastTrustedBchTestnetBlock string
 
 		WebUI struct {
 			Interface   string
@@ -225,7 +227,10 @@ func InitConfig() {
 	CFG.UTXOSave.SecondsToTake = 300
 	CFG.UTXOSave.BchBlocksToHold = 6
 
-	CFG.LastTrustedBlock = "00000000000000000015e96e98a806907ca1848ee5eed88a81719aba58a681be" // block #537186
+	CFG.LastTrustedBlock = "00000000000000000015e96e98a806907ca1848ee5eed88a81719aba58a681be" // BTC block #537186
+
+	CFG.LastTrustedBchBlock = "000000000000000001ad94189e956f1c1c28c8c34d2aae9bb8ce0c7f2b93b287"        // BCH block #527758
+	CFG.LastTrustedBchTestnetBlock = "000000004ca1bb261765b723cab6c90d0ecfabe1aad8c16a12378c015ab35e78" // testnet block #1229025
 
 	cfgfilecontent, e := ioutil.ReadFile(ConfigFile)
 	if e == nil && len(cfgfilecontent) > 0 {
@@ -354,7 +359,7 @@ func Reset() {
 }
 
 func MkTempBlocksDir() {
-	// no point doing it before GocoinCashHomeDir is set in host_init()
+	// no point doing it before GocoinCashHomeDir is set in hostInit()
 	if CFG.Memory.CacheOnDisk && GocoinCashHomeDir != "" {
 		os.Mkdir(TempBlocksDir(), 0700)
 	}

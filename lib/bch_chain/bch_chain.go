@@ -112,6 +112,7 @@ type Chain struct {
 		GensisTimestamp                     uint32
 		Enforce_CSV                         uint32 // if non zero CVS verifications will be enforced from this block onwards
 		Enforce_SEGWIT                      uint32 // if non zero CVS verifications will be enforced from this block onwards
+		Enforce_UAHF                        uint32 // if non zero CVS verifications will be enforced from this block onwards
 		BIP9_Treshold                       uint32 // It is not really used at this moment, but maybe one day...
 		BIP34Height                         uint32
 		BIP65Height                         uint32
@@ -142,19 +143,22 @@ func NewChainExt(dbrootdir string, genesis *bch.Uint256, rescan bool, opts *NewC
 	ch.Consensus.GensisTimestamp = 1231006505
 	ch.Consensus.MaxPOWBits = 0x1d00ffff
 	ch.Consensus.MaxPOWValue, _ = new(big.Int).SetString("00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 16)
+
 	if ch.testnet() {
 		ch.Consensus.BIP34Height = 21111
 		ch.Consensus.BIP65Height = 581885
 		ch.Consensus.BIP66Height = 330776
 		ch.Consensus.Enforce_CSV = 770112
 		ch.Consensus.Enforce_SEGWIT = 834624
+		ch.Consensus.Enforce_UAHF = 1155875
 		ch.Consensus.BIP9_Treshold = 1512
 	} else {
 		ch.Consensus.BIP34Height = 227931
 		ch.Consensus.BIP65Height = 388381
 		ch.Consensus.BIP66Height = 363725
 		ch.Consensus.Enforce_CSV = 419328
-		ch.Consensus.Enforce_SEGWIT = 481824 // https://www.reddit.com/r/Bitcoin/comments/6okd1n/bip91_lock_in_is_guaranteed_as_of_block_476768/
+		ch.Consensus.Enforce_SEGWIT = 481824
+		ch.Consensus.Enforce_UAHF = 834624
 		ch.Consensus.BIP91Height = 477120
 		ch.Consensus.BIP9_Treshold = 1916
 	}

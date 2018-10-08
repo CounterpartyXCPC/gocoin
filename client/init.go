@@ -65,7 +65,7 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/lib/others/sys"
 )
 
-func host_init() {
+func hostInit() {
 
 	fmt.Println("Init function called")
 

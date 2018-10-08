@@ -63,7 +63,7 @@ import (
 )
 
 // Make sure to call this function with ch.BchBlockIndexAccess locked
-func (ch *Chain) BCHPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater bool) {
+func (ch *Chain) BchPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater bool) {
 
 	// Size limitsn (NOTE: This is more a BTC )
 	// @todo [BCH] Bitcoin Cash - Size Fri Sep 21, 2018 - Julian Smith

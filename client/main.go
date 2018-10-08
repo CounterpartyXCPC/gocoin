@@ -405,7 +405,7 @@ func main() {
 		fmt.Println("WARNING! Assuming all scripts inside new blocks to PASS. Verify the last block's hash when finished.")
 	}
 
-	host_init() // This will create the DB lock file and keep it open
+	hostInit() // This will create the DB lock file and keep it open
 
 	os.RemoveAll(common.TempBlocksDir())
 	common.MkTempBlocksDir()

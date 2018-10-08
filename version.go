@@ -59,4 +59,5 @@ import (
 	_ "golang.org/x/crypto/ripemd160"
 )
 
+// Version is the application version.
 const Version = "195.V1(BCH)"
