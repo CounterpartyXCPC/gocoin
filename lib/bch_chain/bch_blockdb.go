@@ -116,7 +116,7 @@ const (
 */
 
 type blockdataBCH struct {
-	blockdataBCHregisteredLocationWithinBlockDatafPOS   uint64 // where is this *[block]* registered within blockchain.dat [was "fpos" for BTC data - see example below line:115]
+	blockdataBCHregisteredLocationWithinBlockDatafPOS   uint64 // where is this *[block]* registered within blockchain.dat [was "fpos" for BCH data - see example below line:115]
 	blockdataBCHregisteredIndexBlockWithinIndexDataIPOS int64  // where is this *tx_BlockINDEX_* registered within blockchain.idx (used to set flags) / -1 if not stored in the file (yet)
 	blockdataBCHblockdataLengthOnDiskBLEN               uint32 // how long the block is in blockchain.dat
 	blockdataBCHblockdataLengthawOLEN                   uint32 // original length fo the block (before compression)

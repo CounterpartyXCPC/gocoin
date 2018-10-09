@@ -522,13 +522,13 @@ function import_file_clicked(e) {
 </span>
 </h2>
 <div>
-Balance: <b id="total_btc"></b> BTC in <b id="unspent_outs"></b> outputs (<a href="javascript:get_balance_zip()">balance.zip</a>)
+Balance: <b id="total_btc"></b> BCH in <b id="unspent_outs"></b> outputs (<a href="javascript:get_balance_zip()">balance.zip</a>)
 &nbsp;&bull;&nbsp;
 <input type="checkbox" id="show_mempol" onchange="show_mempool_clicked()"><span class="hand" onclick="show_mempol.click()"> Show unconfirmed</span>
 </div>
 <i id="wallet_min_warning" style="color:purple;float:right;display:none" title="Modify MinValue in gocoin.conf to change it">
 <img src="webui/warning.png" style="vertical-align:middle">
-Only accounting outputs with at least <b id="min_val_btc"></b> BTC</i>
+Only accounting outputs with at least <b id="min_val_btc"></b> BCH</i>
 <br>
 <div id="browser_wallets">Available wallets: </div>
 <br>
@@ -548,7 +548,7 @@ Import settings: <input type="file" id="import_file" accept=".json">
 <tr>
 <th width="360">Address
 <th align="left" width="100">Label
-<th align="right">Balance&nbsp;BTC
+<th align="right">Balance&nbsp;BCH
 <th width="50">
 <th width="330"><span class="hand" onclick="p2sh_sw.click()">Segwit Deposit Address</span>
 <input style="float:right;cursor:pointer" id="p2sh_sw" title="P2SH-P2WPKH" type="checkbox" onchange="switch_segwit_p2sh()">
@@ -556,8 +556,8 @@ Import settings: <input type="file" id="import_file" accept=".json">
 </table>
 
 <table width="100%"><tr>
-<td width="50%" id="arriving_info_id" style="display:none" class="unspent_plus">Unconfirmed arriving: <b id="arriving_btc"></b> BTC in <b id="arriving_cnt"></b> outputs</td>
-<td width="50%" id="spending_info_id" style="display:none" class="unspent_minus">Unconfirmed spending: <b id="spending_btc"></b> BTC from <b id="spending_cnt"></b> outputs</td>
+<td width="50%" id="arriving_info_id" style="display:none" class="unspent_plus">Unconfirmed arriving: <b id="arriving_btc"></b> BCH in <b id="arriving_cnt"></b> outputs</td>
+<td width="50%" id="spending_info_id" style="display:none" class="unspent_minus">Unconfirmed spending: <b id="spending_btc"></b> BCH from <b id="spending_cnt"></b> outputs</td>
 </tr></table>
 
 <br>

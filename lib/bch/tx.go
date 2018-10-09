@@ -66,6 +66,7 @@ const (
 	SIGHASH_ALL          = 1
 	SIGHASH_NONE         = 2
 	SIGHASH_SINGLE       = 3
+	SIGHASH_FORKID       = 0x40
 	SIGHASH_ANYONECANPAY = 0x80
 )
 
@@ -122,7 +123,7 @@ func (po *TxPrevOut) UIdx() uint64 {
 }
 
 func (to *TxOut) String(testnet bool) (s string) {
-	s = fmt.Sprintf("%.8f BTC", float64(to.Value)/1e8)
+	s = fmt.Sprintf("%.8f BCH", float64(to.Value)/1e8)
 	s += fmt.Sprint(" in block ", to.BchBlockHeight)
 	a := NewAddrFromPkScript(to.Pk_script, testnet)
 	if a != nil {

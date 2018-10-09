@@ -122,7 +122,7 @@ func DecodeTxSops(tx *bch.Tx) (s string, missinginp bool, totinp, totout uint64,
 			if ad := bch.NewAddrFromPkScript(po.Pk_script, common.Testnet); ad != nil {
 				ads = ad.String()
 			}
-			s += fmt.Sprintf(" %15.8f BTC @ %s", float64(po.Value)/1e8, ads)
+			s += fmt.Sprintf(" %15.8f BCH @ %s", float64(po.Value)/1e8, ads)
 
 			if bch.IsP2SH(po.Pk_script) {
 				so := bch.WITNESS_SCALE_FACTOR * bch.GetP2SHSigOpCount(tx.TxIn[i].ScriptSig)
@@ -147,16 +147,16 @@ func DecodeTxSops(tx *bch.Tx) (s string, missinginp bool, totinp, totout uint64,
 		totout += tx.TxOut[i].Value
 		adr := bch.NewAddrFromPkScript(tx.TxOut[i].Pk_script, common.Testnet)
 		if adr != nil {
-			s += fmt.Sprintf(" %15.8f BTC to adr %s\n", float64(tx.TxOut[i].Value)/1e8, adr.String())
+			s += fmt.Sprintf(" %15.8f BCH to adr %s\n", float64(tx.TxOut[i].Value)/1e8, adr.String())
 		} else {
-			s += fmt.Sprintf(" %15.8f BTC to scr %s\n", float64(tx.TxOut[i].Value)/1e8, hex.EncodeToString(tx.TxOut[i].Pk_script))
+			s += fmt.Sprintf(" %15.8f BCH to scr %s\n", float64(tx.TxOut[i].Value)/1e8, hex.EncodeToString(tx.TxOut[i].Pk_script))
 		}
 	}
 	if missinginp {
-		s += fmt.Sprintln("WARNING: There are missing inputs and we cannot calc input BTC amount.")
+		s += fmt.Sprintln("WARNING: There are missing inputs and we cannot calc input BCH amount.")
 		s += fmt.Sprintln("If there is somethign wrong with this transaction, you can loose money...")
 	} else {
-		s += fmt.Sprintf("All OK: %.8f BTC in -> %.8f BTC out, with %.8f BTC fee\n", float64(totinp)/1e8,
+		s += fmt.Sprintf("All OK: %.8f BCH in -> %.8f BCH out, with %.8f BCH fee\n", float64(totinp)/1e8,
 			float64(totout)/1e8, float64(totinp-totout)/1e8)
 	}
 

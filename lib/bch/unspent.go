@@ -98,7 +98,7 @@ func (ou *OneUnspentTx) String() (s string) {
 }
 
 func (ou *OneUnspentTx) UnspentTextLine() (s string) {
-	s = fmt.Sprintf("%s # %.8f BTC @ %s%s, block %d", ou.TxPrevOut.String(),
+	s = fmt.Sprintf("%s # %.8f BCH @ %s%s, block %d", ou.TxPrevOut.String(),
 		float64(ou.Value)/1e8, ou.DestAddr(), ou.BtcAddr.Label(), ou.MinedAt)
 	return
 }

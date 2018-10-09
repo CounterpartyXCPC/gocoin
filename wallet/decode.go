@@ -233,7 +233,7 @@ func dump_raw_tx() {
 			if intx := tx_from_balance(bch.NewUint256(tx.TxIn[i].Input.Hash[:]), false); intx != nil {
 				val := intx.TxOut[tx.TxIn[i].Input.Vout].Value
 				totin += val
-				fmt.Printf("%15s BTC\n", bch.UintToBtc(val))
+				fmt.Printf("%15s BCH\n", bch.UintToBtc(val))
 			} else {
 				noins++
 			}
@@ -290,10 +290,10 @@ func dump_raw_tx() {
 	}
 	fmt.Println("Lock Time:", tx.Lock_time)
 
-	fmt.Println("Output volume:", bch.UintToBtc(totout), "BTC")
+	fmt.Println("Output volume:", bch.UintToBtc(totout), "BCH")
 	if noins == 0 {
-		fmt.Println("Input volume :", bch.UintToBtc(totin), "BTC")
-		fmt.Println("Transact. fee:", bch.UintToBtc(totin-totout), "BTC")
+		fmt.Println("Input volume :", bch.UintToBtc(totin), "BCH")
+		fmt.Println("Transact. fee:", bch.UintToBtc(totin-totout), "BCH")
 	} else {
 		fmt.Println("WARNING: Unable to figure out what the fee is")
 	}

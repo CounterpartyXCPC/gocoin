@@ -127,7 +127,7 @@ func do_mining(s string) {
 	}
 	diff /= float64(tot_blocks)
 	if cnt > 0 {
-		fmt.Printf("Projected weekly income : %.0f BTC,  estimated hashrate : %s\n",
+		fmt.Printf("Projected weekly income : %.0f BCH,  estimated hashrate : %s\n",
 			7*24*float64(totbtc)/float64(hrs)/1e8,
 			common.HashrateToString(float64(cnt)/float64(6*hrs)*diff*7158278.826667))
 	}

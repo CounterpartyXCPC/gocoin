@@ -408,14 +408,14 @@ func PrintStat() {
 	fmt.Println("AllBalMinVal:", bch.UintToBtc(common.AllBalMinVal()), "  UseMapCnt:", common.CFG.AllBalances.UseMapCnt)
 
 	fmt.Println("AllBalancesP2KH: ", len(AllBalancesP2KH), "records,",
-		p2kh_outs, "outputs,", bch.UintToBtc(p2kh_vals), "BTC,", p2kh_maps, "maps")
+		p2kh_outs, "outputs,", bch.UintToBtc(p2kh_vals), "BCH,", p2kh_maps, "maps")
 
 	fmt.Println("AllBalancesP2SH: ", len(AllBalancesP2SH), "records,",
-		p2sh_outs, "outputs,", bch.UintToBtc(p2sh_vals), "BTC,", p2sh_maps, "maps")
+		p2sh_outs, "outputs,", bch.UintToBtc(p2sh_vals), "BCH,", p2sh_maps, "maps")
 
 	fmt.Println("AllBalancesP2WKH: ", len(AllBalancesP2WKH), "records,",
-		p2wkh_outs, "outputs,", bch.UintToBtc(p2wkh_vals), "BTC,", p2wkh_maps, "maps")
+		p2wkh_outs, "outputs,", bch.UintToBtc(p2wkh_vals), "BCH,", p2wkh_maps, "maps")
 
 	fmt.Println("AllBalancesP2WSH: ", len(AllBalancesP2WSH), "records,",
-		p2wsh_outs, "outputs,", bch.UintToBtc(p2wsh_vals), "BTC,", p2wsh_maps, "maps")
+		p2wsh_outs, "outputs,", bch.UintToBtc(p2wsh_vals), "BCH,", p2wsh_maps, "maps")
 }

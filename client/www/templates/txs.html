@@ -69,7 +69,7 @@ X for
 			<td><b id="ts_ptr1_cnt"></b> / <b id="ts_ptr2_cnt"></b>
 			<td><input type="button" onclick="show_txs2s('&ownonly=1')" value="Own TXs">
 		<tr><td>Estmated fees:
-			<td colspan="2"><b id="fees_from_first_block">...</b> BTC from 1st block
+			<td colspan="2"><b id="fees_from_first_block">...</b> BCH from 1st block
 	</table>
 <td valign="top">
 	<table>
@@ -122,7 +122,7 @@ sorted by
 		<option value="swc">SegWit compression</option>
 		<option value="inp">inputs count</option>
 		<option value="out">outputs count</option>
-		<option value="btc">BTC volume</option>
+		<option value="btc">BCH volume</option>
 		<option value="fee">fee amount</option>
 		<option value="ops">sigops count</option>
 		<option value="spb" selected>fee per byte</option>
@@ -148,8 +148,8 @@ in descending <input id="mp_show_sort_desc" type="checkbox" checked="checked"> o
 		<th onclick="sortclick('swc')" style="cursor:pointer" width="80" align="right">SWC
 		<th onclick="sortclick('inp')" style="cursor:pointer" width="30" align="right">Inps
 		<th onclick="sortclick('out')" style="cursor:pointer" width="30" align="right">Outs
-		<th onclick="sortclick('btc')" style="cursor:pointer" width="90" align="right">Total BTC
-		<th onclick="sortclick('fee')" style="cursor:pointer" width="80" align="right">Fee BTC
+		<th onclick="sortclick('btc')" style="cursor:pointer" width="90" align="right">Total BCH
+		<th onclick="sortclick('fee')" style="cursor:pointer" width="80" align="right">Fee BCH
 		<th onclick="sortclick('spb')" style="cursor:pointer" width="60" align="right">SPB
 		<th onclick="sortclick('ops')" style="cursor:pointer" width="40" align="right">SOps
 		<th onclick="sortclick('rbf')" style="cursor:pointer" width="30" align="right" title="Transaction is not final">RBF
@@ -301,7 +301,7 @@ function decode_tx_id(txid) {
 					tin += val
 					s += " &bull; "
 					s += (parseFloat(val)/1e8).toFixed(8)
-					s += " BTC @ "
+					s += " BCH @ "
 					var ad = xval(is[i], "addr")
 					if (typeof(ad)!="string") {
 						s += xval(is[i], "pkscript")
@@ -336,7 +336,7 @@ function decode_tx_id(txid) {
 
 				s += "\n\n"
 			}
-			s += "Total input: " + (parseFloat(tin)/1e8).toFixed(8) + " BTC\n"
+			s += "Total input: " + (parseFloat(tin)/1e8).toFixed(8) + " BCH\n"
 			s += "\n"
 
 			is = aj.responseXML.getElementsByTagName('output')
@@ -348,7 +348,7 @@ function decode_tx_id(txid) {
 				s += " BTC => " + xval(is[i], "addr")
 				s += "\n"
 			}
-			s += "Total output: " + (parseFloat(tout)/1e8).toFixed(8) + " BTC\n"
+			s += "Total output: " + (parseFloat(tout)/1e8).toFixed(8) + " BCH\n"
 			s += "\n"
 			s += "Lock time: " + xval(aj.responseXML,  "lock_time") + "\n\n"
 			var fee = tin-tout
@@ -363,7 +363,7 @@ function decode_tx_id(txid) {
 			s += ' bytes  /  Sigops: ' + xval(aj.responseXML,  "sigops") + '\n'
 
 			if (all_input_values) {
-				s += "Fee: " + (parseFloat(fee)/1e8).toFixed(8) + " BTC"
+				s += "Fee: " + (parseFloat(fee)/1e8).toFixed(8) + " BCH"
 				s += '  ==> ' + parseFloat(fee/(weight/4.0)).toFixed(1) + ' Satoshis per byte\n'
 			}
 

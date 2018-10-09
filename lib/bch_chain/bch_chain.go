@@ -191,7 +191,8 @@ func NewChainExt(dbrootdir string, genesis *bch.Uint256, rescan bool, opts *NewC
 		// 		Mark Friedenbach <mark@friedenbach.org>
 		ch.Consensus.Enforce_CSV = 419328 // 000000000000000004a1b34462cb8aeebd5799177f7a29cf28f2d1961716b5b5
 		// ** @todo THIS NEEDS TO BE REMOVED (BTC Only. Not active on BCH)
-		ch.Consensus.Enforce_SEGWIT = 481824
+		// ch.Consensus.Enforce_SEGWIT = 481824
+		ch.Consensus.Enforce_SEGWIT = 0 // Set Segwith to Zero(0) - as SEGWIT is all if (!= 0) activated.
 		// August 1, 2017 (BCH) User Activated Hard Fork (UAHF) Active. Next Block (478559) is First Bitcoin Cash Block on Main Network
 		ch.Consensus.Enforce_UAHF = 478558 // 0000000000000000011865af4122fe3b144e2cbeea86142e8ff2fb4107352d43
 		// November 13, 2017 (DAA) Difficulty Adjustment Algorithm to replace Emergency Difficulty Adjustment (EDA)

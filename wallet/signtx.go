@@ -197,8 +197,8 @@ func make_signed_tx() {
 		}
 	}
 	if btcsofar < (spendBtc + feeBtc) {
-		fmt.Println("ERROR: You have", bch.UintToBtc(btcsofar), "BTC, but you need",
-			bch.UintToBtc(spendBtc+feeBtc), "BTC for the transaction")
+		fmt.Println("ERROR: You have", bch.UintToBtc(btcsofar), "BCH, but you need",
+			bch.UintToBtc(spendBtc+feeBtc), "BCH for the transaction")
 		cleanExit(1)
 	}
 	changeBtc = btcsofar - (spendBtc + feeBtc)

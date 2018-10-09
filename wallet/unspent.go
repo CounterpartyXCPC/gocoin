@@ -151,9 +151,9 @@ func show_balance() {
 			fmt.Println("WARNING: Don't know how to sign", unspentOuts[i].TxPrevOut.String())
 		}
 	}
-	fmt.Printf("You have %.8f BTC in %d keyhash outputs\n", float64(totBtc)/1e8, knownInputs)
+	fmt.Printf("You have %.8f BCH in %d keyhash outputs\n", float64(totBtc)/1e8, knownInputs)
 	if multisigInputs > 0 {
-		fmt.Printf("There is %.8f BTC in %d multisig outputs\n", float64(msBtc)/1e8, multisigInputs)
+		fmt.Printf("There is %.8f BCH in %d multisig outputs\n", float64(msBtc)/1e8, multisigInputs)
 	}
 	if unknownInputs > 0 {
 		fmt.Println("WARNING:", unknownInputs, "unspendable inputs (-v to print them).")
@@ -174,7 +174,7 @@ func apply_to_balance(tx *bch.Tx) {
 				uns.key = k
 				uns.TxPrevOut.Hash = tx.Hash.Hash
 				uns.TxPrevOut.Vout = uint32(out)
-				uns.label = fmt.Sprint("# ", bch.UintToBtc(tx.TxOut[out].Value), " BTC @ ", k.BtcAddr.String())
+				uns.label = fmt.Sprint("# ", bch.UintToBtc(tx.TxOut[out].Value), " BCH @ ", k.BtcAddr.String())
 				unspentOuts = append(unspentOuts, uns)
 			}
 		}

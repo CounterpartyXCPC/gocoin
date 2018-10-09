@@ -642,7 +642,7 @@ func (db *UnspentDB) UTXOStats() (s string) {
 
 	db.RWMutex.RUnlock()
 
-	s = fmt.Sprintf("UNSPENT: %.8f BTC in %d outs from %d txs. %.8f BTC in coinbase.\n",
+	s = fmt.Sprintf("UNSPENT: %.8f BCH in %d outs from %d txs. %.8f BCH in coinbase.\n",
 		float64(sum)/1e8, outcnt, lele, float64(sumcb)/1e8)
 	s += fmt.Sprintf(" TotalData:%.1fMB  MaxTxOutCnt:%d  DirtyDB:%t  Writing:%t  Abort:%t\n",
 		float64(totdatasize)/1e6, len(rec_outs), db.DirtyDB.Get(), db.WritingInProgress.Get(), len(db.abortwritingnow) > 0)

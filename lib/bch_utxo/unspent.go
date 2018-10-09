@@ -91,7 +91,7 @@ func (x AllUnspentTx) Swap(i, j int) {
 }
 
 func (ou *OneUnspentTx) String() (s string) {
-	s = fmt.Sprintf("%15s BTC %s", bch.UintToBtc(ou.Value), ou.TxPrevOut.String())
+	s = fmt.Sprintf("%15s BCH %s", bch.UintToBtc(ou.Value), ou.TxPrevOut.String())
 	if ou.BtcAddr != nil {
 		s += " " + ou.DestAddr() + ou.BtcAddr.Label()
 	}
@@ -119,7 +119,7 @@ func (ou *OneUnspentTx) FixDestString() {
 }
 
 func (ou *OneUnspentTx) UnspentTextLine() (s string) {
-	s = fmt.Sprintf("%s # %.8f BTC @ %s%s, block %d", ou.TxPrevOut.String(),
+	s = fmt.Sprintf("%s # %.8f BCH @ %s%s, block %d", ou.TxPrevOut.String(),
 		float64(ou.Value)/1e8, ou.DestAddr(), ou.BtcAddr.Label(), ou.MinedAt)
 	return
 }

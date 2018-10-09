@@ -86,6 +86,22 @@ func GetDifficulty(bits uint32) (diff float64) {
 	return
 }
 
+func GetBchDifficulty(bits uint32) (diff float64) {
+
+	shift := int(bits>>24) & 0xff
+	diff = float64(0x0000ffff) / float64(bits&0x00ffffff)
+	for shift < 29 {
+		diff *= 256.0
+		shift++
+	}
+	for shift > 29 {
+		diff /= 256.0
+		shift--
+	}
+	return
+
+}
+
 func GetCompact(b *big.Int) uint32 {
 
 	size := uint32(len(b.Bytes()))

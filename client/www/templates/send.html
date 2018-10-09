@@ -110,7 +110,7 @@ function show_input_tx() {
 				var val = parseInt(xval(is[i], "value"))
 				tout += val
 				s += (parseFloat(val)/1e8).toFixed(8)
-				s += " BTC => " + xval(is[i], "addr")
+				s += " BCH => " + xval(is[i], "addr")
 				if (i==vout)  s += " <-------------------------------"
 				s += "\n"
 			}
@@ -558,7 +558,7 @@ function add_new_output() {
 	c.innerHTML += ' <input type="button" style="width:100px;font-size:12px;padding:2px" value="'+
 		addrbook_lab+'" id="addrbook'+idx+'" onclick="open_address_book('+idx+')" tabindex="-1">'
 
-	// amount BTC
+	// amount BCH
 	c = r.insertCell(-1)
 	val = document.createElement('input')
 	val.type = 'text'
@@ -573,10 +573,10 @@ function add_new_output() {
 	val.value = ''
 	c.appendChild(val)
 
-	// empty cell between BTC and mBTC
+	// empty cell between BCH and mBCH
 	c = r.insertCell(-1)
 
-	// amount mBTC
+	// amount mBCH
 	c = r.insertCell(-1)
 	val = document.createElement('input')
 	val.type = 'text'
@@ -674,14 +674,14 @@ function save_address_book() {
 <br><br>
 </div>
 
-Selected amount: <b id="selval">0.00000000</b> BTC in <b id="selcnt">0</b> outputs.
+Selected amount: <b id="selval">0.00000000</b> BCH in <b id="selcnt">0</b> outputs.
 <table class="bord" vspace="10" id="outtab">
 <tr>
 	<th>&nbsp;
 	<th>Pay to address
-	<th>Amount BTC
+	<th>Amount BCH
 	<th>
-	<th><i>... mBTC</i>
+	<th><i>... mBCH</i>
 </tr>
 
 <tr>
@@ -729,17 +729,17 @@ Selected amount: <b id="selval">0.00000000</b> BTC in <b id="selcnt">0</b> outpu
 <h2>Select Inputs</h2>
 Wallet: <select id="qswal" onchange="quick_switch_wallet()"></select>
 -
-total balance of <b id="total_btc"></b> BTC in <b id="outs_cnt"></b> outputs.
+total balance of <b id="total_btc"></b> BCH in <b id="outs_cnt"></b> outputs.
 <i id="wallet_min_warning" style="color:purple;float:right;display:none" title="Modify MinValue in gocoin-cash.conf to change it">
 <img src="webui/warning.png" style="vertical-align:middle">
-Only accounting outputs with at least <b id="min_val_btc"></b> BTC</i>
+Only accounting outputs with at least <b id="min_val_btc"></b> BCH</i>
 <br><br>
 <table id="unspent" width="100%">
 <tr>
 	<th width="20">#
 	<th width="40">Block
 	<th>TxID - VOut
-	<th width="80">BTC Value
+	<th width="80">BCH Value
 	<th colspan="2">Address
 	<th>&nbsp;
 	<th><input type="checkbox" onchange="allchange(this)">
