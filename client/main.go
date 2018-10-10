@@ -29,14 +29,13 @@
 
 // Credits:
 
-// Julian Smith, Direction, Development
+// Piotr Narewski, Gocoin Founder
+
+// Julian Smith, Direction + Development
 // Arsen Yeremin, Development
 // Sumanth Kumar, Development
 // Clayton Wong, Development
 // Liming Jiang, Development
-// Piotr Narewski, Gocoin Founder
-
-// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
 
 // Includes reference work of btsuite:
 
@@ -44,6 +43,29 @@
 // Copyright (c) 2018 The bcext developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
+
+// Credits:
+
+// Piotr Narewski, Gocoin Founder
+
+// Julian Smith, Direction + Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// Includes reference work of Bitcoin Core (https://github.com/bitcoin/bitcoin)
+// Includes reference work of Bitcoin-ABC (https://github.com/Bitcoin-ABC/bitcoin-abc)
+// Includes reference work of Bitcoin Unlimited (https://github.com/BitcoinUnlimited/BitcoinUnlimited/tree/BitcoinCash)
+// Includes reference work of gcash by Shuai Qi "qshuai" (https://github.com/bcext/gcash)
+// Includes reference work of gcash (https://github.com/gcash/bchd)
 
 // + Other contributors
 
@@ -320,43 +342,19 @@ func main() {
 		fmt.Println("WARNING: Gocoin-cash client shall be build for 64-bit arch. It will likely crash now.")
 	}
 
-	fmt.Println(" ")
-	fmt.Println("// ======================================================================")
-	fmt.Println("")
-	fmt.Println("//      cccccccccc          pppppppppp")
-	fmt.Println("//    cccccccccccccc      pppppppppppppp")
-	fmt.Println("//  ccccccccccccccc    ppppppppppppppppppp")
-	fmt.Println("// cccccc       cc    ppppppp        pppppp")
-	fmt.Println("// cccccc          pppppppp          pppppp")
-	fmt.Println("// cccccc        ccccpppp            pppppp")
-	fmt.Println("// cccccccc    cccccccc    pppp    ppppppp")
-	fmt.Println("//  ccccccccccccccccc     ppppppppppppppp")
-	fmt.Println("//     cccccccccccc      pppppppppppppp")
-	fmt.Println("//       cccccccc        pppppppppppp")
-	fmt.Println("//                       pppppp")
-	fmt.Println("//                       pppppp")
 	fmt.Println("")
 	fmt.Println("// ======================================================================")
-	fmt.Println("// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.")
-	fmt.Println("// All Rights Reserved. All work owned by CCA is herby released")
-	fmt.Println("// under Creative Commons Zero (0) License.")
-	fmt.Println("")
-	fmt.Println("// Some rights of 3rd party, derivative and included works remain the")
-	fmt.Println("// property of thier respective owners. All marks, brands and logos of")
-	fmt.Println("// member groups remain the exclusive property of their owners and no")
-	fmt.Println("// right or endorsement is conferred by reference to thier organization")
-	fmt.Println("// or brand(s) by CCA.")
+	fmt.Println("// == Welcome to Gocoin-cash client version ==", gocoincash.Version)
 	fmt.Println("")
 	fmt.Println("// Credits:")
 	fmt.Println("")
-	fmt.Println("// Julian Smith, Direction, Development")
+	fmt.Println("// Piotr Narewski, Gocoin Founder")
+	fmt.Println("")
+	fmt.Println("// Julian Smith, Direction + Development")
 	fmt.Println("// Arsen Yeremin, Development")
 	fmt.Println("// Sumanth Kumar, Development")
 	fmt.Println("// Clayton Wong, Development")
 	fmt.Println("// Liming Jiang, Development")
-	fmt.Println("// Piotr Narewski, Gocoin Founder")
-	fmt.Println("")
-	fmt.Println("// Includes reference work of Shuai Qi \"qshuai\" (https://github.com/qshuai)")
 	fmt.Println("")
 	fmt.Println("// Includes reference work of btsuite:")
 	fmt.Println("")
@@ -365,9 +363,40 @@ func main() {
 	fmt.Println("// Use of this source code is governed by an ISC")
 	fmt.Println("// license that can be found in the LICENSE file.")
 	fmt.Println("")
-	fmt.Println("// + Other contributors")
-	fmt.Println(" ")
-	fmt.Println("== Welcome to Gocoin-cash client version ==", gocoincash.Version)
+	fmt.Println("// Includes reference work of Bitcoin Core (https://github.com/bitcoin/bitcoin)")
+	fmt.Println("// Includes reference work of Bitcoin-ABC (https://github.com/Bitcoin-ABC/bitcoin-abc)")
+	fmt.Println("// Includes reference work of Bitcoin Unlimited (https://github.com/BitcoinUnlimited/BitcoinUnlimited/tree/BitcoinCash)")
+	fmt.Println("// Includes reference work of gcash by Shuai Qi \"qshuai\" (https://github.com/bcext/gcash)")
+	fmt.Println("// Includes reference work of gcash (https://github.com/gcash/bchd)")
+	fmt.Println("")
+	fmt.Println("// +Other contributors")
+	fmt.Println("")
+	fmt.Println("// Some rights of 3rd party, derivative and included works remain the")
+	fmt.Println("// property of thier respective owners. All marks, brands and logos of")
+	fmt.Println("// member groups remain the exclusive property of their owners and no")
+	fmt.Println("// right or endorsement is conferred by reference to thier organization")
+	fmt.Println("// or brand(s) by CCA.")
+	fmt.Println("")
+	fmt.Println("// Copyright © 2018. Counterparty Cash Association (CCA) Zug, CH.")
+	fmt.Println("// All Rights Reserved. All work owned by CCA is herby released")
+	fmt.Println("// under Creative Commons Zero (0) License.")
+	fmt.Println("")
+	fmt.Println("// ======================================================================")
+	fmt.Println("")
+	fmt.Println("        cccccccccc          pppppppppp")
+	fmt.Println("      cccccccccccccc      pppppppppppppp")
+	fmt.Println("    ccccccccccccccc    ppppppppppppppppppp")
+	fmt.Println("   cccccc       cc    ppppppp        pppppp")
+	fmt.Println("   cccccc          pppppppp          pppppp")
+	fmt.Println("   cccccc        ccccpppp            pppppp")
+	fmt.Println("   cccccccc    cccccccc    pppp    ppppppp")
+	fmt.Println("    ccccccccccccccccc     ppppppppppppppp")
+	fmt.Println("       cccccccccccc      pppppppppppppp")
+	fmt.Println("         cccccccc        pppppppppppp")
+	fmt.Println("                         pppppp")
+	fmt.Println("                         pppppp")
+	fmt.Println("")
+	fmt.Println("// ======================================================================")
 
 	runtime.GOMAXPROCS(runtime.NumCPU()) // It seems that Go does not do it by default
 
@@ -405,6 +434,8 @@ func main() {
 		fmt.Println("WARNING! Assuming all scripts inside new blocks to PASS. Verify the last block's hash when finished.")
 	}
 
+	fmt.Println("Starting Gocoin-cash client version ==", gocoincash.Version)
+	fmt.Println("")
 	hostInit() // This will create the DB lock file and keep it open
 
 	os.RemoveAll(common.TempBlocksDir())

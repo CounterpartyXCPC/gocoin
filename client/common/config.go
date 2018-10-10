@@ -29,14 +29,13 @@
 
 // Credits:
 
-// Julian Smith, Direction, Development
+// Piotr Narewski, Gocoin Founder
+
+// Julian Smith, Direction + Development
 // Arsen Yeremin, Development
 // Sumanth Kumar, Development
 // Clayton Wong, Development
 // Liming Jiang, Development
-// Piotr Narewski, Gocoin Founder
-
-// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
 
 // Includes reference work of btsuite:
 
@@ -44,6 +43,29 @@
 // Copyright (c) 2018 The bcext developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
+
+// Credits:
+
+// Piotr Narewski, Gocoin Founder
+
+// Julian Smith, Direction + Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// Includes reference work of Bitcoin Core (https://github.com/bitcoin/bitcoin)
+// Includes reference work of Bitcoin-ABC (https://github.com/Bitcoin-ABC/bitcoin-abc)
+// Includes reference work of Bitcoin Unlimited (https://github.com/BitcoinUnlimited/BitcoinUnlimited/tree/BitcoinCash)
+// Includes reference work of gcash by Shuai Qi "qshuai" (https://github.com/bcext/gcash)
+// Includes reference work of gcash (https://github.com/gcash/bchd)
 
 // + Other contributors
 
@@ -85,6 +107,7 @@ var (
 		ConnectOnly                string
 		Datadir                    string
 		TextUI_Enabled             bool
+		TextUI_DevDebug            bool
 		UserAgent                  string
 		LastTrustedBlock           string
 		LastTrustedBchBlock        string
@@ -98,6 +121,7 @@ var (
 			Title       string
 			PayCmdName  string
 			ServerMode  bool
+			DevDebug    bool
 		}
 		RPC struct {
 			Enabled  bool
@@ -174,6 +198,7 @@ type oneAllowedAddr struct {
 var WebUIAllowed []oneAllowedAddr
 
 func InitConfig() {
+
 	// Fill in default values
 	CFG.Net.ListenTCP = true
 	CFG.Net.MaxOutCons = 9
@@ -182,6 +207,7 @@ func InitConfig() {
 	CFG.Net.MinSegwitCons = 4
 
 	CFG.TextUI_Enabled = true
+	CFG.TextUI_DevDebug = true
 
 	CFG.WebUI.Interface = "127.0.0.1:8833"
 	CFG.WebUI.AllowedIP = "127.0.0.1"
@@ -189,6 +215,7 @@ func InitConfig() {
 	CFG.WebUI.AddrListLen = 15
 	CFG.WebUI.Title = "Gocoin"
 	CFG.WebUI.PayCmdName = "pay_cmd.txt"
+	CFG.WebUI.DevDebug = false
 
 	CFG.RPC.Username = "gocoinrpc"
 	CFG.RPC.Password = "gocoinpwd"

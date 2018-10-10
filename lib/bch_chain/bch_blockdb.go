@@ -29,14 +29,13 @@
 
 // Credits:
 
-// Julian Smith, Direction, Development
+// Piotr Narewski, Gocoin Founder
+
+// Julian Smith, Direction + Development
 // Arsen Yeremin, Development
 // Sumanth Kumar, Development
 // Clayton Wong, Development
 // Liming Jiang, Development
-// Piotr Narewski, Gocoin Founder
-
-// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
 
 // Includes reference work of btsuite:
 
@@ -44,6 +43,29 @@
 // Copyright (c) 2018 The bcext developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
+
+// Credits:
+
+// Piotr Narewski, Gocoin Founder
+
+// Julian Smith, Direction + Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// Includes reference work of Bitcoin Core (https://github.com/bitcoin/bitcoin)
+// Includes reference work of Bitcoin-ABC (https://github.com/Bitcoin-ABC/bitcoin-abc)
+// Includes reference work of Bitcoin Unlimited (https://github.com/BitcoinUnlimited/BitcoinUnlimited/tree/BitcoinCash)
+// Includes reference work of gcash by Shuai Qi "qshuai" (https://github.com/bcext/gcash)
+// Includes reference work of gcash (https://github.com/gcash/bchd)
 
 // + Other contributors
 
@@ -419,7 +441,7 @@ func (db *BchBlockDB) BchBlockInvalid(hash []byte) {
 	cur, ok := db.blockIndex[idx]
 	if !ok {
 		db.mutex.Unlock()
-		println("BlockInvalid: no such block", bch.NewUint256(hash).String())
+		println("BCH BlockInvalid: no such block", bch.NewUint256(hash).String())
 		return
 	}
 	if cur.trusted {
@@ -445,7 +467,7 @@ func (db *BchBlockDB) BchBlockTrusted(hash []byte) {
 	cur, ok := db.blockIndex[idx]
 	if !ok {
 		db.mutex.Unlock()
-		println("BlockTrusted: no such block")
+		println("BchBlockTrusted: no such block")
 		return
 	}
 	if !cur.trusted {

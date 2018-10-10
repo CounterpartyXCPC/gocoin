@@ -29,14 +29,13 @@
 
 // Credits:
 
-// Julian Smith, Direction, Development
+// Piotr Narewski, Gocoin Founder
+
+// Julian Smith, Direction + Development
 // Arsen Yeremin, Development
 // Sumanth Kumar, Development
 // Clayton Wong, Development
 // Liming Jiang, Development
-// Piotr Narewski, Gocoin Founder
-
-// Includes reference work of Shuai Qi "qshuai" (https://github.com/qshuai)
 
 // Includes reference work of btsuite:
 
@@ -44,6 +43,29 @@
 // Copyright (c) 2018 The bcext developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
+
+// Credits:
+
+// Piotr Narewski, Gocoin Founder
+
+// Julian Smith, Direction + Development
+// Arsen Yeremin, Development
+// Sumanth Kumar, Development
+// Clayton Wong, Development
+// Liming Jiang, Development
+
+// Includes reference work of btsuite:
+
+// Copyright (c) 2013-2017 The btcsuite developers
+// Copyright (c) 2018 The bcext developers
+// Use of this source code is governed by an ISC
+// license that can be found in the LICENSE file.
+
+// Includes reference work of Bitcoin Core (https://github.com/bitcoin/bitcoin)
+// Includes reference work of Bitcoin-ABC (https://github.com/Bitcoin-ABC/bitcoin-abc)
+// Includes reference work of Bitcoin Unlimited (https://github.com/BitcoinUnlimited/BitcoinUnlimited/tree/BitcoinCash)
+// Includes reference work of gcash by Shuai Qi "qshuai" (https://github.com/bcext/gcash)
+// Includes reference work of gcash (https://github.com/gcash/bchd)
 
 // + Other contributors
 
@@ -64,6 +86,10 @@ import (
 
 // Make sure to call this function with ch.BchBlockIndexAccess locked
 func (ch *Chain) BchPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater bool) {
+
+	// if common.CFG.TextUI_DevDebug {
+	// 	fmt.Println("Raw block data:", bl.Raw)
+	// }
 
 	// Size limitsn (NOTE: This is more a BCH )
 	// @todo [BCH] Bitcoin Cash - Size Fri Sep 21, 2018 - Julian Smith
@@ -275,6 +301,10 @@ func (ch *Chain) ApplyBlockFlags(bl *bch.BchBlock) {
 		bl.VerifyFlags |= script.VER_CSV
 	}
 
+	if ch.Consensus.Enforce_UAHF != 0 && bl.Height >= ch.Consensus.Enforce_UAHF {
+		bl.VerifyFlags |= script.VER_UAHF
+	}
+
 	if ch.Consensus.Enforce_SEGWIT != 0 && bl.Height >= ch.Consensus.Enforce_SEGWIT {
 		bl.VerifyFlags |= script.VER_WITNESS | script.VER_NULLDUMMY
 	}
@@ -335,7 +365,7 @@ func (ch *Chain) PostCheckBlock(bl *bch.BchBlock) (er error) {
 		}
 	}
 
-	// Check Merkle Root, even for trusted blocks - that's important, as they may come from untrasted peers
+	// Check Merkle Root, even for trusted blocks - that's important, as they may come from untrusted peers
 	merkle, mutated := bl.GetMerkle()
 	if mutated {
 		er = errors.New("CheckBlock(): duplicate transaction - RPC_Result:bad-txns-duplicate")
