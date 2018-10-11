@@ -344,7 +344,7 @@ func (ch *Chain) ApplyBlockFlags(bl *bch.BchBlock) {
 	}
 
 	if ch.Consensus.Enforce_UAHF != 0 && bl.Height >= ch.Consensus.Enforce_UAHF {
-		bl.VerifyFlags |= script.VER_UAHF
+		bl.VerifyFlags |= script.VER_UAHF | script.VER_STRICTENC
 	}
 
 	if ch.Consensus.Enforce_SEGWIT != 0 && bl.Height >= ch.Consensus.Enforce_SEGWIT {
