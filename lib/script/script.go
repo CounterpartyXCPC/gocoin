@@ -1023,11 +1023,8 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *bch.Tx, inp int, v
 
 				if len(vchSig) > 0 {
 					var sh []byte
-					if sigversion == SIGVERSION_WITNESS_V0 {
-						if DBG_SCR {
-							fmt.Println("getting WitnessSigHash for inp", inp, "and htype", int32(vchSig[len(vchSig)-1]))
-						}
-						sh = tx.WitnessSigHash(p[sta:], amount, inp, int32(vchSig[len(vchSig)-1]))
+					if (ver_flags&VER_UAHF) != 0 {
+						sh = tx.WitnessSigHash(p[sta:], amount, inp, int32(vchSig[len(vchSig)-1]) | bch.BTC_FORK_ID)
 					} else {
 						sh = tx.SignatureHash(delSig(p[sta:], vchSig), inp, int32(vchSig[len(vchSig)-1]))
 					}
@@ -1142,8 +1139,8 @@ func evalScript(p []byte, amount uint64, stack *scrStack, tx *bch.Tx, inp int, v
 					if len(vchSig) > 0 {
 						var sh []byte
 
-						if sigversion == SIGVERSION_WITNESS_V0 {
-							sh = tx.WitnessSigHash(xxx, amount, inp, int32(vchSig[len(vchSig)-1]))
+						if (ver_flags&VER_UAHF) != 0 {
+							sh = tx.WitnessSigHash(xxx, amount, inp, int32(vchSig[len(vchSig)-1]) | bch.BTC_FORK_ID)
 						} else {
 							sh = tx.SignatureHash(xxx, inp, int32(vchSig[len(vchSig)-1]))
 						}
