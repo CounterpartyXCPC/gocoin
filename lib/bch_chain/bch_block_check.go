@@ -85,7 +85,7 @@ import (
 )
 
 var (
-	DBG_SCR = true
+	DBG_SCR = false
 )
 
 // Make sure to call this function with ch.BchBlockIndexAccess locked

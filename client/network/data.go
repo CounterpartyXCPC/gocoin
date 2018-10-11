@@ -189,7 +189,10 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 
 	hash := bch.NewSha2Hash(b[:80])
 	idx := hash.BIdx()
-	println("got block data", hash.String())
+
+	if common.CFG.TextUI_DevDebug {
+		println("got block data", hash.String())
+	}
 
 	MutexRcv.Lock()
 
@@ -231,7 +234,9 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 		common.CountSafe("UnxpectedBlockNEW")
 	}
 
-	println("Debugging block", b2g.BchBlockTreeNode.Height, " len", len(b), " got from", conn.PeerAddr.Ip(), b2g.InProgress)
+	if common.CFG.TextUI_DevDebug {
+		println("Debugging block", b2g.BchBlockTreeNode.Height, " len", len(b), " got from", conn.PeerAddr.Ip(), b2g.InProgress)
+	}
 
 	b2g.BchBlock.Raw = b
 	if conn.X.Authorized {
