@@ -343,7 +343,7 @@ func (ch *Chain) ApplyBlockFlags(bl *bch.BchBlock) {
 		bl.VerifyFlags |= script.VER_CSV
 	}
 
-	if ch.Consensus.Enforce_UAHF != 0 && bl.Height >= ch.Consensus.Enforce_UAHF {
+	if ch.Consensus.Enforce_UAHF != 0 && bl.Height > ch.Consensus.Enforce_UAHF {
 		bl.VerifyFlags |= script.VER_UAHF | script.VER_STRICTENC
 	}
 
