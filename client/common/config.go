@@ -254,7 +254,7 @@ func InitConfig() {
 	CFG.UTXOSave.SecondsToTake = 300
 	CFG.UTXOSave.BchBlocksToHold = 6
 
-	CFG.LastTrustedBlock = "00000000000000000015e96e98a806907ca1848ee5eed88a81719aba58a681be" // BTC block #537186
+	CFG.LastTrustedBlock = "0000000000000000011865af4122fe3b144e2cbeea86142e8ff2fb4107352d43" // block #478558 - the last common one before BTC/BCH split
 
 	CFG.LastTrustedBchBlock = "000000000000000001ad94189e956f1c1c28c8c34d2aae9bb8ce0c7f2b93b287"        // BCH block #527758
 	CFG.LastTrustedBchTestnetBlock = "000000004ca1bb261765b723cab6c90d0ecfabe1aad8c16a12378c015ab35e78" // testnet block #1229025
