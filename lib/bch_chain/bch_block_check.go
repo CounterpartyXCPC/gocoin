@@ -84,12 +84,17 @@ import (
 	"github.com/counterpartyxcpc/gocoin-cash/lib/script"
 )
 
+var (
+	DBG_SCR = true
+)
+
 // Make sure to call this function with ch.BchBlockIndexAccess locked
 func (ch *Chain) BchPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater bool) {
 
-	// if common.CFG.TextUI_DevDebug {
-	// 	fmt.Println("Raw block data:", bl.Raw)
-	// }
+	// Debugging Output (Optional)
+	if DBG_SCR {
+		fmt.Println("Raw block data:", bl.Raw)
+	}
 
 	// Size limitsn (NOTE: This is more a BCH )
 	// @todo [BCH] Bitcoin Cash - Size Fri Sep 21, 2018 - Julian Smith
@@ -97,6 +102,11 @@ func (ch *Chain) BchPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybela
 		er = errors.New("CheckBlock() : size limits failed - RPC_Result:bad-blk-length")
 		dos = true
 		return
+	}
+
+	// Debugging Output (Optional)
+	if DBG_SCR {
+		fmt.Println("Block version:", bl.Version())
 	}
 
 	ver := bl.Version()
@@ -133,7 +143,7 @@ func (ch *Chain) BchPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybela
 
 	prevblk, ok := ch.BchBlockIndex[bch.NewUint256(bl.ParentHash()).BIdx()]
 	if !ok {
-		er = errors.New("CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
+		er = errors.New("Newblk 2hr+ CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
 		maybelater = true
 		return
 	}
@@ -175,6 +185,26 @@ func (ch *Chain) BchPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybela
 		return
 	}
 
+	// Debugging Output (Optional)
+	if DBG_SCR {
+		fmt.Println("Consensus.Enforce_UAHF: ", ch.Consensus.Enforce_UAHF)
+	}
+
+	if ch.Consensus.Enforce_UAHF != 0 {
+		if bl.Height >= ch.Consensus.Enforce_UAHF {
+
+			// if (ver&0xE0000000) != 0x20000000 || (ver&2) == 0 {
+			// er = errors.New("CheckBlock() : relayed block must signal for UAHF - RPC_Result:bad-no-uahf")
+			// }
+
+			// Debugging Output (Optional)
+			if DBG_SCR {
+				fmt.Println("Actively evaluating UAHF block:", (ver & 0xE0000000))
+			}
+
+		}
+	}
+
 	if ch.Consensus.BIP91Height != 0 && ch.Consensus.Enforce_SEGWIT != 0 {
 		if bl.Height >= ch.Consensus.BIP91Height && bl.Height < ch.Consensus.Enforce_SEGWIT-2016 {
 			if (ver&0xE0000000) != 0x20000000 || (ver&2) == 0 {
@@ -188,6 +218,12 @@ func (ch *Chain) BchPreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybela
 
 // Make sure to call this function with ch.BchBlockIndexAccess locked
 func (ch *Chain) PreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater bool) {
+
+	// Debugging Output (Optional)
+	if DBG_SCR {
+		fmt.Println("PreCheckBlock Raw Length:", len(bl.Raw))
+	}
+
 	// Size limits
 	if len(bl.Raw) < 81 {
 		er = errors.New("CheckBlock() : size limits failed - RPC_Result:bad-blk-length")
@@ -229,7 +265,7 @@ func (ch *Chain) PreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater
 
 	prevblk, ok := ch.BchBlockIndex[bch.NewUint256(bl.ParentHash()).BIdx()]
 	if !ok {
-		er = errors.New("CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
+		er = errors.New("2hr+ CheckBlock: " + bl.Hash.String() + " parent not found - RPC_Result:bad-prevblk")
 		maybelater = true
 		return
 	}
@@ -283,6 +319,12 @@ func (ch *Chain) PreCheckBlock(bl *bch.BchBlock) (er error, dos bool, maybelater
 }
 
 func (ch *Chain) ApplyBlockFlags(bl *bch.BchBlock) {
+
+	// Debugging Output (Optional)
+	if DBG_SCR {
+		fmt.Println("Applying block flag.")
+	}
+
 	if bl.BchBlockTime() >= BIP16SwitchTime {
 		bl.VerifyFlags = script.VER_P2SH
 	} else {
@@ -307,6 +349,11 @@ func (ch *Chain) ApplyBlockFlags(bl *bch.BchBlock) {
 
 	if ch.Consensus.Enforce_SEGWIT != 0 && bl.Height >= ch.Consensus.Enforce_SEGWIT {
 		bl.VerifyFlags |= script.VER_WITNESS | script.VER_NULLDUMMY
+	}
+
+	// Debugging Output (Optional)
+	if DBG_SCR {
+		fmt.Println("Block flags are: ", bl.VerifyFlags)
 	}
 
 }

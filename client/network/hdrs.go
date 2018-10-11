@@ -103,13 +103,23 @@ func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 
 	if _, ok = ReceivedBlocks[bl.Hash.BIdx()]; ok {
 		common.CountSafe("HeaderOld")
-		//fmt.Println("", i, bl.Hash.String(), "-already received")
+
+		// Debugging Output (Optional)
+		if common.CFG.TextUI_DevDebug {
+			fmt.Println("", bl.Hash.String(), "-already received")
+		}
+
 		return PH_STATUS_OLD, nil
 	}
 
 	if b2g, ok = BchBlocksToGet[bl.Hash.BIdx()]; ok {
 		common.CountSafe("HeaderFresh")
-		//fmt.Println(c.PeerAddr.Ip(), "block", bl.Hash.String(), " not new but get it")
+
+		// Debugging Output (Optional)
+		if common.CFG.TextUI_DevDebug {
+			fmt.Println(c.PeerAddr.Ip(), "block", bl.Hash.String(), " not new but get it")
+		}
+
 		return PH_STATUS_FRESH, b2g
 	}
 
@@ -121,7 +131,12 @@ func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 
 	if er, dos, _ := common.BchBlockChain.PreCheckBlock(bl); er != nil {
 		common.CountSafe("PreCheckBlockFail")
-		//println("PreCheckBlock err", dos, er.Error())
+
+		// Debugging Output (Optional)
+		if common.CFG.TextUI_DevDebug {
+			println("PreCheckBlock err", dos, er.Error())
+		}
+
 		if dos {
 			return PH_STATUS_FATAL, nil
 		} else {
@@ -183,11 +198,21 @@ func (c *OneConnection) HandleHeaders(pl []byte) (new_headers_got int) {
 			sta, b2g := c.ProcessNewHeader(hdr[:])
 			if b2g == nil {
 				if sta == PH_STATUS_FATAL {
-					//println("c.DoS(BadHeader)")
+
+					// Debugging Output (Optional)
+					if common.CFG.TextUI_DevDebug {
+						println("c.DoS(BadHeader)")
+					}
+
 					c.DoS("BadHeader")
 					return
 				} else if sta == PH_STATUS_ERROR {
-					//println("c.Misbehave(BadHeader)")
+
+					// Debugging Output (Optional)
+					if common.CFG.TextUI_DevDebug {
+						println("c.Misbehave(BadHeader)")
+					}
+
 					c.Misbehave("BadHeader", 50) // do it 20 times and you are banned
 				}
 			} else {
@@ -253,12 +278,21 @@ func (c *OneConnection) GetHeaders(pl []byte) {
 
 	common.BchBlockChain.BchBlockIndexAccess.Lock()
 
-	//println("GetHeaders", len(h2get), hashstop.String())
+	// Debugging Output (Optional)
+	if common.CFG.TextUI_DevDebug {
+		println("GetHeaders", len(h2get), hashstop.String())
+	}
+
 	if len(h2get) > 0 {
 		for i := range h2get {
 			if bl, ok := common.BchBlockChain.BchBlockIndex[h2get[i].BIdx()]; ok {
 				if best_block == nil || bl.Height > best_block.Height {
-					//println(" ... bbl", i, bl.Height, bl.BchBlockHash.String())
+
+					// Debugging Output (Optional)
+					if common.CFG.TextUI_DevDebug {
+						println(" ... bbl", i, bl.Height, bl.BchBlockHash.String())
+					}
+
 					best_block = bl
 				}
 			}
@@ -323,7 +357,12 @@ func (c *OneConnection) sendGetHeaders() {
 	for cnt < 50 /*it should never get that far, but just in case...*/ {
 		blks.Write(lb.BchBlockHash.Hash[:])
 		cnt++
-		//println(" geth", cnt, "height", lb.Height, lb.BchBlockHash.String())
+
+		// Debugging Output (Optional)
+		if common.CFG.TextUI_DevDebug {
+			println(" geth", cnt, "height", lb.Height, lb.BchBlockHash.String())
+		}
+
 		if int(lb.Height) <= min_height {
 			break
 		}

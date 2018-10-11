@@ -104,7 +104,7 @@ func main() {
 	if len(os.Args) > 1 {
 		dir = os.Args[1]
 	} else {
-		dir = sys.BitcoinHome() + "gocoin" + string(os.PathSeparator) + "btcnet" + string(os.PathSeparator) + "peers3"
+		dir = sys.BitcoinHome() + "gocoin" + string(os.PathSeparator) + "bchnet" + string(os.PathSeparator) + "peers3"
 	}
 
 	db, er := qdb.NewDB(dir, true)

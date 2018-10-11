@@ -163,7 +163,12 @@ func LocalAcceptBlock(newbl *network.BchBlockRcvd) (e error) {
 
 		reset_save_timer()
 	} else {
-		//fmt.Println("Warning: AcceptBlock failed. If the block was valid, you may need to rebuild the unspent DB (-r)")
+
+		// Debugging Output (Optional)
+		if common.CFG.TextUI_DevDebug {
+			fmt.Println("Warning: AcceptBlock failed. If the block was valid, you may need to rebuild the unspent DB (-r)")
+		}
+
 		new_end := common.BchBlockChain.LastBlock()
 		common.Last.Mutex.Lock()
 		common.Last.BchBlock = new_end
@@ -172,7 +177,12 @@ func LocalAcceptBlock(newbl *network.BchBlockRcvd) (e error) {
 		network.MutexRcv.Lock()
 		if network.LastCommitedHeader != new_end {
 			network.LastCommitedHeader = new_end
-			//println("LastCommitedHeader moved to", network.LastCommitedHeader.Height)
+
+			// Debugging Output (Optional)
+			if common.CFG.TextUI_DevDebug {
+				println("LastCommitedHeader moved to", network.LastCommitedHeader.Height)
+			}
+
 		}
 		network.DiscardedBlocks[newbl.Hash.BIdx()] = true
 		network.MutexRcv.Unlock()
@@ -292,7 +302,12 @@ func HandleNetBlock(newbl *network.BchBlockRcvd) {
 		fmt.Println("AcceptBlock1", newbl.BchBlock.Hash.String(), "-", e.Error())
 		newbl.Conn.Misbehave("LocalAcceptBl1", 250)
 	} else {
-		//println("block", newbl.BchBlock.Height, "accepted")
+
+		// Debugging Output (Optional)
+		if common.CFG.TextUI_DevDebug {
+			println("block", newbl.BchBlock.Height, "accepted")
+		}
+
 		retryCachedBlocks = retry_cached_blocks()
 	}
 }

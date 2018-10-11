@@ -82,4 +82,4 @@ import (
 )
 
 // Version is the application version.
-const Version = "195.V1(BCH)"
+const Version = "195.V2(BCH)"

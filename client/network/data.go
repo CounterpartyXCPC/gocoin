@@ -110,45 +110,52 @@ func (c *OneConnection) ProcessGetData(pl []byte) {
 		c.Mutex.Unlock()
 
 		common.CountSafe(fmt.Sprintf("GetdataType-%x", typ))
-		if typ == MSG_BLOCK || typ == MSG_WITNESS_BLOCK {
-			hash := bch.NewUint256(h[4:])
-			crec, _, er := common.BchBlockChain.BchBlocks.BchBlockGetExt(hash)
 
-			if er == nil {
-				bl := crec.Data
-				if typ == MSG_BLOCK {
-					// remove witness data from the block
-					if crec.BchBlock == nil {
-						crec.BchBlock, _ = bch.NewBchBlock(bl)
-					}
-					if crec.BchBlock.NoWitnessData == nil {
-						crec.BchBlock.BuildNoWitnessData()
-					}
-					println("block size", len(crec.Data), "->", len(bl))
-					bl = crec.BchBlock.NoWitnessData
-				}
-				c.SendRawMsg("block", bl)
-			} else {
-				//fmt.Println("BlockGetExt-2 failed for", hash.String(), er.Error())
-				//notfound = append(notfound, h[:]...)
-			}
-		} else if typ == MSG_TX || typ == MSG_WITNESS_TX {
-			// transaction
-			TxMutex.Lock()
-			if tx, ok := TransactionsToSend[bch.NewUint256(h[4:]).BIdx()]; ok && tx.BchBlocked == 0 {
-				tx.SentCnt++
-				tx.Lastsent = time.Now()
-				TxMutex.Unlock()
-				if tx.SegWit == nil || typ == MSG_WITNESS_TX {
-					c.SendRawMsg("tx", tx.Raw)
-				} else {
-					c.SendRawMsg("tx", tx.Serialize())
-				}
-			} else {
-				TxMutex.Unlock()
-				//notfound = append(notfound, h[:]...)
-			}
-		} else if typ == MSG_CMPCT_BLOCK {
+		// if typ == MSG_BLOCK || typ == MSG_WITNESS_BLOCK {
+		// 	hash := bch.NewUint256(h[4:])
+		// 	crec, _, er := common.BchBlockChain.BchBlocks.BchBlockGetExt(hash)
+
+		// 	if er == nil {
+		// 		bl := crec.Data
+		// 		if typ == MSG_BLOCK {
+		// 			// remove witness data from the block
+		// 			if crec.BchBlock == nil {
+		// 				crec.BchBlock, _ = bch.NewBchBlock(bl)
+		// 			}
+		// 			if crec.BchBlock.NoWitnessData == nil {
+		// 				crec.BchBlock.BuildNoWitnessData()
+		// 			}
+		// 			println("block size", len(crec.Data), "->", len(bl))
+		// 			bl = crec.BchBlock.NoWitnessData
+		// 		}
+		// 		c.SendRawMsg("block", bl)
+		// } else {
+		//fmt.Println("BlockGetExt-2 failed for", hash.String(), er.Error())
+		//notfound = append(notfound, h[:]...)
+		// }
+
+		// Remove Segwit
+
+		// } else if typ == MSG_TX || typ == MSG_WITNESS_TX {
+		// 	// transaction
+		// 	TxMutex.Lock()
+		// 	if tx, ok := TransactionsToSend[bch.NewUint256(h[4:]).BIdx()]; ok && tx.BchBlocked == 0 {
+		// 		tx.SentCnt++
+		// 		tx.Lastsent = time.Now()
+		// 		TxMutex.Unlock()
+		// 		if tx.SegWit == nil || typ == MSG_WITNESS_TX {
+		// 			c.SendRawMsg("tx", tx.Raw)
+		// 		} else {
+		// 			c.SendRawMsg("tx", tx.Serialize())
+		// 		}
+		// 	} else {
+		// 		TxMutex.Unlock()
+		// 		//notfound = append(notfound, h[:]...)
+		// 	}
+
+		// } else
+
+		if typ == MSG_CMPCT_BLOCK {
 			if !c.SendCmpctBlk(bch.NewUint256(h[4:])) {
 				println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "asked for CmpctBlk we don't have", bch.NewUint256(h[4:]).String())
 				if c.Misbehave("GetCmpctBlk", 100) {
@@ -385,11 +392,15 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var cnt uint64
 	var block_type uint32
 
-	if (c.Node.Services & SERVICE_SEGWIT) != 0 {
-		block_type = MSG_WITNESS_BLOCK
-	} else {
-		block_type = MSG_BLOCK
-	}
+	// Diable Services & SERVICE_SEGWIT code
+
+	// if (c.Node.Services & SERVICE_SEGWIT) != 0 {
+	// 	block_type = MSG_WITNESS_BLOCK
+	// } else {
+	// 	block_type = MSG_BLOCK // Added to line below outside Segwith conditional
+	// }
+
+	block_type = MSG_BLOCK
 
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BchBlocksToGet that isn't being downloaded yet
@@ -407,16 +418,18 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		max_height = LastCommitedHeader.Height
 	}
 
-	if common.BchBlockChain.Consensus.Enforce_SEGWIT != 0 && (c.Node.Services&SERVICE_SEGWIT) == 0 { // no segwit node
-		if max_height >= common.BchBlockChain.Consensus.Enforce_SEGWIT-1 {
-			max_height = common.BchBlockChain.Consensus.Enforce_SEGWIT - 1
-			if max_height <= common.Last.BchBlock.Height {
-				c.IncCnt("FetchNoWitness", 1)
-				c.nextGetData = time.Now().Add(3600 * time.Second) // never do getdata
-				return
-			}
-		}
-	}
+	// Remove further Segwit activation
+
+	// if common.BchBlockChain.Consensus.Enforce_SEGWIT != 0 && (c.Node.Services&SERVICE_SEGWIT) == 0 { // no segwit node
+	// 	if max_height >= common.BchBlockChain.Consensus.Enforce_SEGWIT-1 {
+	// 		max_height = common.BchBlockChain.Consensus.Enforce_SEGWIT - 1
+	// 		if max_height <= common.Last.BchBlock.Height {
+	// 			c.IncCnt("FetchNoWitness", 1)
+	// 			c.nextGetData = time.Now().Add(3600 * time.Second) // never do getdata
+	// 			return
+	// 		}
+	// 	}
+	// }
 
 	invs := new(bytes.Buffer)
 	var cnt_in_progress uint

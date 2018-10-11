@@ -207,7 +207,7 @@ func InitConfig() {
 	CFG.Net.MinSegwitCons = 4
 
 	CFG.TextUI_Enabled = true
-	CFG.TextUI_DevDebug = true
+	CFG.TextUI_DevDebug = false
 
 	CFG.WebUI.Interface = "127.0.0.1:8833"
 	CFG.WebUI.AllowedIP = "127.0.0.1"
@@ -318,7 +318,7 @@ func DataSubdir() string {
 	if CFG.Testnet {
 		return "tstnet"
 	} else {
-		return "btcnet"
+		return "bchnet"
 	}
 }
 

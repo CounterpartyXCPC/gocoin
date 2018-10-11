@@ -90,7 +90,7 @@ type VerifyConsensusFunction func(pkScr []byte, amount uint64, i int, tx *bch.Tx
 
 var (
 	DBG_SCR = false
-	DBG_ERR = true
+	DBG_ERR = false
 
 	VerifyConsensus VerifyConsensusFunction
 )

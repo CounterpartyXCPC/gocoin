@@ -523,31 +523,39 @@ func NetworkTick() {
 	Mutex_net.Unlock()
 
 	for conn_cnt < common.GetUint32(&common.CFG.Net.MaxOutCons) {
-		var segwit_conns uint32
-		if common.CFG.Net.MinSegwitCons > 0 {
-			Mutex_net.Lock()
-			for _, cc := range OpenCons {
-				cc.Mutex.Lock()
-				if (cc.Node.Services & SERVICE_SEGWIT) != 0 {
-					segwit_conns++
-				}
-				cc.Mutex.Unlock()
-			}
-			Mutex_net.Unlock()
-		}
+
+		// var segwit_conns uint32
+
+		// if common.CFG.Net.MinSegwitCons > 0 {
+		// Mutex_net.Lock()
+
+		// for _, cc := range OpenCons {
+		// 	cc.Mutex.Lock()
+		// 	if (cc.Node.Services & SERVICE_SEGWIT) != 0 {
+		// 		segwit_conns++
+		// 	}
+		// 	cc.Mutex.Unlock()
+		// }
+
+		// Mutex_net.Unlock()
+		// }
 
 		adrs := peersdb.GetBestPeers(128, func(ad *peersdb.PeerAddr) bool {
-			if segwit_conns < common.CFG.Net.MinSegwitCons && (ad.Services&SERVICE_SEGWIT) == 0 {
-				return true
-			}
+
+			// if segwit_conns < common.CFG.Net.MinSegwitCons && (ad.Services&SERVICE_SEGWIT) == 0 {
+			// return true
+			// }
+
 			return ConnectionActive(ad)
 		})
-		if len(adrs) == 0 && segwit_conns < common.CFG.Net.MinSegwitCons {
-			// we have only non-segwit peers in the database - take them
-			adrs = peersdb.GetBestPeers(128, func(ad *peersdb.PeerAddr) bool {
-				return ConnectionActive(ad)
-			})
-		}
+
+		// if len(adrs) == 0 && segwit_conns < common.CFG.Net.MinSegwitCons {
+		// 	// we have only non-segwit peers in the database - take them
+		// 	adrs = peersdb.GetBestPeers(128, func(ad *peersdb.PeerAddr) bool {
+		// 		return ConnectionActive(ad)
+		// 	})
+		// }
+
 		if len(adrs) == 0 {
 			common.LockCfg()
 			common.UnlockCfg()
@@ -719,16 +727,19 @@ func (c *OneConnection) Run() {
 						c.SendFeeFilter()
 					}
 					if c.Node.Version >= 70014 {
-						if (c.Node.Services & SERVICE_SEGWIT) == 0 {
-							// if the node does not support segwit, request compact blocks
-							// only if we have not achieved the segwit enforcement moment
-							if common.BchBlockChain.Consensus.Enforce_SEGWIT == 0 ||
-								common.Last.BchBlockHeight() < common.BchBlockChain.Consensus.Enforce_SEGWIT {
-								c.SendRawMsg("sendcmpct", []byte{0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-							}
-						} else {
-							c.SendRawMsg("sendcmpct", []byte{0x01, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-						}
+
+						// if (c.Node.Services & SERVICE_SEGWIT) == 0 {
+						// 	// if the node does not support segwit, request compact blocks
+						// 	// only if we have not achieved the segwit enforcement moment
+						// 	if common.BchBlockChain.Consensus.Enforce_SEGWIT == 0 ||
+						// 		common.Last.BchBlockHeight() < common.BchBlockChain.Consensus.Enforce_SEGWIT {
+						// 		c.SendRawMsg("sendcmpct", []byte{0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+						// 	}
+						// } else {
+						// 	c.SendRawMsg("sendcmpct", []byte{0x01, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+						// }
+
+						c.SendRawMsg("sendcmpct", []byte{0x01, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) // Apply this without Segwit Check
 					}
 				}
 			}

@@ -140,8 +140,10 @@ func main() {
 	i := 0
 	flags := uint32(script.STANDARD_VERIFY_FLAGS) //& ^uint32(script.VER_MINDATA)
 	amount := uint64(1000000)
-	//script.DBG_SCR = true
-	//script.DBG_ERR = true
+
+	script.DBG_SCR = true
+	script.DBG_ERR = true
+
 	res := script.VerifyTxScript(pkscript, amount, i, tx, flags)
 	if bitcoinconsensus_verify_script_with_amount != nil {
 		resc := call_consensus_lib(pkscript, amount, i, tx, flags)

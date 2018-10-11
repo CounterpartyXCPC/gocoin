@@ -84,6 +84,11 @@ import (
 	"sync"
 )
 
+var (
+	DBG_SCR = false
+	DBG_ERR = false
+)
+
 const (
 	SIGHASH_ALL          = 1
 	SIGHASH_NONE         = 2
@@ -192,6 +197,7 @@ func (t *Tx) Serialize() []byte {
 
 // Return the transaction's hash, that is about to get signed/verified
 func (t *Tx) SignatureHash(scriptCode []byte, nIn int, hashType int32) []byte {
+
 	// Remove any OP_CODESEPARATOR
 	var idx int
 	var nd []byte
@@ -213,8 +219,18 @@ func (t *Tx) SignatureHash(scriptCode []byte, nIn int, hashType int32) []byte {
 
 	binary.Write(sha, binary.LittleEndian, uint32(t.Version))
 
-	// If the hashType is set to 'SIGHASH_ANYONECANPAY'
+	// Debugging Output (Optional)
+	if DBG_SCR {
+		fmt.Println("SignatureHash hashType: ", hashType)
+		fmt.Println("ht: ", hashType&0x1f)
+		fmt.Println("Is SIGHASH_ALL: ", SIGHASH_ANYONECANPAY)
+		fmt.Println("Is SIGHASH_NONE: ", SIGHASH_NONE)
+		fmt.Println("Is SIGHASH_SINGLE: ", SIGHASH_SINGLE)
+		fmt.Println("Is SIGHASH_FORKID: ", SIGHASH_FORKID)
+		fmt.Println("Is SIGHASH_ANYONECANPAY: ", SIGHASH_ANYONECANPAY)
+	}
 
+	// If the hashType is set to 'SIGHASH_ANYONECANPAY'
 	if (hashType & SIGHASH_ANYONECANPAY) != 0 {
 		sha.Write([]byte{1}) // only 1 input
 		// The one input:

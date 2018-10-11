@@ -93,7 +93,8 @@ import (
 const (
 	ConfigFile = "gocoin-cash.conf"
 	Version    = uint32(70015)
-	Services   = uint64(0x00000009)
+	// Services   = uint64(0x00000009)
+	Services = uint64(0x1) // Oct 11.
 )
 
 var (
