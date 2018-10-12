@@ -76,7 +76,7 @@ package network
 import (
 	"bufio"
 	"encoding/binary"
-	"encoding/hex"
+	//"encoding/hex"
 	"fmt"
 	"math/rand"
 	"net"
@@ -726,6 +726,7 @@ func (c *OneConnection) Run() {
 					if c.X.LastMinFeePerKByte != 0 {
 						c.SendFeeFilter()
 					}
+/*
 					if c.Node.Version >= 70014 {
 
 						// if (c.Node.Services & SERVICE_SEGWIT) == 0 {
@@ -741,6 +742,7 @@ func (c *OneConnection) Run() {
 
 						c.SendRawMsg("sendcmpct", []byte{0x01, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) // Apply this without Segwit Check
 					}
+*/
 				}
 			}
 			c.PeerAddr.Services = c.Node.Services
@@ -820,6 +822,7 @@ func (c *OneConnection) Run() {
 				//println(c.PeerAddr.Ip(), c.Node.Agent, "feefilter", c.X.MinFeeSPKB)
 			}
 
+/*
 		case "sendcmpct":
 			if len(cmd.pl) >= 9 {
 				version := binary.LittleEndian.Uint64(cmd.pl[1:9])
@@ -849,6 +852,7 @@ func (c *OneConnection) Run() {
 		case "blocktxn":
 			c.ProcessBlockTxn(cmd.pl)
 			//println(c.ConnID, c.PeerAddr.Ip(), c.Node.Agent, "blocktxn", hex.EncodeToString(cmd.pl))
+*/
 
 		case "getmp":
 			if c.X.Authorized {
