@@ -502,6 +502,11 @@ func main() {
 		}
 		network.LastCommitedHeader = common.Last.BchBlock
 
+		if !common.Testnet {
+			fmt.Println("Marking BTC block #478559 as invalid")
+			network.DiscardedBlocks[bch.NewUint256FromString("00000000000000000019f112ec0a9982926f1258cdcc558dd7c3b7e5dc7fa148").BIdx()] = true
+		}
+
 		if common.CFG.TXPool.SaveOnDisk {
 			network.MempoolLoad2()
 		}
