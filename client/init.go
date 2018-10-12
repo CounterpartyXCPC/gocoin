@@ -97,7 +97,8 @@ func hostInit() {
 	common.Testnet = common.CFG.Testnet // So chaging this value would will only affect the behaviour after restart
 	if common.CFG.Testnet {             // testnet3
 		common.GenesisBlock = bch.NewUint256FromString("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943")
-		common.Magic = [4]byte{0x0B, 0x11, 0x09, 0x07}
+		// common.Magic = [4]byte{0x0B, 0x11, 0x09, 0x07}
+		common.Magic = [4]byte{0xe3, 0xe1, 0xf3, 0xe8}
 		common.GocoinCashHomeDir += common.DataSubdir() + string(os.PathSeparator)
 		common.MaxPeersNeeded = 2000
 	} else {
