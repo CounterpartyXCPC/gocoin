@@ -101,6 +101,12 @@ func (c *OneConnection) ProcessNewHeader(hdr []byte) (int, *OneBlockToGet) {
 	c.InvStore(MSG_BLOCK, bl.Hash.Hash[:])
 	c.Mutex.Unlock()
 
+	if _, ok = DiscardedBlocks[bl.Hash.BIdx()]; ok {
+		common.CountSafe("HdrRejected")
+		//fmt.Println("", bl.Hash.String(), "-header for already rejected block")
+		return PH_STATUS_FATAL, nil
+	}
+
 	if _, ok = ReceivedBlocks[bl.Hash.BIdx()]; ok {
 		common.CountSafe("HeaderOld")
 
